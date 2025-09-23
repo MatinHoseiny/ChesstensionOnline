@@ -586,6 +586,16 @@ if (themeBtn){
     } return false;
   }
   function isSquareAttacked(r,c,by,b=board){
+    // Safety checks
+    if (!b || !Array.isArray(b) || b.length !== 8) {
+      console.error('Invalid board in isSquareAttacked');
+      return false;
+    }
+    if (r < 0 || r > 7 || c < 0 || c > 7) {
+      console.error('Invalid coordinates in isSquareAttacked:', {r, c});
+      return false;
+    }
+    
     // pawns
     const pr = by==="w"? r+1 : r-1;
     for(const dc of [-1,1]){
@@ -849,7 +859,26 @@ if (themeBtn){
   /* ---------------- Render ---------------- */
   function render(){
     boardEl.innerHTML="";
-    const k=findKing(turn), inChk=k && isSquareAttacked(k.r,k.c,opposite(turn));
+    
+    // Safety check for board state
+    if (!board || !Array.isArray(board) || board.length !== 8) {
+      console.error('Invalid board state in render function');
+      return;
+    }
+    
+    const k = findKing(turn);
+    let inChk = false;
+    
+    if (k) {
+      try {
+        inChk = isSquareAttacked(k.r, k.c, opposite(turn));
+      } catch (error) {
+        console.error('Error checking if king is in check:', error);
+        inChk = false;
+      }
+    } else {
+      console.warn('King not found for turn:', turn);
+    }
     for(let r=0;r<8;r++){
       for(let c=0;c<8;c++){
         const d=document.createElement("div");
@@ -1037,6 +1066,13 @@ if (themeBtn){
     capturedByWhite=[]; capturedByBlack=[];
     gameOver=false; lastMove=null; pendingPromotion=null;
     gameStatusEl.textContent=""; history.length=0; future.length=0;
+    
+    // Validate board after reset
+    if (!board || !Array.isArray(board) || board.length !== 8) {
+      console.error('Board reset failed, reinitializing...');
+      board = startingBoard();
+    }
+    
     hideOverlay(); hideBanner(); clearState(); updateAll();
     maybeTriggerAIMove();
   }
