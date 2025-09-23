@@ -107,7 +107,7 @@ class OnlineChess {
   
   connect() {
     // Connect to public chess server
-    this.ws = new WebSocket('wss://chess-server.herokuapp.com');
+    this.ws = new WebSocket('wss://YOUR-AWS-SERVER-URL.com');
     
     this.ws.onopen = () => {
       console.log('Connected to online server');
@@ -176,8 +176,22 @@ class OnlineChess {
   applyOpponentMove(move) {
     // Apply the opponent's move to the board
     if (board && move) {
-      // Convert move format if needed and apply
-      // This will depend on your existing move system
+      // Parse the move and apply it to the board
+      const from = move.from;
+      const to = move.to;
+      
+      // Apply the move to the board
+      if (board[from.row] && board[from.row][from.col] && board[to.row] && board[to.row][to.col]) {
+        // Move the piece
+        board[to.row][to.col] = board[from.row][from.col];
+        board[from.row][from.col] = null;
+        
+        // Update the turn
+        turn = turn === 'w' ? 'b' : 'w';
+        
+        // Update the UI
+        updateAll();
+      }
     }
   }
   
@@ -186,9 +200,24 @@ class OnlineChess {
       this.ws.send(JSON.stringify({
         type: 'make_move',
         roomId: this.roomId,
-        move: move
+        move: move,
+        playerId: this.playerId
       }));
     }
+  }
+  
+  // Check if it's the player's turn
+  isMyTurn() {
+    if (!this.isOnline) return true; // Local games always allow moves
+    
+    // Check if it's the player's turn based on their color
+    const myColor = this.playerId === 'player1' ? 'w' : 'b';
+    return turn === myColor;
+  }
+  
+  // Get player color
+  getPlayerColor() {
+    return this.playerId === 'player1' ? 'w' : 'b';
   }
   
   updateUI(state) {
@@ -823,6 +852,16 @@ if (themeBtn){
       const from={r:selected.r,c:selected.c}, to={r,c};
       makeMove(from.r,from.c,to.r,to.c,intended);
       selected=null; legalMoves=[]; lastMove={from,to};
+      
+      // Send move to online opponent if playing online
+      if (onlineChess.isOnline) {
+        onlineChess.sendMove({
+          from: {r: from.r, c: from.c},
+          to: {r: to.r, c: to.c},
+          meta: intended
+        });
+      }
+      
       if (!pendingPromotion){ turn=opposite(turn); updateAll(); maybeTriggerAIMove(); }
       return;
     }
@@ -835,6 +874,11 @@ if (themeBtn){
     if (p.color==="w") capturedByBlack.push(s); else capturedByWhite.push(s);
   }
   function makeMove(sr,sc,tr,tc,meta){
+    // Check if it's online and if it's the player's turn
+    if (onlineChess.isOnline && !onlineChess.isMyTurn()) {
+      return; // Not the player's turn
+    }
+    
     pushHistory();
     const moving=board[sr][sc], target=board[tr][tc];
     if (meta && meta.special==="enpassant"){

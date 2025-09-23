@@ -89,8 +89,8 @@ function matchPlayers() {
   const roomId = generateRoomId();
   const game = {
     roomId,
-    player1: { id: player1Id, ws: player1.ws, color: 'w' },
-    player2: { id: player2Id, ws: player2.ws, color: 'b' },
+    player1: { id: player1Id, ws: player1.ws, color: 'w', playerId: 'player1' },
+    player2: { id: player2Id, ws: player2.ws, color: 'b', playerId: 'player2' },
     moves: [],
     status: 'active',
     createdAt: Date.now()
@@ -108,7 +108,7 @@ function matchPlayers() {
   player1.ws.send(JSON.stringify({
     type: 'game_found',
     roomId: roomId,
-    playerId: player1Id,
+    playerId: 'player1',
     color: 'w',
     message: 'Game found! You are White.'
   }));
@@ -116,7 +116,7 @@ function matchPlayers() {
   player2.ws.send(JSON.stringify({
     type: 'game_found',
     roomId: roomId,
-    playerId: player2Id,
+    playerId: 'player2',
     color: 'b',
     message: 'Game found! You are Black.'
   }));
@@ -126,6 +126,10 @@ function handleMove(ws, message) {
   const game = activeGames.get(message.roomId);
   if (!game) return;
   
+  // Validate it's the player's turn
+  const currentPlayer = game.player1.ws === ws ? game.player1 : game.player2;
+  const opponent = game.player1.ws === ws ? game.player2 : game.player1;
+  
   // Add move to game
   game.moves.push({
     move: message.move,
@@ -134,14 +138,13 @@ function handleMove(ws, message) {
   });
   
   // Send move to opponent
-  const opponent = game.player1.ws === ws ? game.player2 : game.player1;
   opponent.ws.send(JSON.stringify({
     type: 'move_received',
     move: message.move,
     roomId: message.roomId
   }));
   
-  console.log(`Move made in game ${message.roomId}: ${message.move}`);
+  console.log(`Move made in game ${message.roomId} by ${message.playerId}: ${JSON.stringify(message.move)}`);
 }
 
 function handleDisconnect(ws) {
