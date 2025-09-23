@@ -201,13 +201,18 @@ class OnlineChess {
   applyOpponentMove(moveData) {
     console.log('Applying opponent move:', moveData);
     
+    // Temporarily disable online checks for opponent moves
+    const wasOnline = this.isOnline;
+    this.isOnline = false;
+    
     // Use the existing makeMove function to properly apply the move
     const { from, to, meta } = moveData;
-    
-    // Apply the move using the game's move system
     makeMove(from.r, from.c, to.r, to.c, meta);
     
-    // Update turn
+    // Restore online state
+    this.isOnline = wasOnline;
+    
+    // Update turn - now it's my turn
     this.isMyTurn = true;
     turn = this.playerColor;
     
@@ -246,6 +251,15 @@ class OnlineChess {
     
     // Only allow selecting own pieces
     return piece.color === this.playerColor;
+  }
+  
+  // Update turn after move
+  updateTurnAfterMove() {
+    if (this.isOnline) {
+      this.isMyTurn = false;
+      turn = this.playerColor === 'w' ? 'b' : 'w';
+      this.updateTurnIndicator();
+    }
   }
   
   updateTurnIndicator() {
@@ -894,8 +908,12 @@ if (themeBtn){
     const r=Number(e.currentTarget.dataset.r), c=Number(e.currentTarget.dataset.c);
     const cell=board[r][c];
     const intended=legalMoves.find(m=>m.r===r&&m.c===c);
+    
+    console.log('Cell clicked:', {r, c, cell, selected, intended, isOnline: onlineChess.isOnline, isMyTurn: onlineChess.isMyTurn});
+    
     if (selected && intended){
       const from={r:selected.r,c:selected.c}, to={r,c};
+      console.log('Making move:', {from, to, intended});
       makeMove(from.r,from.c,to.r,to.c,intended);
       selected=null; legalMoves=[]; lastMove={from,to};
       
@@ -906,16 +924,32 @@ if (themeBtn){
           to: {r: to.r, c: to.c},
           meta: intended
         });
+        // Update turn for online game
+        onlineChess.updateTurnAfterMove();
+      } else {
+        // Local game turn switching
+        if (!pendingPromotion) { 
+          turn = opposite(turn); 
+          updateAll(); 
+          maybeTriggerAIMove(); 
+        }
       }
-      
-      if (!pendingPromotion){ turn=opposite(turn); updateAll(); maybeTriggerAIMove(); }
       return;
     }
     if (selected && selected.r===r && selected.c===c){ selected=null; legalMoves=[]; render(); return; }
     // Check if player can select this piece (online validation)
-    if (cell && cell.color===turn && onlineChess.canSelectPiece(cell)){ 
-      selected={r,c}; 
-      legalMoves=genLegalFor(r,c,board,turn,enPassantTarget,castlingRights); 
+    if (cell && cell.color === turn) {
+      // For online games, check if player can select this piece
+      if (onlineChess.isOnline && !onlineChess.canSelectPiece(cell)) {
+        console.log('Cannot select opponent piece in online game');
+        selected = null; 
+        legalMoves = []; 
+        render(); 
+        return;
+      }
+      
+      selected = {r, c}; 
+      legalMoves = genLegalFor(r, c, board, turn, enPassantTarget, castlingRights); 
       render(); 
       return; 
     }
@@ -926,13 +960,26 @@ if (themeBtn){
     if (p.color==="w") capturedByBlack.push(s); else capturedByWhite.push(s);
   }
   function makeMove(sr,sc,tr,tc,meta){
+    // Validate move parameters
+    if (sr < 0 || sr > 7 || sc < 0 || sc > 7 || tr < 0 || tr > 7 || tc < 0 || tc > 7) {
+      console.error('Invalid move coordinates:', {sr, sc, tr, tc});
+      return;
+    }
+    
+    const moving = board[sr][sc];
+    if (!moving) {
+      console.error('No piece at source position:', {sr, sc});
+      return;
+    }
+    
     // Check if it's online and if it's the player's turn
     if (onlineChess.isOnline && !onlineChess.canMakeMove()) {
+      console.log('Not your turn in online game');
       return; // Not the player's turn
     }
     
     pushHistory();
-    const moving=board[sr][sc], target=board[tr][tc];
+    const target = board[tr][tc];
     if (meta && meta.special==="enpassant"){
       const dir=moving.color==="w"?1:-1, cap=board[tr+dir][tc];
       if (cap) recordCapture(cap);
