@@ -268,6 +268,12 @@ class OnlineChess {
       this.isMyTurn = false;
       // Don't change the global turn variable - let the opponent's move handle it
       this.updateTurnIndicator();
+      
+      // Force UI update to show the move with a small delay
+      setTimeout(() => {
+        updateAll();
+      }, 10);
+      
       console.log(`Turn updated after my move. Now waiting for opponent.`);
     }
   }
@@ -870,6 +876,7 @@ if (themeBtn){
 
   /* ---------------- Render ---------------- */
   function render(){
+    console.log('Rendering board...');
     boardEl.innerHTML="";
     
     // Safety check for board state
@@ -979,6 +986,11 @@ if (themeBtn){
         });
         // Update turn for online game
         onlineChess.updateTurnAfterMove();
+        
+        // Force UI update to show the move with a small delay
+        setTimeout(() => {
+          updateAll();
+        }, 10);
       } else {
         // Local game turn switching
         if (!pendingPromotion) { 
