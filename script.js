@@ -95,7 +95,7 @@ const profilePreviewName= document.getElementById('profilePreviewName');
 
 // Bottom tabs removed
 
-// Online Chess System
+// Online Chess System - Completely Rewritten
 class OnlineChess {
   constructor() {
     this.ws = null;
@@ -103,6 +103,8 @@ class OnlineChess {
     this.isOnline = false;
     this.isWaiting = false;
     this.playerId = null;
+    this.playerColor = null; // 'w' or 'b'
+    this.isMyTurn = false;
   }
   
   connect() {
@@ -122,6 +124,7 @@ class OnlineChess {
       console.log('Disconnected from server');
       this.isOnline = false;
       this.isWaiting = false;
+      this.updateUI('disconnected');
     };
     
     this.ws.onerror = (error) => {
@@ -131,15 +134,19 @@ class OnlineChess {
   }
   
   handleMessage(message) {
+    console.log('Received message:', message);
     switch(message.type) {
       case 'game_found':
-        this.startOnlineGame(message.roomId, message.playerId);
+        this.startOnlineGame(message.roomId, message.playerId, message.color);
         break;
       case 'move_received':
         this.applyOpponentMove(message.move);
         break;
       case 'opponent_disconnected':
         this.handleOpponentDisconnect();
+        break;
+      case 'waiting':
+        this.updateUI('searching');
         break;
     }
   }
@@ -169,64 +176,95 @@ class OnlineChess {
     this.updateUI('searching');
   }
   
-  startOnlineGame(roomId, playerId) {
+  startOnlineGame(roomId, playerId, color) {
     this.roomId = roomId;
     this.playerId = playerId;
+    this.playerColor = color;
     this.isOnline = true;
     this.isWaiting = false;
+    
+    // Determine if it's my turn (white goes first)
+    this.isMyTurn = (color === 'w');
+    
+    console.log(`Game started! I am ${color === 'w' ? 'White' : 'Black'}`);
     
     // Start the game
     aiEnabled = false;
     resetGame();
     showGameScreen();
     this.updateUI('playing');
+    
+    // Update turn indicator
+    this.updateTurnIndicator();
   }
   
-  applyOpponentMove(move) {
-    // Apply the opponent's move to the board
-    if (board && move) {
-      // Parse the move and apply it to the board
-      const from = move.from;
-      const to = move.to;
-      
-      // Apply the move to the board
-      if (board[from.row] && board[from.row][from.col] && board[to.row] && board[to.row][to.col]) {
-        // Move the piece
-        board[to.row][to.col] = board[from.row][from.col];
-        board[from.row][from.col] = null;
-        
-        // Update the turn
-        turn = turn === 'w' ? 'b' : 'w';
-        
-        // Update the UI
-        updateAll();
-      }
-    }
+  applyOpponentMove(moveData) {
+    console.log('Applying opponent move:', moveData);
+    
+    // Use the existing makeMove function to properly apply the move
+    const { from, to, meta } = moveData;
+    
+    // Apply the move using the game's move system
+    makeMove(from.r, from.c, to.r, to.c, meta);
+    
+    // Update turn
+    this.isMyTurn = true;
+    turn = this.playerColor;
+    
+    // Update UI
+    updateAll();
+    this.updateTurnIndicator();
   }
   
-  sendMove(move) {
-    if (this.isOnline && this.ws) {
+  sendMove(moveData) {
+    if (this.isOnline && this.ws && this.isMyTurn) {
+      console.log('Sending move:', moveData);
       this.ws.send(JSON.stringify({
         type: 'make_move',
         roomId: this.roomId,
-        move: move,
+        move: moveData,
         playerId: this.playerId
       }));
+      
+      // Update turn
+      this.isMyTurn = false;
+      turn = this.playerColor === 'w' ? 'b' : 'w';
+      this.updateTurnIndicator();
     }
   }
   
-  // Check if it's the player's turn
-  isMyTurn() {
+  // Check if player can make moves
+  canMakeMove() {
     if (!this.isOnline) return true; // Local games always allow moves
-    
-    // Check if it's the player's turn based on their color
-    const myColor = this.playerId === 'player1' ? 'w' : 'b';
-    return turn === myColor;
+    return this.isMyTurn;
   }
   
-  // Get player color
-  getPlayerColor() {
-    return this.playerId === 'player1' ? 'w' : 'b';
+  // Check if player can select this piece
+  canSelectPiece(piece) {
+    if (!this.isOnline) return true; // Local games allow all selections
+    if (!piece) return false;
+    
+    // Only allow selecting own pieces
+    return piece.color === this.playerColor;
+  }
+  
+  updateTurnIndicator() {
+    const turnIndicator = document.getElementById('turnIndicator');
+    if (turnIndicator) {
+      if (this.isOnline) {
+        const myTurn = this.isMyTurn;
+        const myColor = this.playerColor === 'w' ? 'White' : 'Black';
+        const opponentColor = this.playerColor === 'w' ? 'Black' : 'White';
+        
+        turnIndicator.textContent = myTurn 
+          ? `Your turn (${myColor})` 
+          : `Waiting for ${opponentColor}`;
+        turnIndicator.className = `turn-indicator ${myTurn ? 'my-turn' : 'opponent-turn'}`;
+      } else {
+        turnIndicator.textContent = turn === 'w' ? 'White to move' : 'Black to move';
+        turnIndicator.className = 'turn-indicator';
+      }
+    }
   }
   
   updateUI(state) {
@@ -252,7 +290,6 @@ class OnlineChess {
   handleOpponentDisconnect() {
     this.isOnline = false;
     this.updateUI('disconnected');
-    // Show message to user
     alert('Opponent disconnected. Returning to menu.');
     showMenuScreen();
   }
@@ -875,7 +912,13 @@ if (themeBtn){
       return;
     }
     if (selected && selected.r===r && selected.c===c){ selected=null; legalMoves=[]; render(); return; }
-    if (cell && cell.color===turn){ selected={r,c}; legalMoves=genLegalFor(r,c,board,turn,enPassantTarget,castlingRights); render(); return; }
+    // Check if player can select this piece (online validation)
+    if (cell && cell.color===turn && onlineChess.canSelectPiece(cell)){ 
+      selected={r,c}; 
+      legalMoves=genLegalFor(r,c,board,turn,enPassantTarget,castlingRights); 
+      render(); 
+      return; 
+    }
     selected=null; legalMoves=[]; render();
   }
   function recordCapture(p){
@@ -884,7 +927,7 @@ if (themeBtn){
   }
   function makeMove(sr,sc,tr,tc,meta){
     // Check if it's online and if it's the player's turn
-    if (onlineChess.isOnline && !onlineChess.isMyTurn()) {
+    if (onlineChess.isOnline && !onlineChess.canMakeMove()) {
       return; // Not the player's turn
     }
     
