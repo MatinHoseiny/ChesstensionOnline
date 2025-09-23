@@ -186,7 +186,7 @@ class OnlineChess {
     // Determine if it's my turn (white goes first)
     this.isMyTurn = (color === 'w');
     
-    console.log(`Game started! I am ${color === 'w' ? 'White' : 'Black'}`);
+    console.log(`Game started! I am ${color === 'w' ? 'White' : 'Black'}, my turn: ${this.isMyTurn}`);
     
     // Start the game
     aiEnabled = false;
@@ -196,6 +196,9 @@ class OnlineChess {
     
     // Update turn indicator
     this.updateTurnIndicator();
+    
+    // Force update the UI to show correct turn state
+    updateAll();
   }
   
   applyOpponentMove(moveData) {
@@ -216,9 +219,15 @@ class OnlineChess {
     this.isMyTurn = true;
     turn = this.playerColor;
     
+    // Clear any selected pieces and legal moves
+    selected = null;
+    legalMoves = [];
+    
     // Update UI
     updateAll();
     this.updateTurnIndicator();
+    
+    console.log(`Opponent move applied. Now it's my turn (${this.playerColor})`);
   }
   
   sendMove(moveData) {
@@ -257,8 +266,9 @@ class OnlineChess {
   updateTurnAfterMove() {
     if (this.isOnline) {
       this.isMyTurn = false;
-      turn = this.playerColor === 'w' ? 'b' : 'w';
+      // Don't change the global turn variable - let the opponent's move handle it
       this.updateTurnIndicator();
+      console.log(`Turn updated after my move. Now waiting for opponent.`);
     }
   }
   
@@ -274,6 +284,8 @@ class OnlineChess {
           ? `Your turn (${myColor})` 
           : `Waiting for ${opponentColor}`;
         turnIndicator.className = `turn-indicator ${myTurn ? 'my-turn' : 'opponent-turn'}`;
+        
+        console.log(`Turn indicator updated: ${turnIndicator.textContent}, myTurn: ${myTurn}`);
       } else {
         turnIndicator.textContent = turn === 'w' ? 'White to move' : 'Black to move';
         turnIndicator.className = 'turn-indicator';
@@ -947,6 +959,12 @@ if (themeBtn){
     console.log('Cell clicked:', {r, c, cell, selected, intended, isOnline: typeof onlineChess !== 'undefined' ? onlineChess.isOnline : false, isMyTurn: typeof onlineChess !== 'undefined' ? onlineChess.isMyTurn : true});
     
     if (selected && intended){
+      // Check if it's the player's turn in online games
+      if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.isMyTurn) {
+        console.log('Not your turn in online game - move blocked');
+        return;
+      }
+      
       const from={r:selected.r,c:selected.c}, to={r,c};
       console.log('Making move:', {from, to, intended});
       makeMove(from.r,from.c,to.r,to.c,intended);
@@ -975,18 +993,39 @@ if (themeBtn){
     // Check if player can select this piece (online validation)
     if (cell && cell.color === turn) {
       // For online games, check if player can select this piece
-      if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.canSelectPiece(cell)) {
-        console.log('Cannot select opponent piece in online game');
-        selected = null; 
-        legalMoves = []; 
-        render(); 
-        return;
+      if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+        // Check if it's the player's turn
+        if (!onlineChess.isMyTurn) {
+          console.log('Not your turn in online game');
+          selected = null; 
+          legalMoves = []; 
+          render(); 
+          return;
+        }
+        
+        // Check if player can select this piece (own pieces only)
+        if (!onlineChess.canSelectPiece(cell)) {
+          console.log('Cannot select opponent piece in online game');
+          selected = null; 
+          legalMoves = []; 
+          render(); 
+          return;
+        }
       }
       
       selected = {r, c}; 
       legalMoves = genLegalFor(r, c, board, turn, enPassantTarget, castlingRights); 
       render(); 
       return; 
+    }
+    
+    // For online games, prevent selecting opponent pieces entirely
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && cell && cell.color !== turn) {
+      console.log('Cannot select opponent piece in online game');
+      selected = null; 
+      legalMoves = []; 
+      render(); 
+      return;
     }
     selected=null; legalMoves=[]; render();
   }
