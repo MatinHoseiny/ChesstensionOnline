@@ -107,7 +107,7 @@ class OnlineChess {
   
   connect() {
     // Connect to public chess server
-    this.ws = new WebSocket('wss://YOUR-AWS-SERVER-URL.com');
+    this.ws = new WebSocket('wss://web-production-e734b.up.railway.app');
     
     this.ws.onopen = () => {
       console.log('Connected to online server');
@@ -122,6 +122,11 @@ class OnlineChess {
       console.log('Disconnected from server');
       this.isOnline = false;
       this.isWaiting = false;
+    };
+    
+    this.ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      this.updateUI('disconnected');
     };
   }
   
@@ -140,13 +145,17 @@ class OnlineChess {
   }
   
   findGame() {
+    console.log('Finding game...');
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.log('Connecting to server...');
       this.connect();
       // Wait for connection then find game
       this.ws.onopen = () => {
+        console.log('Connected! Sending find game request...');
         this.sendFindGame();
       };
     } else {
+      console.log('Already connected, sending find game request...');
       this.sendFindGame();
     }
   }

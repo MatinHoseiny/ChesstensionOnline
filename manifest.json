@@ -19,6 +19,9 @@
 	"permissions": [
 	  "storage"
 	],
+	"host_permissions": [
+	  "https://web-production-e734b.up.railway.app/*"
+	],
 	"web_accessible_resources": [
 	  {
 		"resources": ["images/*", "media/*"],
