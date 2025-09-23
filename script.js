@@ -310,7 +310,13 @@ class OnlineChess {
 }
 
 // Initialize online chess
-const onlineChess = new OnlineChess();
+let onlineChess;
+try {
+  onlineChess = new OnlineChess();
+} catch (error) {
+  console.error('Failed to initialize online chess:', error);
+  onlineChess = null;
+}
 
 // In-game player chip
 // Player info removed - no profile concept
@@ -909,7 +915,7 @@ if (themeBtn){
     const cell=board[r][c];
     const intended=legalMoves.find(m=>m.r===r&&m.c===c);
     
-    console.log('Cell clicked:', {r, c, cell, selected, intended, isOnline: onlineChess.isOnline, isMyTurn: onlineChess.isMyTurn});
+    console.log('Cell clicked:', {r, c, cell, selected, intended, isOnline: typeof onlineChess !== 'undefined' ? onlineChess.isOnline : false, isMyTurn: typeof onlineChess !== 'undefined' ? onlineChess.isMyTurn : true});
     
     if (selected && intended){
       const from={r:selected.r,c:selected.c}, to={r,c};
@@ -918,7 +924,7 @@ if (themeBtn){
       selected=null; legalMoves=[]; lastMove={from,to};
       
       // Send move to online opponent if playing online
-      if (onlineChess.isOnline) {
+      if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
         onlineChess.sendMove({
           from: {r: from.r, c: from.c},
           to: {r: to.r, c: to.c},
@@ -940,7 +946,7 @@ if (themeBtn){
     // Check if player can select this piece (online validation)
     if (cell && cell.color === turn) {
       // For online games, check if player can select this piece
-      if (onlineChess.isOnline && !onlineChess.canSelectPiece(cell)) {
+      if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.canSelectPiece(cell)) {
         console.log('Cannot select opponent piece in online game');
         selected = null; 
         legalMoves = []; 
@@ -973,7 +979,7 @@ if (themeBtn){
     }
     
     // Check if it's online and if it's the player's turn
-    if (onlineChess.isOnline && !onlineChess.canMakeMove()) {
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.canMakeMove()) {
       console.log('Not your turn in online game');
       return; // Not the player's turn
     }
