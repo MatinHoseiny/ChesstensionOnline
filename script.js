@@ -1203,6 +1203,11 @@ function closeJoinTray(){
 
   /* ---------------- Events ---------------- */
   if (newGameBtn) newGameBtn.addEventListener("click", ()=>{
+    // Cancel online search if active
+    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+      onlineChess.cancelSearch();
+    }
+    
     aiEnabled=false;
     closeCpuTray();
     closeJoinTray();
@@ -1224,6 +1229,11 @@ function closeJoinTray(){
 
   // Toggle the CPU options tray without disabling side buttons
   if (toggleAiBtn) toggleAiBtn.addEventListener("click", ()=>{
+    // Cancel online search if active
+    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+      onlineChess.cancelSearch();
+    }
+    
     if (cpuTrayOpen) {
       closeCpuTray();
     } else {
@@ -1234,6 +1244,11 @@ function closeJoinTray(){
 
   // Choose CPU side -> start game vs computer
   if (aiWhiteBtn) aiWhiteBtn.addEventListener("click", ()=>{
+    // Cancel online search if active
+    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+      onlineChess.cancelSearch();
+    }
+    
     aiEnabled=true; aiColor="w";
     closeCpuTray();
     closeJoinTray();
@@ -1241,6 +1256,11 @@ function closeJoinTray(){
 
   });
   if (aiBlackBtn) aiBlackBtn.addEventListener("click", ()=>{
+    // Cancel online search if active
+    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+      onlineChess.cancelSearch();
+    }
+    
     aiEnabled=true; aiColor="b";
     closeCpuTray();
     closeJoinTray();
@@ -1265,6 +1285,11 @@ function closeJoinTray(){
 
   // Join/Create Room button behavior (show both panels, exclusive with CPU tray)
  if (openJoinPanelBtn) openJoinPanelBtn.addEventListener("click", ()=>{
+  // Cancel online search if active
+  if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+    onlineChess.cancelSearch();
+  }
+  
   if (joinTrayOpen) {
     closeJoinTray();
     openJoinPanelBtn.classList.remove("is-active");
