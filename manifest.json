@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Chesstention",
-	"description":  "Chesstention: play chess locally, vs computer, or with friends on LAN. Clean UI, themes, and the best way to rizz and aura farm over the board.",
+	"description":  "Chesstention: play chess locally, vs computer, or with friends on LAN. Clean UI, themes, and the best way to rizz and aura farm over the board. Chess pieces by Cburnett/jurgenwesterhof (CC BY-SA 3.0).",
 	"version": "1.0",
 	"action": {
 	  "default_popup": "popup.html",

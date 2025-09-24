@@ -50,7 +50,9 @@
   };
   const getURL = (p)=>{
     try {
-      return (typeof chrome!=="undefined" && chrome.runtime?.getURL) ? chrome.runtime.getURL(p) : p;
+      const baseUrl = (typeof chrome!=="undefined" && chrome.runtime?.getURL) ? chrome.runtime.getURL(p) : p;
+      // Add cache-busting parameter to force reload of updated SVGs
+      return baseUrl + '?v=' + Date.now();
     } catch { return p; }
   };
 
