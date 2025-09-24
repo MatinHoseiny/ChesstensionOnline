@@ -664,26 +664,34 @@ body.game-active .status-bar{
 }
 /* Player info removed - no profile concept */
 
-/* Credits section styling */
-.credits {
-  margin-top: 8px;
-  text-align: center;
+
+/* Online button container */
+.online-btn-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Cancel search button */
+.cancel-search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  color: inherit;
+  border: none;
+  font-size: 16px;
+  font-weight: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  z-index: 10;
   opacity: 0.7;
 }
 
-.credits small {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 1.3;
-}
-
-.credits a {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.credits a:hover {
-  color: rgba(255, 255, 255, 1);
-  text-decoration: underline;
+.cancel-search-btn:hover {
+  opacity: 1;
 }

@@ -26,7 +26,12 @@
         </div>
 
         <div class="menu-buttons">
-          <button id="newGameBtn" type="button" class="menu-btn menu-btn--primary">1v1 (Hot-Seat)</button>
+          <div id="playOnlineContainer" class="online-btn-container">
+            <button id="playOnlineBtn" type="button" class="menu-btn menu-btn--primary">Play Online</button>
+            <button id="cancelSearchBtn" type="button" class="cancel-search-btn" style="display: none;">×</button>
+          </div>
+          
+          <button id="newGameBtn" type="button" class="menu-btn">1v1 (Hot-Seat)</button>
           <button id="toggleAiBtn" type="button" class="menu-btn">Play vs Computer</button>
 
           <!-- CPU color choice (hidden until shown by script) -->
@@ -35,7 +40,6 @@
             <button id="aiBlackBtn" type="button" class="btn-toggle">CPU: Black</button>
           </div>
 
-          <button id="playOnlineBtn" type="button" class="menu-btn">Play Online</button>
           <button id="openJoinPanel" type="button" class="menu-btn">Join/Create Room</button>
         </div>
 
@@ -167,11 +171,6 @@
 
       <footer class="footer">
         <small>Developed in unipd 2025</small>
-        <div class="credits">
-          <small>Chess pieces by <a href="https://commons.wikimedia.org/wiki/User:Cburnett" target="_blank" rel="noopener">Cburnett</a>, adapted by <a href="https://commons.wikimedia.org/wiki/User:Jurgenwesterhof" target="_blank" rel="noopener">jurgenwesterhof</a></small>
-          <br>
-          <small>Licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a></small>
-        </div>
       </footer>
     </div>
   </div>

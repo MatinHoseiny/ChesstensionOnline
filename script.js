@@ -74,6 +74,7 @@
   const overlayActionsEl= document.getElementById("overlayActions");
   const promoPanelEl   = document.getElementById("promoPanel");
   const playAgainBtn   = document.getElementById("playAgainBtn");
+  const cancelSearchBtn = document.getElementById("cancelSearchBtn");
   const capturedByWhiteEl = document.getElementById("capturedByWhite");
   const capturedByBlackEl = document.getElementById("capturedByBlack");
   const backToMenuBtn  = document.getElementById("backToMenuBtn");
@@ -150,6 +151,15 @@ class OnlineChess {
   }
   
   findGame() {
+    // Don't start a new search if already in a game
+    if (this.isOnline && !this.isWaiting) {
+      return;
+    }
+    
+    // Ensure we're not in a game state
+    this.isOnline = false;
+    this.isWaiting = false;
+    
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       this.connect();
       // Wait for connection then find game
@@ -289,20 +299,24 @@ class OnlineChess {
   
   updateUI(state) {
     const btn = document.getElementById('playOnlineBtn');
+    const cancelBtn = document.getElementById('cancelSearchBtn');
     if (!btn) return;
     
     switch(state) {
       case 'searching':
         btn.textContent = 'Searching for opponent...';
         btn.disabled = true;
+        if (cancelBtn) cancelBtn.style.display = 'flex';
         break;
       case 'playing':
         btn.textContent = 'Playing Online';
         btn.disabled = true;
+        if (cancelBtn) cancelBtn.style.display = 'none';
         break;
       case 'disconnected':
         btn.textContent = 'Play Online';
         btn.disabled = false;
+        if (cancelBtn) cancelBtn.style.display = 'none';
         break;
     }
   }
@@ -312,6 +326,22 @@ class OnlineChess {
     this.updateUI('disconnected');
     alert('Opponent disconnected. Returning to menu.');
     showMenuScreen();
+  }
+  
+  cancelSearch() {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ type: 'cancel_search' }));
+      this.ws.close();
+    }
+    this.isWaiting = false;
+    this.isOnline = false;
+    this.ws = null;
+    this.updateUI('disconnected');
+    
+    // Reset any game state
+    if (typeof resetGame === 'function') {
+      resetGame();
+    }
   }
 }
 
@@ -1223,6 +1253,13 @@ function closeJoinTray(){
   if (playOnlineBtn) {
     playOnlineBtn.addEventListener('click', () => {
       onlineChess.findGame();
+    });
+  }
+
+  // Cancel search button
+  if (cancelSearchBtn) {
+    cancelSearchBtn.addEventListener('click', () => {
+      onlineChess.cancelSearch();
     });
   }
 

@@ -49,6 +49,9 @@ function handleMessage(ws, message) {
     case 'find_game':
       addToQueue(ws);
       break;
+    case 'cancel_search':
+      removeFromQueue(ws);
+      break;
     case 'make_move':
       handleMove(ws, message);
       break;
@@ -74,6 +77,17 @@ function addToQueue(ws) {
       type: 'waiting',
       message: 'Searching for opponent...'
     }));
+  }
+}
+
+function removeFromQueue(ws) {
+  // Find and remove player from waiting queue
+  for (const [playerId, player] of waitingPlayers.entries()) {
+    if (player.ws === ws) {
+      waitingPlayers.delete(playerId);
+      console.log(`Player ${playerId} removed from queue. Queue size: ${waitingPlayers.size}`);
+      break;
+    }
   }
 }
 
