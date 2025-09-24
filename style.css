@@ -384,6 +384,16 @@ button:hover{ border-color:var(--accent-2); }
   border:1px solid var(--glass-strong);
   box-shadow:var(--shadow);
   margin:0 auto;
+  transition: transform 0.3s ease;
+}
+
+/* Board flipping for player perspective */
+.board.flipped{
+  transform: rotate(180deg);
+}
+
+.board.flipped .square{
+  transform: rotate(180deg);
 }
 .square{
   width:var(--cell);

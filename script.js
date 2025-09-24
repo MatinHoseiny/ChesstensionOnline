@@ -402,10 +402,22 @@ function updateProfilePreviewUI(p){
 // Player info functionality removed
 
   /* ---------------- Game state ---------------- */
-  let board=null, turn="w", selected=null, legalMoves=[];
+  let board=null, turn="w", selected=null, legalMoves=[], boardFlipped=false;
   let enPassantTarget=null, castlingRights=null, capturedByWhite=[], capturedByBlack=[];
   let gameOver=false, lastMove=null, pendingPromotion=null;
   let aiEnabled=false, aiColor="b", aiDepth=2;
+  
+  // Function to determine if board should be flipped
+  function shouldFlipBoard() {
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+      // In online mode, flip if player is black
+      return onlineChess.playerColor === 'b';
+    } else if (aiEnabled) {
+      // In AI mode, flip if player is black (opposite of AI color)
+      return aiColor === 'w'; // If AI is white, player is black
+    }
+    return false; // Default: no flip
+  }
 // Load existing profile into UI at start
 let PROFILE = loadProfile();
 updateProfilePreviewUI(PROFILE);
@@ -885,6 +897,16 @@ if (themeBtn){
       return;
     }
     
+    // Update board flip state
+    boardFlipped = shouldFlipBoard();
+    
+    // Apply flipped class to board
+    if (boardFlipped) {
+      boardEl.classList.add('flipped');
+    } else {
+      boardEl.classList.remove('flipped');
+    }
+    
     const k = findKing(turn);
     let inChk = false;
     
@@ -900,8 +922,12 @@ if (themeBtn){
     }
     for(let r=0;r<8;r++){
       for(let c=0;c<8;c++){
+        // Calculate display coordinates (flip if needed)
+        const displayR = boardFlipped ? 7-r : r;
+        const displayC = boardFlipped ? 7-c : c;
+        
         const d=document.createElement("div");
-        d.className="square "+(((r+c)&1)===0?"light":"dark");
+        d.className="square "+(((displayR+displayC)&1)===0?"light":"dark");
         d.dataset.r=String(r); d.dataset.c=String(c);
         if (inChk && k && r===k.r && c===k.c) d.classList.add("in-check");
         if (selected && selected.r===r && selected.c===c) d.classList.add("selected");
