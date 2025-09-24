@@ -169,7 +169,7 @@ button:hover{ border-color:var(--accent-2); }
   text-shadow:0 1px 2px rgba(0,0,0,0.3);
   white-space:nowrap;
   min-width:fit-content;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Online turn indicators */
@@ -203,7 +203,7 @@ button:hover{ border-color:var(--accent-2); }
   border-radius:8px;
   cursor:pointer;
   color:#a5b4c3;
-  transition:all .2s ease;
+  transition: transform .2s ease, box-shadow .2s ease;
   min-height:auto;
   padding:0;
 }
@@ -245,7 +245,7 @@ button:hover{ border-color:var(--accent-2); }
   color:#a5b4c3;
   font-size:16px;
   font-weight:600;
-  transition:all .2s ease;
+  transition: transform .2s ease, box-shadow .2s ease;
   min-height:auto;
   padding:0;
 }
@@ -268,7 +268,7 @@ button:hover{ border-color:var(--accent-2); }
   background: transparent;
   border: none;
   cursor: default;
-  transition: all .3s ease;
+  transition: transform .3s ease, box-shadow .3s ease;
   position: relative;
   z-index: 2;
   flex-shrink: 0;
@@ -284,7 +284,7 @@ button:hover{ border-color:var(--accent-2); }
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  transition: all .3s ease;
+  transition: transform .3s ease, box-shadow .3s ease;
   cursor: pointer;
   border: 2px solid transparent;
 }

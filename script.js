@@ -51,8 +51,7 @@
   const getURL = (p)=>{
     try {
       const baseUrl = (typeof chrome!=="undefined" && chrome.runtime?.getURL) ? chrome.runtime.getURL(p) : p;
-      // Add cache-busting parameter to force reload of updated SVGs
-      return baseUrl + '?v=' + Date.now();
+      return baseUrl;
     } catch { return p; }
   };
 
@@ -114,7 +113,6 @@ class OnlineChess {
     this.ws = new WebSocket('wss://web-production-e734b.up.railway.app');
     
     this.ws.onopen = () => {
-      console.log('Connected to online server');
     };
     
     this.ws.onmessage = (event) => {
@@ -123,7 +121,6 @@ class OnlineChess {
     };
     
     this.ws.onclose = () => {
-      console.log('Disconnected from server');
       this.isOnline = false;
       this.isWaiting = false;
       this.updateUI('disconnected');
@@ -136,7 +133,6 @@ class OnlineChess {
   }
   
   handleMessage(message) {
-    console.log('Received message:', message);
     switch(message.type) {
       case 'game_found':
         this.startOnlineGame(message.roomId, message.playerId, message.color);
@@ -154,17 +150,13 @@ class OnlineChess {
   }
   
   findGame() {
-    console.log('Finding game...');
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.log('Connecting to server...');
       this.connect();
       // Wait for connection then find game
       this.ws.onopen = () => {
-        console.log('Connected! Sending find game request...');
         this.sendFindGame();
       };
     } else {
-      console.log('Already connected, sending find game request...');
       this.sendFindGame();
     }
   }
@@ -188,7 +180,6 @@ class OnlineChess {
     // Determine if it's my turn (white goes first)
     this.isMyTurn = (color === 'w');
     
-    console.log(`Game started! I am ${color === 'w' ? 'White' : 'Black'}, my turn: ${this.isMyTurn}`);
     
     // Start the game
     aiEnabled = false;
@@ -204,7 +195,6 @@ class OnlineChess {
   }
   
   applyOpponentMove(moveData) {
-    console.log('Applying opponent move:', moveData);
     
     // Temporarily disable online checks for opponent moves
     const wasOnline = this.isOnline;
@@ -229,12 +219,10 @@ class OnlineChess {
     updateAll();
     this.updateTurnIndicator();
     
-    console.log(`Opponent move applied. Now it's my turn (${this.playerColor})`);
   }
   
   sendMove(moveData) {
     if (this.isOnline && this.ws && this.isMyTurn) {
-      console.log('Sending move:', moveData);
       this.ws.send(JSON.stringify({
         type: 'make_move',
         roomId: this.roomId,
@@ -276,7 +264,6 @@ class OnlineChess {
         updateAll();
       }, 10);
       
-      console.log(`Turn updated after my move. Now waiting for opponent.`);
     }
   }
   
@@ -293,7 +280,6 @@ class OnlineChess {
           : `Waiting for ${opponentColor}`;
         turnIndicator.className = `turn-indicator ${myTurn ? 'my-turn' : 'opponent-turn'}`;
         
-        console.log(`Turn indicator updated: ${turnIndicator.textContent}, myTurn: ${myTurn}`);
       } else {
         turnIndicator.textContent = turn === 'w' ? 'White to move' : 'Black to move';
         turnIndicator.className = 'turn-indicator';
@@ -890,7 +876,6 @@ if (themeBtn){
 
   /* ---------------- Render ---------------- */
   function render(){
-    console.log('Rendering board...');
     boardEl.innerHTML="";
     
     // Safety check for board state
@@ -991,17 +976,14 @@ if (themeBtn){
     const cell=board[r][c];
     const intended=legalMoves.find(m=>m.r===r&&m.c===c);
     
-    console.log('Cell clicked:', {r, c, cell, selected, intended, isOnline: typeof onlineChess !== 'undefined' ? onlineChess.isOnline : false, isMyTurn: typeof onlineChess !== 'undefined' ? onlineChess.isMyTurn : true});
     
     if (selected && intended){
       // Check if it's the player's turn in online games
       if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.isMyTurn) {
-        console.log('Not your turn in online game - move blocked');
         return;
       }
       
       const from={r:selected.r,c:selected.c}, to={r,c};
-      console.log('Making move:', {from, to, intended});
       makeMove(from.r,from.c,to.r,to.c,intended);
       selected=null; legalMoves=[]; lastMove={from,to};
       
@@ -1036,7 +1018,6 @@ if (themeBtn){
       if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
         // Check if it's the player's turn
         if (!onlineChess.isMyTurn) {
-          console.log('Not your turn in online game');
           selected = null; 
           legalMoves = []; 
           render(); 
@@ -1045,7 +1026,6 @@ if (themeBtn){
         
         // Check if player can select this piece (own pieces only)
         if (!onlineChess.canSelectPiece(cell)) {
-          console.log('Cannot select opponent piece in online game');
           selected = null; 
           legalMoves = []; 
           render(); 
@@ -1061,7 +1041,6 @@ if (themeBtn){
     
     // For online games, prevent selecting opponent pieces entirely
     if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && cell && cell.color !== turn) {
-      console.log('Cannot select opponent piece in online game');
       selected = null; 
       legalMoves = []; 
       render(); 
@@ -1088,7 +1067,6 @@ if (themeBtn){
     
     // Check if it's online and if it's the player's turn
     if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.canMakeMove()) {
-      console.log('Not your turn in online game');
       return; // Not the player's turn
     }
     
