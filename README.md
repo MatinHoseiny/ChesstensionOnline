@@ -155,7 +155,7 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 **Built with ♟️ and ❤️ for chess enthusiasts worldwide**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
+[![GitHub stars](https://img.shields.io/github/stars/matinhoseiny/chesstentiononline?style=social)](https://github.com/matinhoseiny/chesstentiononline)
+[![GitHub forks](https://img.shields.io/github/forks/matinhoseiny/chesstentiononline?style=social)](https://github.com/matinhoseiny/chesstentiononline)
 
 </div>
