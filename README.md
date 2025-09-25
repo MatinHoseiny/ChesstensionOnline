@@ -1,10 +1,8 @@
-# ♟️ Chesstention
-
 <div align="center">
 
-**A modern chess extension with AI, online multiplayer, and professional-grade pieces**
+<img src="images/chesstention-logo.png" alt="Chesstention Logo" width="800">
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/chesstention)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstensionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://chrome.google.com/webstore)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--on-orange.svg)](https://addons.mozilla.org)
@@ -60,7 +58,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/matinhoseiny/chesstentiononline.git
+git clone https://github.com/MatinHoseiny/ChesstensionOnline.git
 
 # Load as extension
 # Follow installation steps above
@@ -72,7 +70,7 @@ git clone https://github.com/matinhoseiny/chesstentiononline.git
 
 ## 🛠️ Technical Stack
 
-| Component | Lang/Tech | Purpose |
+| Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Frontend** | Vanilla JavaScript | Zero dependencies |
 | **Styling** | CSS3 + Custom Properties | Modern responsive design |
@@ -145,8 +143,8 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 ## 📞 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/matinhoseiny/chesstentiononline/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/matinhoseiny/chesstentiononline/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/MatinHoseiny/ChesstensionOnline/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/MatinHoseiny/ChesstensionOnline/discussions)
 
 
 ---
@@ -155,7 +153,7 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 **Built with ♟️ and ❤️ for chess enthusiasts worldwide**
 
-[![GitHub stars](https://img.shields.io/github/stars/matinhoseiny/chesstentiononline?style=social)](https://github.com/matinhoseiny/chesstentiononline)
-[![GitHub forks](https://img.shields.io/github/forks/matinhoseiny/chesstentiononline?style=social)](https://github.com/matinhoseiny/chesstentiononline)
+[![GitHub stars](https://img.shields.io/github/stars/MatinHoseiny/ChesstensionOnline?style=social)](https://github.com/MatinHoseiny/ChesstensionOnline)
+[![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstensionOnline?style=social)](https://github.com/MatinHoseiny/ChesstensionOnline)
 
 </div>
