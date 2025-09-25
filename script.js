@@ -1206,6 +1206,11 @@ if (themeBtn){
         if (lm){
           const cap=!!board[r][c] || lm.special==="enpassant";
           d.classList.add(cap?"capture-move":"legal-move");
+          
+          // Create move indicator as actual DOM element to avoid rotation issues
+          const indicator = document.createElement("div");
+          indicator.className = cap ? "move-indicator capture" : "move-indicator legal";
+          d.appendChild(indicator);
         }
         const p=board[r][c];
         if (p){
@@ -1475,6 +1480,25 @@ function closeJoinTray(){
     showGameScreen();
  // hides chip
 
+  });
+
+  // Exit to Menu button
+  const exitToMenuBtn = document.getElementById("exitToMenuBtn");
+  if (exitToMenuBtn) exitToMenuBtn.addEventListener("click", ()=>{
+    // Cancel online search if active
+    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+      onlineChess.cancelSearch();
+    }
+    
+    // Reset game state
+    aiEnabled = false;
+    closeCpuTray();
+    closeJoinTray();
+    syncAiControlsUI();
+    
+    // Hide overlay and go back to menu
+    hideOverlay();
+    showMenuScreen();
   });
 
   // Toggle the CPU options tray without disabling side buttons

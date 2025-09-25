@@ -464,17 +464,36 @@ button:hover{ border-color:var(--accent-2); }
   content:""; position:absolute; inset:4px; border-radius:12px; background:transparent; pointer-events:none; z-index:0;
 }
 .square.last-from::before, .square.last-to::before{ box-shadow: inset 0 0 0 3px rgba(120,120,120,0.6); }
-.legal-move::after, .capture-move::after{
-  content:""; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+/* Move indicators as DOM elements */
+.move-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
 }
-.legal-move::after{
-  width:18px; height:18px; border-radius:8px; background:rgba(210,210,210,0.55);
-  box-shadow:0 0 0 2px rgba(0,0,0,0.10) inset;
+
+.move-indicator.legal {
+  width: 18px;
+  height: 18px;
+  border-radius: 8px;
+  background: rgba(210,210,210,0.55);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.10) inset;
 }
-.capture-move::after{
-  width:calc(var(--cell) - 10px); height:calc(var(--cell) - 10px);
-  border-radius:16px; background:rgba(220,60,60,0.28);
-  outline:2px dashed rgba(255,255,255,0.45); outline-offset:-6px;
+
+.move-indicator.capture {
+  width: calc(var(--cell) - 10px);
+  height: calc(var(--cell) - 10px);
+  border-radius: 16px;
+  background: rgba(220,60,60,0.28);
+  outline: 2px dashed rgba(255,255,255,0.45);
+  outline-offset: -6px;
+}
+
+/* Ensure move indicators don't rotate with flipped board */
+.board.flipped .move-indicator {
+  transform: translate(-50%, -50%) !important;
 }
 .in-check{ box-shadow: inset 0 0 0 3px #ff4d4d; }
 
@@ -686,6 +705,50 @@ body.game-active .captured-title{ opacity:.95; }
   border: 1px solid rgba(255,255,255,.12);
   box-shadow: 0 20px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03);
   text-align: center;
+}
+
+/* Overlay actions */
+.overlay-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* Primary button (Play Again) */
+.btn-primary {
+  background: linear-gradient(180deg, #10b981, #059669);
+  border: 1px solid #10b981;
+  color: white;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #059669, #047857);
+  border-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Secondary button (Exit to Menu) */
+.btn-secondary {
+  background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08));
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 /* Nudge the whole game UI down a bit and add breathing room */
 body.game-active #app{
