@@ -72,7 +72,7 @@ git clone https://github.com/matinhoseiny/chesstentiononline.git
 
 ## 🛠️ Technical Stack
 
-| Component | Technology | Purpose |
+| Component | Language | Purpose |
 |-----------|------------|---------|
 | **Frontend** | Vanilla JavaScript | Zero dependencies |
 | **Styling** | CSS3 + Custom Properties | Modern responsive design |
