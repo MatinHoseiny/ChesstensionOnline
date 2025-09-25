@@ -1,63 +1,162 @@
 # ♟️ Chesstention
 
-> **Your next move is just a click away.** 🚀
+<div align="center">
 
-A clean chess extension with AI, online multiplayer, and zero bloat. Built for people who actually want to play chess, not read manuals.
+**A modern chess extension with AI, online multiplayer, and professional-grade pieces**
 
-![Version](https://img.shields.io/badge/Version-1.0-blue)
-![License](https://img.shields.io/badge/License-AGPL--3.0-orange)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/chesstention)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://chrome.google.com/webstore)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--on-orange.svg)](https://addons.mozilla.org)
 
----
-
-## What's Inside
-
-- **🏠 Local Play** - Hot-seat with friends
-- **🤖 AI** - Actually challenging opponents  
-- **🌐 Online** - Find games instantly
-- **🎨 Lichess Maestro Pieces** - Professional quality
-- **📐 Board Coordinates** - Standard notation (a-h, 1-8)
-- **⚡ Real-time** - WebSocket multiplayer
+</div>
 
 ---
 
-## Quick Start
+## ✨ Features
 
-1. Download & extract
-2. Chrome: Extensions → Developer mode → Load unpacked
-3. Click the extension icon
-4. Play chess
+<table>
+<tr>
+<td width="50%">
 
-That's it. No accounts, no ads.
+### 🎮 **Game Modes**
+- 🏠 **Local Play** - Hot-seat multiplayer
+- 🤖 **AI Challenge** - Intelligent opponents
+- 🌐 **Online Multiplayer** - Global matchmaking
+
+</td>
+<td width="50%">
+
+### 🎨 **Visual Quality**
+- 🎯 **Lichess Maestro Pieces** - Tournament quality
+- 📐 **Board Coordinates** - Standard notation
+- ⚡ **Real-time Updates** - WebSocket powered
+
+</td>
+</tr>
+</table>
 
 ---
 
-## Tech Stack
+## 🚀 Installation
 
-- **Vanilla JS** - No frameworks, just performance
-- **WebSocket** - Real-time multiplayer
-- **CSS3** - Smooth animations
-- **Modular Architecture** - Clean, maintainable code
+### Chrome / Edge
+1. Download the latest release
+2. Extract the ZIP file
+3. Open `chrome://extensions/`
+4. Enable "Developer mode"
+5. Click "Load unpacked" → Select folder
+6. Pin the extension to toolbar
+
+### Firefox
+1. Download the latest release
+2. Open `about:debugging`
+3. Click "Load Temporary Add-on"
+4. Select `manifest.json`
+
 ---
 
-## Contributing
+## 🎯 Quick Start
 
-Found a bug? Want a feature? 
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/chesstention.git
 
-1. Open an issue
-2. Fork the repo
+# Load as extension
+# Follow installation steps above
+```
+
+**That's it!** No accounts, no ads, no bloat.
+
+---
+
+## 🛠️ Technical Stack
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Frontend** | Vanilla JavaScript | Zero dependencies |
+| **Styling** | CSS3 + Custom Properties | Modern responsive design |
+| **Graphics** | SVG | Scalable piece rendering |
+| **Networking** | WebSocket | Real-time multiplayer |
+| **Architecture** | Modular ES6+ | Clean, maintainable code |
+
+---
+
+## 📊 Project Structure
+
+```
+chesstention/
+├── 📁 images/          # Chess pieces & icons
+├── 📁 media/           # Background videos
+├── 📄 manifest.json    # Extension manifest
+├── 📄 popup.html       # Main interface
+├── 📄 script.js        # Game logic
+├── 📄 style.css        # Styling
+└── 📄 README.md        # Documentation
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+### 🐛 **Bug Reports**
+- Use GitHub Issues
+- Include reproduction steps
+- Provide browser/OS details
+
+### ✨ **Feature Requests**
+- Describe the use case
+- Consider implementation complexity
+- Check existing issues first
+
+### 💻 **Code Contributions**
+1. Fork the repository
+2. Create a feature branch
 3. Make your changes
-4. Submit a PR
-
-Keep it simple, keep it clean.
+4. Submit a pull request
 
 ---
 
-## License
+## 📄 License
 
-**AGPL-3.0** - Open source, attribution required
+This project is licensed under the **GNU Affero General Public License v3.0**.
 
-**Chess Pieces**: [Lichess Maestro Set](https://github.com/lichess-org/lila/tree/master/public/piece/maestro) (AGPL-3.0)
+### 🎨 **Chess Pieces Attribution**
+- **Source**: [Lichess Maestro Set](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
+- **License**: AGPL-3.0
+- **Attribution**: Lichess.org
 
 ---
 
-**Built for chess players, by chess players** ♟️
+## 🌟 Why Chesstention?
+
+<div align="center">
+
+| **For Beginners** | **For Casual Players** | **For Serious Players** |
+|:-----------------:|:---------------------:|:----------------------:|
+| 🎯 Visual guidance | ⚡ Quick games | 🏆 Tournament quality |
+| 📚 Learn notation | 🌐 Online play | 🧠 AI challenges |
+| 🎮 Easy interface | 📱 Any device | 📊 Professional pieces |
+
+</div>
+
+---
+
+## 📞 Support
+
+- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/chesstention/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/chesstention/discussions)
+- 📧 **Email**: [Contact Support](mailto:support@chesstention.com)
+
+---
+
+<div align="center">
+
+**Built with ♟️ and ❤️ for chess enthusiasts worldwide**
+
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
+[![GitHub forks](https://img.shields.io/github/forks/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
+
+</div>
