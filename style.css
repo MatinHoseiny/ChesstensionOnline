@@ -414,28 +414,6 @@ button:hover{ border-color:var(--accent-2); }
   position: absolute;
 }
 
-.coord-number, .coord-letter {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  opacity: 0.8;
-  user-select: none;
-  line-height: 1;
-}
-
-.coord-number {
-  height: var(--cell);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.coord-letter {
-  width: var(--cell);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .board{
   width:var(--board);
   height:var(--board);
