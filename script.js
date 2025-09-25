@@ -946,6 +946,18 @@ if (themeBtn){
         const d=document.createElement("div");
         d.className="square "+(((displayR+displayC)&1)===0?"light":"dark");
         d.dataset.r=String(r); d.dataset.c=String(c);
+        
+        // Add rank number to left column - based on display position
+        if (displayC === 0) { // left column in display
+          const rank = String(8 - displayR); // 8-1
+          d.dataset.rank = rank;
+        }
+        
+        // Add file letter to bottom row - based on display position
+        if (displayR === 7) { // bottom row in display
+          const file = String.fromCharCode(97 + displayC); // a-h
+          d.dataset.file = file;
+        }
         if (inChk && k && r===k.r && c===k.c) d.classList.add("in-check");
         if (selected && selected.r===r && selected.c===c) d.classList.add("selected");
         if (lastMove){

@@ -2,35 +2,35 @@
 
 ## Chess Pieces
 
-The chess pieces used in this extension are based on the work of:
+The chess pieces used in this extension are from the Lichess Maestro set:
 
-- **Original Creator**: [User:Cburnett](https://commons.wikimedia.org/wiki/User:Cburnett)
-- **Sprite Adaptation**: [jurgenwesterhof](https://commons.wikimedia.org/wiki/User:Jurgenwesterhof)
-- **Source**: [Chess Pieces Sprite.svg](https://commons.wikimedia.org/wiki/File:Chess_Pieces_Sprite.svg)
+- **Source**: [Lichess.org](https://lichess.org) - [Lila Repository](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
+- **Piece Set**: Maestro
+- **License**: GNU Affero General Public License v3.0 (AGPL-3.0)
 
 ## License
 
-This work is licensed under the [Creative Commons Attribution-ShareAlike 3.0 Unported License](https://creativecommons.org/licenses/by-sa/3.0/).
+The Lichess Maestro chess pieces are part of the Lichess project, which is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).
 
-### You are free to:
-- **Share** – copy, distribute and transmit the work
-- **Remix** – adapt the work
-
-### Under the following conditions:
-- **Attribution** – You must give appropriate credit, provide a link to the license, and indicate if changes were made
-- **Share Alike** – If you remix, transform, or build upon the material, you must distribute your contributions under the same or compatible license as the original
+### Key Requirements:
+- **Attribution**: Must provide proper credit to Lichess
+- **License Notice**: Must include the AGPL-3.0 license notice
+- **Source Code**: If distributing, must make source code available
+- **Same License**: Derivative works must be licensed under AGPL-3.0
 
 ## Modifications
 
-The original chess pieces sprite has been:
-1. Extracted into individual SVG files for each piece
-2. Resized and optimized for use in this browser extension
-3. Integrated into the chess game interface
+The Lichess Maestro pieces have been:
+1. Downloaded from the official Lichess repository
+2. Integrated into this browser extension
+3. Used with proper attribution and license compliance
 
 ## Full Attribution Text
 
 ```
-Chess pieces originally by User:Cburnett, adapted by jurgenwesterhof
-Licensed under Creative Commons Attribution-ShareAlike 3.0 Unported
-Source: https://commons.wikimedia.org/wiki/File:Chess_Pieces_Sprite.svg
+Chess pieces from Lichess Maestro set
+Source: https://github.com/lichess-org/lila/tree/master/public/piece/maestro
+License: GNU Affero General Public License v3.0 (AGPL-3.0)
+Copyright: Lichess.org
 ```
+

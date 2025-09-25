@@ -373,6 +373,69 @@ button:hover{ border-color:var(--accent-2); }
   margin: 0 auto;
   z-index: 1;
 }
+
+/* Board coordinates - inside squares */
+.square::before {
+  content: attr(data-rank);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.square::after {
+  content: attr(data-file);
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Dark squares need lighter text */
+.square.dark::before,
+.square.dark::after {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Ensure coordinates don't flip with the board */
+.board.flipped .square::before,
+.board.flipped .square::after {
+  transform: none !important;
+  position: absolute;
+}
+
+.coord-number, .coord-letter {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  user-select: none;
+  line-height: 1;
+}
+
+.coord-number {
+  height: var(--cell);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coord-letter {
+  width: var(--cell);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .board{
   width:var(--board);
   height:var(--board);
