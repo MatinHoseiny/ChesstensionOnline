@@ -60,7 +60,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/matinhoseiny/chesstentiononline.git
+git clone https://github.com/yourusername/chesstention.git
 
 # Load as extension
 # Follow installation steps above
@@ -72,7 +72,7 @@ git clone https://github.com/matinhoseiny/chesstentiononline.git
 
 ## 🛠️ Technical Stack
 
-| Component | Lang/Tech | Purpose |
+| Component | Technology | Purpose |
 |-----------|------------|---------|
 | **Frontend** | Vanilla JavaScript | Zero dependencies |
 | **Styling** | CSS3 + Custom Properties | Modern responsive design |
@@ -155,7 +155,7 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 **Built with ♟️ and ❤️ for chess enthusiasts worldwide**
 
-[![GitHub stars](https://img.shields.io/github/stars/matinhoseiny/chesstentiononline?style=social)](https://github.com/matinhoseiny/chesstentiononline)
-[![GitHub forks](https://img.shields.io/github/forks/matinhoseiny/chesstentiononline?style=social)](https://github.com/matinhoseiny/chesstentiononline)
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
+[![GitHub forks](https://img.shields.io/github/forks/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
 
 </div>
