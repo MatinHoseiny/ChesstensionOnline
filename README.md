@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="images/chesstention-logo.png" alt="Chesstention Logo" width="400">
+<img src="images/chesstention-logo.png" alt="Chesstention Logo" width="800">
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstensionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
