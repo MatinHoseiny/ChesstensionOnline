@@ -60,7 +60,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/chesstention.git
+git clone https://github.com/matinhoseiny/chesstentiononline.git
 
 # Load as extension
 # Follow installation steps above
