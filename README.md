@@ -1,6 +1,6 @@
 # ♟️ Chesstention
 
-> **Chess that doesn't suck** 🚀
+> **Your next move is just a click away.** 🚀
 
 A clean chess extension with AI, online multiplayer, and zero bloat. Built for people who actually want to play chess, not read manuals.
 
@@ -27,7 +27,7 @@ A clean chess extension with AI, online multiplayer, and zero bloat. Built for p
 3. Click the extension icon
 4. Play chess
 
-That's it. No accounts, no ads, no BS.
+That's it. No accounts, no ads.
 
 ---
 
@@ -35,10 +35,8 @@ That's it. No accounts, no ads, no BS.
 
 - **Vanilla JS** - No frameworks, just performance
 - **WebSocket** - Real-time multiplayer
-- **SVG** - Crisp piece rendering
 - **CSS3** - Smooth animations
 - **Modular Architecture** - Clean, maintainable code
-
 ---
 
 ## Contributing
