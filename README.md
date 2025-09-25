@@ -1,8 +1,7 @@
 <div align="center">
 
-<img src="images/chesstention-logo.png" alt="Chesstention Logo" width="200">
+<img src="images/chesstention-logo.png" alt="Chesstention Logo" width="400">
 
-# ♟️ Chesstention
 
 **A modern chess extension with AI, online multiplayer, and professional-grade pieces**
 
