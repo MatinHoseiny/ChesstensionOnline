@@ -76,7 +76,6 @@ git clone https://github.com/yourusername/chesstention.git
 |-----------|------------|---------|
 | **Frontend** | Vanilla JavaScript | Zero dependencies |
 | **Styling** | CSS3 + Custom Properties | Modern responsive design |
-| **Graphics** | SVG | Scalable piece rendering |
 | **Networking** | WebSocket | Real-time multiplayer |
 | **Architecture** | Modular ES6+ | Clean, maintainable code |
 
@@ -146,9 +145,9 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 ## 📞 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/chesstention/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/chesstention/discussions)
-- 📧 **Email**: [Contact Support](mailto:support@chesstention.com)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/matinhoseiny/chesstentiononline/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/matinhoseiny/chesstentiononline/discussions)
+
 
 ---
 
