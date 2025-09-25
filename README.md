@@ -2,11 +2,6 @@
 
 <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="400">
 
-
-```
-A MODERN CHESS EXTENSION WITH AI, ONLINE MULTIPLAYER, AND PROFESSIONAL-GRADE PIECES
-```
-
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstensionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://chrome.google.com/webstore)
