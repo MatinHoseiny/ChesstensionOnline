@@ -3,7 +3,7 @@
 <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="400">
 
 
-**A modern chess extension with AI, online multiplayer, and professional-grade pieces**
+<h3 style="color: #2d3748; font-family: 'Courier New', 'Monaco', 'Consolas', monospace; font-weight: 400; letter-spacing: 1px; margin: 20px 0; text-transform: uppercase;">A modern chess extension with AI, online multiplayer, and professional-grade pieces</h3>
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstensionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
