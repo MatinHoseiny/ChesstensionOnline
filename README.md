@@ -60,7 +60,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/chesstention.git
+git clone https://github.com/matinhoseiny/chesstentiononline.git
 
 # Load as extension
 # Follow installation steps above
@@ -72,7 +72,7 @@ git clone https://github.com/yourusername/chesstention.git
 
 ## 🛠️ Technical Stack
 
-| Component | Technology | Purpose |
+| Component | Lang/Tech | Purpose |
 |-----------|------------|---------|
 | **Frontend** | Vanilla JavaScript | Zero dependencies |
 | **Styling** | CSS3 + Custom Properties | Modern responsive design |
