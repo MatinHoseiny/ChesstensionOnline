@@ -788,9 +788,198 @@ if (themeBtn){
     } return false;
   }
 
-  /* ---------------- AI tiny negamax ---------------- */
-  const PV={P:100,N:320,B:330,R:500,Q:900,K:0};
-  const evalMat=(b)=>{ let s=0; for(let r=0;r<8;r++) for(let c=0;c<8;c++){ const p=b[r][c]; if(!p)continue; s+=(p.color==="w"?PV[p.type]:-PV[p.type]); } return s; };
+  /* ---------------- Enhanced AI with Phase 1 improvements ---------------- */
+  
+  // Better piece values
+  const PIECE_VALUES = {P:100,N:320,B:330,R:500,Q:900,K:20000};
+  
+  // Positional piece-square tables
+  const PAWN_TABLE = [
+    [0,  0,  0,  0,  0,  0,  0,  0],
+    [50, 50, 50, 50, 50, 50, 50, 50],
+    [10, 10, 20, 30, 30, 20, 10, 10],
+    [5,  5, 10, 25, 25, 10,  5,  5],
+    [0,  0,  0, 20, 20,  0,  0,  0],
+    [5, -5,-10,  0,  0,-10, -5,  5],
+    [5, 10, 10,-20,-20, 10, 10,  5],
+    [0,  0,  0,  0,  0,  0,  0,  0]
+  ];
+  
+  const KNIGHT_TABLE = [
+    [-50,-40,-30,-30,-30,-30,-40,-50],
+    [-40,-20,  0,  0,  0,  0,-20,-40],
+    [-30,  0, 10, 15, 15, 10,  0,-30],
+    [-30,  5, 15, 20, 20, 15,  5,-30],
+    [-30,  0, 15, 20, 20, 15,  0,-30],
+    [-30,  5, 10, 15, 15, 10,  5,-30],
+    [-40,-20,  0,  5,  5,  0,-20,-40],
+    [-50,-40,-30,-30,-30,-30,-40,-50]
+  ];
+  
+  const BISHOP_TABLE = [
+    [-20,-10,-10,-10,-10,-10,-10,-20],
+    [-10,  0,  0,  0,  0,  0,  0,-10],
+    [-10,  0,  5, 10, 10,  5,  0,-10],
+    [-10,  5,  5, 10, 10,  5,  5,-10],
+    [-10,  0, 10, 10, 10, 10,  0,-10],
+    [-10, 10, 10, 10, 10, 10, 10,-10],
+    [-10,  5,  0,  0,  0,  0,  5,-10],
+    [-20,-10,-10,-10,-10,-10,-10,-20]
+  ];
+  
+  const ROOK_TABLE = [
+    [0,  0,  0,  0,  0,  0,  0,  0],
+    [5, 10, 10, 10, 10, 10, 10,  5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [0,  0,  0,  5,  5,  0,  0,  0]
+  ];
+  
+  const QUEEN_TABLE = [
+    [-20,-10,-10, -5, -5,-10,-10,-20],
+    [-10,  0,  0,  0,  0,  0,  0,-10],
+    [-10,  0,  5,  5,  5,  5,  0,-10],
+    [-5,  0,  5,  5,  5,  5,  0, -5],
+    [0,  0,  5,  5,  5,  5,  0, -5],
+    [-10,  5,  5,  5,  5,  5,  0,-10],
+    [-10,  0,  5,  0,  0,  0,  0,-10],
+    [-20,-10,-10, -5, -5,-10,-10,-20]
+  ];
+  
+  const KING_TABLE = [
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-30,-40,-40,-50,-50,-40,-40,-30],
+    [-20,-30,-30,-40,-40,-30,-30,-20],
+    [-10,-20,-20,-20,-20,-20,-20,-10],
+    [20, 20,  0,  0,  0,  0, 20, 20],
+    [20, 30, 10,  0,  0, 10, 30, 20]
+  ];
+  
+  // Enhanced material evaluation
+  function evalMaterial(board) {
+    let score = 0;
+    for(let r = 0; r < 8; r++) {
+      for(let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if(!piece) continue;
+        const value = PIECE_VALUES[piece.type];
+        score += (piece.color === "w" ? value : -value);
+      }
+    }
+    return score;
+  }
+  
+  // Positional evaluation
+  function evalPosition(board) {
+    let score = 0;
+    for(let r = 0; r < 8; r++) {
+      for(let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if(!piece) continue;
+        
+        let pieceValue = 0;
+        const isWhite = piece.color === "w";
+        const tableRow = isWhite ? r : 7 - r;
+        
+        switch(piece.type) {
+          case "P": pieceValue = PAWN_TABLE[tableRow][c]; break;
+          case "N": pieceValue = KNIGHT_TABLE[tableRow][c]; break;
+          case "B": pieceValue = BISHOP_TABLE[tableRow][c]; break;
+          case "R": pieceValue = ROOK_TABLE[tableRow][c]; break;
+          case "Q": pieceValue = QUEEN_TABLE[tableRow][c]; break;
+          case "K": pieceValue = KING_TABLE[tableRow][c]; break;
+        }
+        
+        score += isWhite ? pieceValue : -pieceValue;
+      }
+    }
+    return score;
+  }
+  
+  // King safety evaluation
+  function evalKingSafety(board) {
+    let score = 0;
+    
+    // Find kings
+    let whiteKing = null, blackKing = null;
+    for(let r = 0; r < 8; r++) {
+      for(let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if(piece && piece.type === "K") {
+          if(piece.color === "w") whiteKing = {r, c};
+          else blackKing = {r, c};
+        }
+      }
+    }
+    
+    if(whiteKing) {
+      // Penalize king in center during opening/midgame
+      const centerDistance = Math.abs(whiteKing.r - 3.5) + Math.abs(whiteKing.c - 3.5);
+      score -= centerDistance * 10;
+    }
+    
+    if(blackKing) {
+      const centerDistance = Math.abs(blackKing.r - 3.5) + Math.abs(blackKing.c - 3.5);
+      score += centerDistance * 10;
+    }
+    
+    return score;
+  }
+  
+  // Pawn structure evaluation
+  function evalPawnStructure(board) {
+    let score = 0;
+    
+    // Count pawns on each file
+    const whitePawns = [0,0,0,0,0,0,0,0];
+    const blackPawns = [0,0,0,0,0,0,0,0];
+    
+    for(let r = 0; r < 8; r++) {
+      for(let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if(piece && piece.type === "P") {
+          if(piece.color === "w") whitePawns[c]++;
+          else blackPawns[c]++;
+        }
+      }
+    }
+    
+    // Penalize doubled pawns
+    for(let c = 0; c < 8; c++) {
+      if(whitePawns[c] > 1) score -= 20 * (whitePawns[c] - 1);
+      if(blackPawns[c] > 1) score += 20 * (blackPawns[c] - 1);
+    }
+    
+    return score;
+  }
+  
+  // Enhanced evaluation function
+  function evalPos(pos) {
+    let score = 0;
+    
+    // Material evaluation
+    score += evalMaterial(pos.board);
+    
+    // Positional evaluation
+    score += evalPosition(pos.board);
+    
+    // King safety
+    score += evalKingSafety(pos.board);
+    
+    // Pawn structure
+    score += evalPawnStructure(pos.board);
+    
+    // Mobility (existing approach)
+    score += 0.1 * (allMoves(pos, "w").length - allMoves(pos, "b").length);
+    
+    return score;
+  }
+  
   function allMoves(pos,side){
     const {board:b,enPassantTarget:ep,castlingRights:cr}=pos, out=[];
     for(let r=0;r<8;r++) for(let c=0;c<8;c++){
@@ -798,15 +987,48 @@ if (themeBtn){
       for(const m of genLegalFor(r,c,b,side,ep,cr)) out.push({from:{r,c},to:{r:m.r,c:m.c},meta:m});
     } return out;
   }
-  const evalPos=(pos)=> evalMat(pos.board) + 0.1*(allMoves(pos,"w").length - allMoves(pos,"b").length);
+  
+  // Move ordering for better search performance
+  function orderMoves(moves, pos, side) {
+    return moves.sort((a, b) => {
+      // 1. Captures first (MVV-LVA: Most Valuable Victim - Least Valuable Attacker)
+      const aTarget = pos.board[a.to.r][a.to.c];
+      const bTarget = pos.board[b.to.r][b.to.c];
+      
+      if (aTarget && !bTarget) return -1; // a is capture, b is not
+      if (!aTarget && bTarget) return 1;  // b is capture, a is not
+      if (aTarget && bTarget) {
+        // Both are captures - prioritize by victim value
+        const aVictimValue = PIECE_VALUES[aTarget.type] || 0;
+        const bVictimValue = PIECE_VALUES[bTarget.type] || 0;
+        if (aVictimValue !== bVictimValue) return bVictimValue - aVictimValue;
+        
+        // If same victim value, prioritize by attacker value (LVA)
+        const aAttackerValue = PIECE_VALUES[pos.board[a.from.r][a.from.c].type] || 0;
+        const bAttackerValue = PIECE_VALUES[pos.board[b.from.r][b.from.c].type] || 0;
+        return aAttackerValue - bAttackerValue;
+      }
+      
+      // 2. Non-captures: prioritize center moves and developing moves
+      const aCenterDistance = Math.abs(a.to.r - 3.5) + Math.abs(a.to.c - 3.5);
+      const bCenterDistance = Math.abs(b.to.r - 3.5) + Math.abs(b.to.c - 3.5);
+      
+      return aCenterDistance - bCenterDistance;
+    });
+  }
+  
   function negamax(pos,depth,alpha,beta,side){
     const moves=allMoves(pos,side), inChk=isInCheckFor(pos.board,side);
     if (depth===0 || moves.length===0){
       if (moves.length===0) return { score: inChk ? -100000+(3-depth) : 0 };
       return { score: evalPos(pos)*(side==="w"?1:-1) };
     }
+    
+    // Order moves for better performance
+    const orderedMoves = orderMoves(moves, pos, side);
+    
     let best={score:-Infinity,move:null};
-    for(const mv of moves){
+    for(const mv of orderedMoves){
       const child=clonePosition(pos.board,pos.enPassantTarget,pos.castlingRights);
       applySimMove(child,mv.from.r,mv.from.c,mv.to.r,mv.to.c,mv.meta);
       const res=negamax(child,depth-1,-beta,-alpha,opposite(side));
@@ -821,10 +1043,26 @@ if (themeBtn){
     if (!aiEnabled || gameOver || pendingPromotion) return;
     if (turn!==aiColor) return;
     const pos=clonePosition(board,enPassantTarget,castlingRights);
-    const { move }=negamax(pos,aiDepth,-Infinity,Infinity,aiColor);
-    if (!move){ updateAll(); return; }
-    makeMove(move.from.r,move.from.c,move.to.r,move.to.c,move.meta);
-    lastMove={from:move.from,to:move.to};
+    
+    // Iterative deepening for better time management and stronger play
+    let bestMove = null;
+    let bestScore = -Infinity;
+    
+    // Search from depth 1 to aiDepth
+    for (let depth = 1; depth <= aiDepth; depth++) {
+      const result = negamax(pos, depth, -Infinity, Infinity, aiColor);
+      if (result.move) {
+        bestMove = result.move;
+        bestScore = result.score;
+      }
+      
+      // Early termination if we find a winning move
+      if (bestScore > 50000) break;
+    }
+    
+    if (!bestMove){ updateAll(); return; }
+    makeMove(bestMove.from.r,bestMove.from.c,bestMove.to.r,bestMove.to.c,bestMove.meta);
+    lastMove={from:bestMove.from,to:bestMove.to};
     if (!pendingPromotion){ turn=opposite(turn); updateAll(); maybeTriggerAIMove(); }
   }
   function maybeTriggerAIMove(){
