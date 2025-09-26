@@ -37,7 +37,7 @@ html, body{
 /* Main container */
 #app{
   width: calc(var(--board) + 24px);
-  padding: 8px;
+  padding: 12px;
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   position: relative;               /* for stacked screens + z */
   z-index: 1;
@@ -549,14 +549,77 @@ button:hover{ border-color:var(--accent-2); }
 .menu-logo-img {
   display:block;
   margin:0 auto;
-  max-width:250px;
+  max-width:350px;
   height:auto;
   filter: 
     drop-shadow(0 2px 4px rgba(0,0,0,0.6))   /* main shadow */
     drop-shadow(0 6px 12px rgba(0,0,0,0.35)); /* softer outer glow */
+  
+  /* Sophisticated dynamic effects */
+  position: relative;
+  transition: all 0.4s ease;
 }
 
-.menu-buttons{ display:flex; flex-direction:column; gap:8px; }
+.menu-logo-img::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(16, 185, 129, 0.1) 0%, 
+    rgba(16, 185, 129, 0.05) 25%, 
+    rgba(16, 185, 129, 0.1) 50%, 
+    rgba(16, 185, 129, 0.05) 75%, 
+    rgba(16, 185, 129, 0.1) 100%);
+  border-radius: 8px;
+  opacity: 0;
+  animation: logoShimmer 6s ease-in-out infinite;
+  z-index: -1;
+}
+
+.menu-logo-img:hover {
+  transform: scale(1.02);
+  filter: 
+    drop-shadow(0 4px 8px rgba(0,0,0,0.8))
+    drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
+
+.menu-logo-img:hover::before {
+  opacity: 1;
+  animation: logoShimmerHover 2s ease-in-out infinite;
+}
+
+@keyframes logoShimmer {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes logoShimmerHover {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1.01);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+}
+
+.menu-buttons{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:8px; 
+  padding: 0 12px;
+  margin: 0 4px;
+}
 .menu-btn{ width:100%; }
 .menu-btn--primary{
   background:#22c55e !important;
@@ -707,23 +770,40 @@ body.game-active .captured-title{ opacity:.95; }
   text-align: center;
 }
 
-/* Overlay actions */
+/* Overlay actions - side by side buttons */
 .overlay-actions {
-  display: flex;
+  display: flex !important;
   gap: 12px;
   justify-content: center;
-  margin-top: 16px;
+  align-items: center;
+  margin: 20px 16px 0 16px;
+  padding: 0 12px;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+}
+
+/* Harmonious button styling - both buttons same size */
+.btn-primary, .btn-secondary {
+  font-family: 'IBM Plex Sans', sans-serif;
+  min-width: 140px;
+  height: 44px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Primary button (Play Again) */
 .btn-primary {
   background: linear-gradient(180deg, #10b981, #059669);
-  border: 1px solid #10b981;
+  border-color: #10b981;
   color: white;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
@@ -735,20 +815,16 @@ body.game-active .captured-title{ opacity:.95; }
 
 /* Secondary button (Exit to Menu) */
 .btn-secondary {
-  background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-  border: 1px solid rgba(255,255,255,0.2);
-  color: var(--text);
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  background: linear-gradient(180deg, #6b7280, #4b5563);
+  border-color: #6b7280;
+  color: white;
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08));
-  border-color: rgba(255,255,255,0.3);
+  background: linear-gradient(180deg, #4b5563, #374151);
+  border-color: #4b5563;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 /* Nudge the whole game UI down a bit and add breathing room */
 body.game-active #app{
@@ -794,8 +870,64 @@ body.game-active .status-bar{
   transition: opacity 0.2s ease;
   z-index: 10;
   opacity: 0.7;
+  /* Override general button styles that cause glitching */
+  overflow: visible !important;
+  position: absolute !important;
 }
 
 .cancel-search-btn:hover {
   opacity: 1;
+}
+
+/* IBM Plex Sans font for all button texts */
+button {
+  font-family: 'IBM Plex Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+/* Exact same hover effect as Chesstention logo - but preserve existing hover effects */
+button:hover {
+  transform: scale(1.02);
+  filter: 
+    drop-shadow(0 4px 8px rgba(0,0,0,0.8))
+    drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
+
+/* Fix cancel button jumping - completely exclude from general hover effect */
+.cancel-search-btn {
+  transform: translateY(-50%) !important;
+}
+
+.cancel-search-btn:hover {
+  transform: translateY(-50%) !important;
+  filter: none !important;
+  opacity: 1;
+}
+
+/* Preserve specific button hover effects */
+.menu-btn--primary:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  border-color: #059669 !important;
+  transform: scale(1.02) translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Enhanced Play Online button - primary action */
+.menu-btn--primary {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  padding: 12px 20px !important;
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border: 2px solid #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.menu-btn--primary:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  border-color: #059669 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
 }
