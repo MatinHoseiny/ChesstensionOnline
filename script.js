@@ -1457,7 +1457,8 @@ function closeJoinTray(){
 }
 
   /* ---------------- Events ---------------- */
-  if (newGameBtn) newGameBtn.addEventListener("click", ()=>{
+  document.addEventListener('DOMContentLoaded', function() {
+    if (newGameBtn) newGameBtn.addEventListener("click", ()=>{
     // Cancel online search if active
     if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
       onlineChess.cancelSearch();
@@ -1597,6 +1598,7 @@ function closeJoinTray(){
       pendingPromotion.choose(piece);
     });
   }
+  }); // End DOMContentLoaded
 
   /* ---------------- Init ---------------- */
   // Ensure both trays are closed initially
