@@ -451,8 +451,12 @@ button:hover{ border-color:var(--accent-2); }
   width:calc(var(--cell) - 12px);
   height:calc(var(--cell) - 12px);
   user-select:none;
-  pointer-events:none;
+  pointer-events:auto;
   transform:translateZ(0);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Hover & highlights */
@@ -904,6 +908,35 @@ button:hover {
   transform: translateY(-50%) !important;
   filter: none !important;
   opacity: 1;
+}
+
+/* Chess piece hover effect - same shimmer as logo */
+.piece::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s ease;
+  z-index: 1;
+}
+
+.piece:hover {
+  transform: scale(1.05);
+  filter: 
+    drop-shadow(0 4px 8px rgba(0,0,0,0.3))
+    drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+}
+
+.piece:hover::before {
+  left: 100%;
 }
 
 /* Preserve specific button hover effects */
