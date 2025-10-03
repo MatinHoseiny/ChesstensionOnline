@@ -77,12 +77,24 @@ button:hover{ border-color:var(--accent-2); }
   box-shadow: 0 0 0 1px rgba(209,213,219,.35) inset;
 }
 
-/* CPU picker — consistent style */
-.cpu-options{ display:none; margin:0; }
-.cpu-options.show{
+/* CPU picker — consistent style with smooth closing */
+.cpu-options{ 
   display:flex;
   gap:12px;
   width:100%;
+  margin:0;
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transition: all 0.3s ease;
+  margin-top: -8px;
+  margin-bottom: 0;
+}
+.cpu-options.show{
+  max-height:60px;
+  opacity:1;
+  margin-top: 0;
+  margin-bottom: 8px;
 }
 .cpu-options .btn-toggle{
   flex:1;
@@ -425,10 +437,10 @@ button:hover{ border-color:var(--accent-2); }
   border:1px solid var(--glass-strong);
   box-shadow:var(--shadow);
   margin:0 auto;
-  transition: transform 0.3s ease;
+  /* transition: transform 0.3s ease; - Removed to prevent flip animation */
 }
 
-/* Board flipping for player perspective */
+/* Board flipping for player perspective - NO ANIMATION */
 .board.flipped{
   transform: rotate(180deg);
 }
@@ -503,30 +515,42 @@ button:hover{ border-color:var(--accent-2); }
 
 /* ======================= LAN PANELS ======================= */
 .lan-panel{
-  display:none;
   margin-top:8px;
-  padding:10px;
-  border-radius:12px;
+  padding:8px;
+  border-radius:8px;
   background:var(--glass);
   border:1px solid var(--glass-strong);
   box-shadow:var(--shadow);
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transition: all 0.3s ease;
+  margin-top: -8px;
+  margin-bottom: 0;
 }
-.lan-panel.show{ display:block; }
+.lan-panel.show{ 
+  max-height:150px;
+  opacity:1;
+  margin-top: 0;
+  margin-bottom: 6px;
+}
 .lan-panel .row{
   display:grid;
   grid-template-columns:96px minmax(0,1fr) 92px;
   align-items:center;
-  gap:12px;
-  margin-bottom:12px;
+  gap:8px;
+  margin-bottom:4px;
 }
 .lan-panel .row .input{ padding:8px 12px; }
 .lan-panel .row button{
   height:100%;
   display:flex; align-items:center; justify-content:center;
-  line-height:1; padding:8px 12px; font-size:13px; min-height:36px;
+  line-height:1; padding:8px 12px; font-size:13px; min-height:32px;
+  min-width: auto;
 }
 .lan-panel .row:last-child{ margin-bottom:0; }
 .lan-panel .lbl{ color:var(--muted); font-weight:600; letter-spacing:.2px; }
+
 
 /* ======================= INPUTS ======================= */
 .input{
@@ -595,6 +619,7 @@ button:hover{ border-color:var(--accent-2); }
   animation: logoShimmerHover 2s ease-in-out infinite;
 }
 
+
 @keyframes logoShimmer {
   0%, 100% {
     opacity: 0;
@@ -623,6 +648,7 @@ button:hover{ border-color:var(--accent-2); }
   gap:8px; 
   padding: 0 12px;
   margin: 0 4px;
+  position: relative;
 }
 .menu-btn{ width:100%; }
 .menu-btn--primary{
@@ -772,6 +798,31 @@ body.game-active .captured-title{ opacity:.95; }
   border: 1px solid rgba(255,255,255,.12);
   box-shadow: 0 20px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03);
   text-align: center;
+  position: relative;
+}
+
+/* Close overlay button */
+.close-overlay-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: #a5b4c3;
+  font-size: 20px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.close-overlay-btn:hover {
+  color: #e8eef7;
 }
 
 /* Overlay actions - side by side buttons */
