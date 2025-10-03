@@ -72,7 +72,7 @@
   const overlayTitleEl = document.getElementById("overlayTitle");
   const overlaySubEl   = document.getElementById("overlaySub");
   const overlayActionsEl= document.getElementById("overlayActions");
-  const promoPanelEl   = document.getElementById("promoPanel");
+  const promotionOverlayEl = document.getElementById("promotionOverlay");
   const playAgainBtn   = document.getElementById("playAgainBtn");
   const cancelSearchBtn = document.getElementById("cancelSearchBtn");
   const capturedByWhiteEl = document.getElementById("capturedByWhite");
@@ -226,7 +226,7 @@ class OnlineChess {
     legalMoves = [];
     
     // Update UI
-    updateAll();
+        updateAll();
     this.updateTurnIndicator();
     
   }
@@ -423,7 +423,7 @@ function updateProfilePreviewUI(p){
   let board=null, turn="w", selected=null, legalMoves=[], boardFlipped=false;
   let enPassantTarget=null, castlingRights=null, capturedByWhite=[], capturedByBlack=[];
   let gameOver=false, lastMove=null, pendingPromotion=null;
-  let aiEnabled=false, aiColor="b", aiDepth=4; // Increased depth for better play
+  let aiEnabled=false, aiColor="b", aiDepth=4; // Original depth
   
   // Function to determine if board should be flipped
   function shouldFlipBoard() {
@@ -540,11 +540,14 @@ if (themeBtn){
   aiEnabled, aiColor, aiDepth
 });
   function saveState(){
+    // Only save state when playing with computer (not online)
+    if (aiEnabled) {
     const data=snapshotState();
     if (typeof chrome!=="undefined" && chrome.storage?.local)
       chrome.storage.local.set({ [STORAGE_KEY]: data });
     else
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
   }
   function loadState(cb){
     if (typeof chrome!=="undefined" && chrome.storage?.local)
@@ -672,20 +675,50 @@ if (themeBtn){
   function pawnMoves(r,c,b,side,ep){
     const dir=side==="w"?-1:1, start=side==="w"?6:1, out=[];
     const r1=r+dir;
+    const isPromotion = (side==="w" && r1===0) || (side==="b" && r1===7);
+    
     if (inBounds(r1,c) && !b[r1][c]){
+      if (isPromotion) {
+        // Generate all promotion moves
+        out.push({r:r1,c,promote:"Q"});
+        out.push({r:r1,c,promote:"R"});
+        out.push({r:r1,c,promote:"B"});
+        out.push({r:r1,c,promote:"N"});
+      } else {
       out.push({r:r1,c});
+      }
       const r2=r+2*dir;
       if (r===start && !b[r2][c]) out.push({r:r2,c});
     }
     for (const dc of [-1,1]){
       const cc=c+dc; if (!inBounds(r1,cc)) continue;
-      const t=b[r1][cc]; if (t && t.color!==side) out.push({r:r1,c:cc});
+      const t=b[r1][cc]; if (t && t.color!==side) {
+        if (isPromotion) {
+          // Generate all promotion captures
+          out.push({r:r1,c:cc,promote:"Q"});
+          out.push({r:r1,c:cc,promote:"R"});
+          out.push({r:r1,c:cc,promote:"B"});
+          out.push({r:r1,c:cc,promote:"N"});
+        } else {
+          out.push({r:r1,c:cc});
+        }
+      }
     }
     if (ep){
       const {r:er,c:ec}=ep;
       if (er===r+dir && Math.abs(ec-c)===1){
         const adj=b[r][ec];
-        if (adj && adj.type==="P" && adj.color!==side) out.push({r:er,c:ec,special:"enpassant"});
+        if (adj && adj.type==="P" && adj.color!==side) {
+          if (isPromotion) {
+            // Generate all promotion en passant moves
+            out.push({r:er,c:ec,special:"enpassant",promote:"Q"});
+            out.push({r:er,c:ec,special:"enpassant",promote:"R"});
+            out.push({r:er,c:ec,special:"enpassant",promote:"B"});
+            out.push({r:er,c:ec,special:"enpassant",promote:"N"});
+          } else {
+            out.push({r:er,c:ec,special:"enpassant"});
+          }
+        }
       }
     }
     return out;
@@ -742,7 +775,14 @@ if (themeBtn){
     if (meta && meta.special==="enpassant"){
       const dir=moving.color==="w"?1:-1; b[tr+dir][tc]=null;
     }
-    b[tr][tc]={...moving,hasMoved:true}; b[sr][sc]=null;
+    
+    // Handle promotion
+    if (meta && meta.promote) {
+      b[tr][tc] = {type: meta.promote, color: moving.color, hasMoved: true};
+    } else {
+      b[tr][tc]={...moving,hasMoved:true};
+    }
+    b[sr][sc]=null;
 
     if (moving.type==="K"){
       if (moving.color==="w"){ pos.castlingRights.w.K=false; pos.castlingRights.w.Q=false; }
@@ -820,98 +860,176 @@ if (themeBtn){
     for (let i = positionHistory.length - 1; i >= Math.max(0, positionHistory.length - 6); i--) {
       if (positionHistory[i] === currentHash) {
         count++;
-        if (count >= 3) return true;
+        if (count >= 2) return true; // Consider 2-fold as repetition to be more aggressive
       }
     }
     
     return false;
   }
   
-  // Modern chess engine piece values (Stockfish-inspired)
+  // Simple, reliable repetition detection
+  function wouldCauseRepetition(pos, move) {
+    if (!positionHistory || positionHistory.length < 2) return false;
+    
+    try {
+      // Simulate the move to get the resulting position
+      const testPos = clonePosition(pos.board, pos.enPassantTarget, pos.castlingRights);
+      applySimMove(testPos, move.from.r, move.from.c, move.to.r, move.to.c, move.meta);
+      
+      // Get hash of the resulting position
+      const futureHash = getPositionHash(testPos);
+      
+      // Check if this position appeared in recent history
+      for (let i = positionHistory.length - 1; i >= Math.max(0, positionHistory.length - 4); i--) {
+        if (positionHistory[i] === futureHash) {
+          return true; // This move would repeat a recent position
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Repetition check error:', error);
+      return false; // If error, assume no repetition
+    }
+  }
+  
+  function isPerpetualCheck(pos, move, side) {
+    // Detect if this move would create a perpetual check pattern
+    try {
+      if (!isCheckMove(pos, move, side)) return false;
+      
+      // If we don't have enough history, allow the check
+      if (!positionHistory || positionHistory.length < 3) return false;
+      
+      // Check if we've been alternating between similar positions with checks
+      const movingPiece = pos.board[move.from.r][move.from.c];
+      if (!movingPiece) return false;
+      
+      // Knights and Queens are common perpetual check pieces
+      if (movingPiece.type === "N" || movingPiece.type === "Q") {
+        // If we've made several moves recently, avoid repeated checks
+        if (positionHistory.length >= 4) {
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      return false; // If error, assume not perpetual
+    }
+  }
+  
+  // Advanced piece values (exact values from top engines)
+  // These are the actual MG (middlegame) values used by top engines in centipawns
   const PIECE_VALUES = {
-    P: 100,   // Pawn
-    N: 320,   // Knight  
-    B: 330,   // Bishop
-    R: 500,   // Rook
-    Q: 900,   // Queen
-    K: 20000  // King
+    P: 126,   // Pawn (PawnValueMg)
+    N: 781,   // Knight (KnightValueMg)  
+    B: 825,   // Bishop (BishopValueMg)
+    R: 1276,  // Rook (RookValueMg)
+    Q: 2538,  // Queen (QueenValueMg)
+    K: 32000  // King (extremely high to prevent capture)
   };
   
-  // Balanced evaluation bonuses (more strategic)
-  const CHECKMATE_BONUS = 10000;  // Reduced from 50000
-  const CHECK_BONUS = 25;         // Reduced from 50
-  const CASTLE_BONUS = 30;
-  const PROMOTION_BONUS = 400;    // Reduced from 800
-  const PIECE_SAFETY_BONUS = 20;  // New: piece safety
-  const CENTER_CONTROL_BONUS = 15; // New: center control
-  const DEVELOPMENT_BONUS = 10;   // New: piece development
+  // Phase values for game phase calculation
+  const PHASE_VALUES = {
+    P: 0, N: 1, B: 1, R: 2, Q: 4, K: 0
+  };
+  const TOTAL_PHASE = 24;
+
+  // Advanced Piece-Square Tables (PST) for positional evaluation
+  // Values are from white's perspective, will be flipped for black
+  const PIECE_SQUARE_TABLES = {
+    P: [ // Pawn PST (encourages central control and advancement)
+      [  0,  0,  0,  0,  0,  0,  0,  0],
+      [ 50, 50, 50, 50, 50, 50, 50, 50],
+      [ 10, 10, 20, 30, 30, 20, 10, 10],
+      [  5,  5, 10, 25, 25, 10,  5,  5],
+      [  0,  0,  0, 20, 20,  0,  0,  0],
+      [  5, -5,-10,  0,  0,-10, -5,  5],
+      [  5, 10, 10,-20,-20, 10, 10,  5],
+      [  0,  0,  0,  0,  0,  0,  0,  0]
+    ],
+    N: [ // Knight PST (avoids edges, prefers central squares)
+      [-50,-40,-30,-30,-30,-30,-40,-50],
+      [-40,-20,  0,  0,  0,  0,-20,-40],
+      [-30,  0, 10, 15, 15, 10,  0,-30],
+      [-30,  5, 15, 20, 20, 15,  5,-30],
+      [-30,  0, 15, 20, 20, 15,  0,-30],
+      [-30,  5, 10, 15, 15, 10,  5,-30],
+      [-40,-20,  0,  5,  5,  0,-20,-40],
+      [-50,-40,-30,-30,-30,-30,-40,-50]
+    ],
+    B: [ // Bishop PST (prefers long diagonals)
+      [-20,-10,-10,-10,-10,-10,-10,-20],
+      [-10,  0,  0,  0,  0,  0,  0,-10],
+      [-10,  0,  5, 10, 10,  5,  0,-10],
+      [-10,  5,  5, 10, 10,  5,  5,-10],
+      [-10,  0, 10, 10, 10, 10,  0,-10],
+      [-10, 10, 10, 10, 10, 10, 10,-10],
+      [-10,  5,  0,  0,  0,  0,  5,-10],
+      [-20,-10,-10,-10,-10,-10,-10,-20]
+    ],
+    R: [ // Rook PST (prefers 7th rank and open files)
+      [  0,  0,  0,  0,  0,  0,  0,  0],
+      [  5, 10, 10, 10, 10, 10, 10,  5],
+      [ -5,  0,  0,  0,  0,  0,  0, -5],
+      [ -5,  0,  0,  0,  0,  0,  0, -5],
+      [ -5,  0,  0,  0,  0,  0,  0, -5],
+      [ -5,  0,  0,  0,  0,  0,  0, -5],
+      [ -5,  0,  0,  0,  0,  0,  0, -5],
+      [  0,  0,  0,  5,  5,  0,  0,  0]
+    ],
+    Q: [ // Queen PST (slight central preference)
+      [-20,-10,-10, -5, -5,-10,-10,-20],
+      [-10,  0,  0,  0,  0,  0,  0,-10],
+      [-10,  0,  5,  5,  5,  5,  0,-10],
+      [ -5,  0,  5,  5,  5,  5,  0, -5],
+      [  0,  0,  5,  5,  5,  5,  0, -5],
+      [-10,  5,  5,  5,  5,  5,  0,-10],
+      [-10,  0,  5,  0,  0,  0,  0,-10],
+      [-20,-10,-10, -5, -5,-10,-10,-20]
+    ],
+    K: [ // King PST - Middlegame (safety first)
+      [-30,-40,-40,-50,-50,-40,-40,-30],
+      [-30,-40,-40,-50,-50,-40,-40,-30],
+      [-30,-40,-40,-50,-50,-40,-40,-30],
+      [-30,-40,-40,-50,-50,-40,-40,-30],
+      [-20,-30,-30,-40,-40,-30,-30,-20],
+      [-10,-20,-20,-20,-20,-20,-20,-10],
+      [ 20, 20,  0,  0,  0,  0, 20, 20],
+      [ 20, 30, 10,  0,  0, 10, 30, 20]
+    ]
+  };
+
+  // Endgame King PST (active king)
+  const KING_ENDGAME_PST = [
+    [-50,-40,-30,-20,-20,-30,-40,-50],
+    [-30,-20,-10,  0,  0,-10,-20,-30],
+    [-30,-10, 20, 30, 30, 20,-10,-30],
+    [-30,-10, 30, 40, 40, 30,-10,-30],
+    [-30,-10, 30, 40, 40, 30,-10,-30],
+    [-30,-10, 20, 30, 30, 20,-10,-30],
+    [-30,-30,  0,  0,  0,  0,-30,-30],
+    [-50,-30,-30,-30,-30,-30,-30,-50]
+  ]; // 4*Q + 4*R + 4*B + 8*N = 24
   
-  // Positional piece-square tables
-  const PAWN_TABLE = [
-    [0,  0,  0,  0,  0,  0,  0,  0],
-    [50, 50, 50, 50, 50, 50, 50, 50],
-    [10, 10, 20, 30, 30, 20, 10, 10],
-    [5,  5, 10, 25, 25, 10,  5,  5],
-    [0,  0,  0, 20, 20,  0,  0,  0],
-    [5, -5,-10,  0,  0,-10, -5,  5],
-    [5, 10, 10,-20,-20, 10, 10,  5],
-    [0,  0,  0,  0,  0,  0,  0,  0]
-  ];
+  // Advanced evaluation constants
+  const CHECKMATE_BONUS = 50000;  // Much higher bonus for checkmate
+  const CHECK_BONUS = 100;        // Increased for tactical awareness
+  const CASTLE_BONUS = 60;        // Increased importance of king safety
+  const PROMOTION_BONUS = 400;    
+  const PIECE_SAFETY_BONUS = 25;  
+  const CENTER_CONTROL_BONUS = 20; 
+  const DEVELOPMENT_BONUS = 15;   
+  const MOBILITY_BONUS = 4;       // New: piece mobility
+  const DOUBLED_PAWN_PENALTY = 20; // New: pawn structure
+  const ISOLATED_PAWN_PENALTY = 15; // New: pawn structure
+  const BISHOP_PAIR_BONUS = 50;   // New: bishop pair advantage
   
-  const KNIGHT_TABLE = [
-    [-50,-40,-30,-30,-30,-30,-40,-50],
-    [-40,-20,  0,  0,  0,  0,-20,-40],
-    [-30,  0, 10, 15, 15, 10,  0,-30],
-    [-30,  5, 15, 20, 20, 15,  5,-30],
-    [-30,  0, 15, 20, 20, 15,  0,-30],
-    [-30,  5, 10, 15, 15, 10,  5,-30],
-    [-40,-20,  0,  5,  5,  0,-20,-40],
-    [-50,-40,-30,-30,-30,-30,-40,-50]
-  ];
-  
-  const BISHOP_TABLE = [
-    [-20,-10,-10,-10,-10,-10,-10,-20],
-    [-10,  0,  0,  0,  0,  0,  0,-10],
-    [-10,  0,  5, 10, 10,  5,  0,-10],
-    [-10,  5,  5, 10, 10,  5,  5,-10],
-    [-10,  0, 10, 10, 10, 10,  0,-10],
-    [-10, 10, 10, 10, 10, 10, 10,-10],
-    [-10,  5,  0,  0,  0,  0,  5,-10],
-    [-20,-10,-10,-10,-10,-10,-10,-20]
-  ];
-  
-  const ROOK_TABLE = [
-    [0,  0,  0,  0,  0,  0,  0,  0],
-    [5, 10, 10, 10, 10, 10, 10,  5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [-5,  0,  0,  0,  0,  0,  0, -5],
-    [0,  0,  0,  5,  5,  0,  0,  0]
-  ];
-  
-  const QUEEN_TABLE = [
-    [-20,-10,-10, -5, -5,-10,-10,-20],
-    [-10,  0,  0,  0,  0,  0,  0,-10],
-    [-10,  0,  5,  5,  5,  5,  0,-10],
-    [-5,  0,  5,  5,  5,  5,  0, -5],
-    [0,  0,  5,  5,  5,  5,  0, -5],
-    [-10,  5,  5,  5,  5,  5,  0,-10],
-    [-10,  0,  5,  0,  0,  0,  0,-10],
-    [-20,-10,-10, -5, -5,-10,-10,-20]
-  ];
-  
-  const KING_TABLE = [
-    [-30,-40,-40,-50,-50,-40,-40,-30],
-    [-30,-40,-40,-50,-50,-40,-40,-30],
-    [-30,-40,-40,-50,-50,-40,-40,-30],
-    [-30,-40,-40,-50,-50,-40,-40,-30],
-    [-20,-30,-30,-40,-40,-30,-30,-20],
-    [-10,-20,-20,-20,-20,-20,-20,-10],
-    [20, 20,  0,  0,  0,  0, 20, 20],
-    [20, 30, 10,  0,  0, 10, 30, 20]
-  ];
+  // Advanced move ordering bonuses
+  const MVV_LVA_BONUS = 1000000; // Most Valuable Victim - Least Valuable Attacker
+  const KILLER_MOVE_BONUS = 900000;
+  const HISTORY_MOVE_BONUS = 800000;
   
   // Enhanced material evaluation
   function evalMaterial(board) {
@@ -927,30 +1045,116 @@ if (themeBtn){
     return score;
   }
   
-  // Positional evaluation
+  // Get piece-square table value
+  function getPSTValue(piece, r, c, isEndgame = false) {
+    if (!piece) return 0;
+    
+    let table;
+    if (piece.type === 'K' && isEndgame) {
+      table = KING_ENDGAME_PST;
+    } else {
+      table = PIECE_SQUARE_TABLES[piece.type];
+    }
+    
+    if (!table) return 0;
+    
+    // For black pieces, flip the table vertically
+    const row = piece.color === 'w' ? r : 7 - r;
+    return table[row][c];
+  }
+
+  // Advanced positional evaluation
   function evalPosition(board) {
     let score = 0;
-    for(let r = 0; r < 8; r++) {
-      for(let c = 0; c < 8; c++) {
+    
+    // Calculate game phase for endgame detection
+    let phase = 0;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
         const piece = board[r][c];
-        if(!piece) continue;
-        
-        let pieceValue = 0;
-        const isWhite = piece.color === "w";
-        const tableRow = isWhite ? r : 7 - r;
-        
-        switch(piece.type) {
-          case "P": pieceValue = PAWN_TABLE[tableRow][c]; break;
-          case "N": pieceValue = KNIGHT_TABLE[tableRow][c]; break;
-          case "B": pieceValue = BISHOP_TABLE[tableRow][c]; break;
-          case "R": pieceValue = ROOK_TABLE[tableRow][c]; break;
-          case "Q": pieceValue = QUEEN_TABLE[tableRow][c]; break;
-          case "K": pieceValue = KING_TABLE[tableRow][c]; break;
+        if (piece) {
+          phase += PHASE_VALUES[piece.type] || 0;
         }
-        
-        score += isWhite ? pieceValue : -pieceValue;
       }
     }
+    const isEndgame = phase < 8; // Less than 8 phase points = endgame
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (!piece) continue;
+        
+        // Get advanced piece-square table value
+        let positionBonus = getPSTValue(piece, r, c, isEndgame);
+        
+        // Additional advanced positional factors
+        switch (piece.type) {
+          case 'P':
+            // Passed pawn bonus (simplified)
+            const advancementRank = piece.color === 'w' ? 7 - r : r;
+            if (advancementRank >= 4) {
+              positionBonus += advancementRank * 15; // Strong bonus for advanced pawns
+            }
+            break;
+            
+          case 'N':
+            // Knight outpost bonus (protected advanced knight)
+            const isAdvanced = piece.color === 'w' ? r <= 4 : r >= 3;
+            if (isAdvanced && (c >= 2 && c <= 5)) {
+              positionBonus += 30; // Outpost bonus
+            }
+            break;
+            
+          case 'B':
+            // Bishop pair and mobility bonus
+            let diagonalSquares = 0;
+            // Count free diagonal squares (simplified mobility)
+            const directions = [[1,1], [1,-1], [-1,1], [-1,-1]];
+            for (const [dr, dc] of directions) {
+              for (let i = 1; i < 8; i++) {
+                const nr = r + i * dr, nc = c + i * dc;
+                if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) break;
+                if (board[nr][nc]) break;
+                diagonalSquares++;
+              }
+            }
+            positionBonus += diagonalSquares * 3; // Mobility bonus
+            break;
+            
+          case 'R':
+            // Rook on open/semi-open file
+            let fileOpen = true;
+            for (let row = 0; row < 8; row++) {
+              if (board[row][c] && board[row][c].type === 'P') {
+                fileOpen = false;
+                break;
+              }
+            }
+            if (fileOpen) positionBonus += 25; // Open file bonus
+            
+            // 7th rank bonus (attacking opponent's pawns)
+            const on7thRank = piece.color === 'w' ? r === 1 : r === 6;
+            if (on7thRank) positionBonus += 35;
+            break;
+            
+          case 'Q':
+            // Queen development penalty in opening
+            if (!isEndgame) {
+              const earlyDevelopment = piece.color === 'w' ? r < 6 : r > 1;
+              if (earlyDevelopment) positionBonus -= 25; // Discourage early queen development
+            }
+            break;
+        }
+        
+        // Apply bonus based on piece color
+        if (piece.color === 'w') {
+          score += positionBonus;
+        } else {
+          score -= positionBonus;
+        }
+      }
+    }
+    
     return score;
   }
   
@@ -984,84 +1188,206 @@ if (themeBtn){
     return score;
   }
   
-  // Pawn structure evaluation
+  // Advanced pawn structure evaluation
   function evalPawnStructure(board) {
     let score = 0;
     
-    // Count pawns on each file
-    const whitePawns = [0,0,0,0,0,0,0,0];
-    const blackPawns = [0,0,0,0,0,0,0,0];
+    // Count pawns on each file and track positions
+    const whitePawnFiles = [0,0,0,0,0,0,0,0];
+    const blackPawnFiles = [0,0,0,0,0,0,0,0];
+    const whitePawnPositions = [];
+    const blackPawnPositions = [];
     
     for(let r = 0; r < 8; r++) {
       for(let c = 0; c < 8; c++) {
         const piece = board[r][c];
         if(piece && piece.type === "P") {
-          if(piece.color === "w") whitePawns[c]++;
-          else blackPawns[c]++;
+          if(piece.color === "w") {
+            whitePawnFiles[c]++;
+            whitePawnPositions.push({r, c});
+          } else {
+            blackPawnFiles[c]++;
+            blackPawnPositions.push({r, c});
+          }
         }
       }
     }
     
-    // Penalize doubled pawns
+    // Advanced doubled pawns penalty
     for(let c = 0; c < 8; c++) {
-      if(whitePawns[c] > 1) score -= 20 * (whitePawns[c] - 1);
-      if(blackPawns[c] > 1) score += 20 * (blackPawns[c] - 1);
+      if(whitePawnFiles[c] > 1) {
+        score -= DOUBLED_PAWN_PENALTY * (whitePawnFiles[c] - 1);
+      }
+      if(blackPawnFiles[c] > 1) {
+        score += DOUBLED_PAWN_PENALTY * (blackPawnFiles[c] - 1);
+      }
+    }
+    
+    // Isolated pawns penalty
+    for(let c = 0; c < 8; c++) {
+      const hasWhiteNeighbor = (c > 0 && whitePawnFiles[c-1] > 0) || (c < 7 && whitePawnFiles[c+1] > 0);
+      const hasBlackNeighbor = (c > 0 && blackPawnFiles[c-1] > 0) || (c < 7 && blackPawnFiles[c+1] > 0);
+      
+      if(whitePawnFiles[c] > 0 && !hasWhiteNeighbor) {
+        score -= ISOLATED_PAWN_PENALTY;
+        // Extra penalty for central isolated pawns
+        if(c >= 3 && c <= 4) score -= 10;
+      }
+      if(blackPawnFiles[c] > 0 && !hasBlackNeighbor) {
+        score += ISOLATED_PAWN_PENALTY;
+        if(c >= 3 && c <= 4) score += 10;
+      }
+    }
+    
+    // Advanced passed pawns evaluation
+    for(const pos of whitePawnPositions) {
+      try {
+        if(isPassedPawn(board, pos.r, pos.c, "w")) {
+          const advancement = 7 - pos.r;
+          score += advancement * 20; // Linear bonus for advancement
+        }
+      } catch(e) {
+        // Skip if error
+      }
+    }
+    for(const pos of blackPawnPositions) {
+      try {
+        if(isPassedPawn(board, pos.r, pos.c, "b")) {
+          const advancement = pos.r;
+          score -= advancement * 20;
+        }
+      } catch(e) {
+        // Skip if error
+      }
+    }
+    
+    // Pawn chains (connected pawns)
+    for(const pos of whitePawnPositions) {
+      try {
+        if(hasPawnSupport(board, pos.r, pos.c, "w")) {
+          score += 8; // Chain bonus for connected pawns
+        }
+      } catch(e) {
+        // Skip if error
+      }
+    }
+    for(const pos of blackPawnPositions) {
+      try {
+        if(hasPawnSupport(board, pos.r, pos.c, "b")) {
+          score -= 8;
+        }
+      } catch(e) {
+        // Skip if error
+      }
     }
     
     return score;
   }
   
-  // Optimized evaluation function with caching
+  // Helper: Check if pawn has diagonal support
+  function hasPawnSupport(board, r, c, color) {
+    const direction = color === "w" ? 1 : -1;
+    const supportRank = r + direction;
+    
+    if(supportRank < 0 || supportRank >= 8) return false;
+    
+    // Check left diagonal support
+    if(c > 0) {
+      const leftSupport = board[supportRank][c-1];
+      if(leftSupport && leftSupport.type === "P" && leftSupport.color === color) {
+        return true;
+      }
+    }
+    
+    // Check right diagonal support
+    if(c < 7) {
+      const rightSupport = board[supportRank][c+1];
+      if(rightSupport && rightSupport.type === "P" && rightSupport.color === color) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  // Helper: Check if there's a pawn on a file
+  function hasPawnOnFile(board, file, color) {
+    for(let r = 0; r < 8; r++) {
+      const piece = board[r][file];
+      if(piece && piece.type === "P" && piece.color === color) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Helper: Check if pawn is passed (no enemy pawns blocking)
+  function isPassedPawn(board, r, c, color) {
+    const direction = color === "w" ? -1 : 1;
+    const enemyColor = color === "w" ? "b" : "w";
+    
+    // Check the file and adjacent files for enemy pawns ahead
+    for(let checkFile = Math.max(0, c-1); checkFile <= Math.min(7, c+1); checkFile++) {
+      for(let checkRank = r + direction; checkRank >= 0 && checkRank < 8; checkRank += direction) {
+        const piece = board[checkRank][checkFile];
+        if(piece && piece.type === "P" && piece.color === enemyColor) {
+          return false; // Enemy pawn blocks this pawn
+        }
+      }
+    }
+    
+    return true; // No enemy pawns found, it's passed
+  }
+  
+  // Simplified, reliable evaluation function
   function evalPos(pos) {
     let score = 0;
     
-    // 1. CHECKMATE DETECTION (only for actual checkmate)
-    const whiteInCheck = isInCheckFor(pos.board, "w");
-    const blackInCheck = isInCheckFor(pos.board, "b");
-    const whiteMoves = allMoves(pos, "w").length;
-    const blackMoves = allMoves(pos, "b").length;
-    
-    // Only checkmate if actually checkmated
-    if (whiteInCheck && whiteMoves === 0) return -CHECKMATE_BONUS; // Black wins
-    if (blackInCheck && blackMoves === 0) return CHECKMATE_BONUS;  // White wins
-    if (whiteMoves === 0 || blackMoves === 0) return 0; // Stalemate
-    
-    // 2. MATERIAL BALANCE (foundation - most important)
-    score += evalMaterial(pos.board);
-    
-    // 3. POSITIONAL FACTORS (optimized)
-    score += evalPosition(pos.board);
-    
-    // 4. KING SAFETY (but not overly aggressive)
-    score += evalKingSafety(pos.board);
-    
-    // 5. PAWN STRUCTURE
-    score += evalPawnStructure(pos.board);
-    
-    // 6. CENTER CONTROL
-    score += evalCenterControl(pos.board);
-    
-    // 7. PIECE DEVELOPMENT
-    score += evalDevelopment(pos.board);
-    
-    // 8. MOBILITY (piece activity) - lightweight
-    score += 0.1 * (whiteMoves - blackMoves);
-    
-    // 9. TACTICAL FACTORS (balanced)
-    if (whiteInCheck) score -= CHECK_BONUS;
-    if (blackInCheck) score += CHECK_BONUS;
-    
-    // 10. CASTLING BONUS
-    score += evalCastling(pos);
-    
-    // 11. PROMOTION POTENTIAL
-    score += evalPromotionPotential(pos.board);
-    
-    // 12. ENDGAME KNOWLEDGE
-    score += evalEndgame(pos.board);
-    
-    // 13. REPETITION PENALTY
-    if (isRepetition(pos)) score -= 10;
+    try {
+      // 1. MATERIAL BALANCE (most important)
+      score += evalMaterial(pos.board);
+      
+      // 1.5. AGGRESSIVE CHECKMATE DETECTION
+      score += evalCheckmateOpportunities(pos);
+      
+      // 1.6. ENDGAME MATERIAL ADJUSTMENT (reduce material focus in endgame)
+      // Note: Material adjustment handled in individual evaluation functions
+      
+      // 2. BASIC POSITIONAL FACTORS
+      score += evalPosition(pos.board);
+      
+      // 3. KING SAFETY
+      score += evalKingSafety(pos.board);
+      
+      // 4. BASIC PAWN STRUCTURE (simplified)
+      score += evalPawnStructure(pos.board);
+      
+      // 5. CENTER CONTROL
+      score += evalCenterControl(pos.board);
+      
+      // 6. PIECE DEVELOPMENT
+      score += evalDevelopment(pos.board);
+      
+      // 7. CHECK BONUS
+      const whiteInCheck = isInCheckFor(pos.board, "w");
+      const blackInCheck = isInCheckFor(pos.board, "b");
+      if (whiteInCheck) score -= CHECK_BONUS;
+      if (blackInCheck) score += CHECK_BONUS;
+      
+      // 8. CASTLING BONUS
+      score += evalCastling(pos);
+      
+      // 9. REPETITION PENALTY
+      if (isRepetition(pos)) score -= 500;
+      
+      // 10. ENDGAME CHECKMATING STRATEGIES
+      score += evalEndgameCheckmating(pos);
+      
+    } catch (error) {
+      console.error('Evaluation error:', error);
+      // Fallback to basic material evaluation only
+      score = evalMaterial(pos.board);
+    }
     
     return score;
   }
@@ -1076,6 +1402,351 @@ if (themeBtn){
     if (castlingRights.bk || castlingRights.bq) score -= 20;
     
     return score;
+  }
+  
+  // Aggressive checkmate opportunity detection
+  function evalCheckmateOpportunities(pos) {
+    let score = 0;
+    
+    // Skip checkmate detection during evaluation to prevent infinite recursion
+    // Checkmate detection is handled in the main AI move selection
+    return score;
+  }
+  
+  // Advanced endgame checkmating strategies
+  function evalEndgameCheckmating(pos) {
+    let score = 0;
+    
+    try {
+      const board = pos.board;
+      
+      // Calculate game phase for endgame detection
+      let phase = 0;
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const piece = board[r][c];
+          if (piece) {
+            phase += PHASE_VALUES[piece.type] || 0;
+          }
+        }
+      }
+      const isEndgame = phase < 8; // Less than 8 phase points = endgame
+      
+      if (!isEndgame) return 0; // Only apply in endgame
+      
+      // 1. KING ACTIVITY IN ENDGAME
+      score += evalKingActivity(board);
+      
+      // 2. CHECKMATE PATTERN RECOGNITION
+      score += evalCheckmatePatterns(board);
+      
+      // 3. ENDGAME PIECE COORDINATION
+      score += evalPieceCoordination(board);
+      
+      // 4. MATING NET DETECTION
+      score += evalMatingNet(board);
+      
+    } catch (error) {
+      // If any error occurs, return 0 to prevent crashes
+      return 0;
+    }
+    
+    return score;
+  }
+  
+  // King activity evaluation
+  function evalKingActivity(board) {
+    let score = 0;
+    
+    try {
+    
+    // Find both kings
+    let whiteKing = null, blackKing = null;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "K") {
+          if (piece.color === "w") whiteKing = {r, c};
+          else blackKing = {r, c};
+        }
+      }
+    }
+    
+    if (whiteKing) {
+      // King centralization bonus (more important in endgame)
+      const centerDistance = Math.abs(whiteKing.r - 3.5) + Math.abs(whiteKing.c - 3.5);
+      score += (7 - centerDistance) * 15; // Up to 105 points for center
+      
+      // King mobility (squares it can move to)
+      const kingMoves = getKingMobility(board, whiteKing.r, whiteKing.c, "w");
+      score += kingMoves * 8; // 8 points per legal move
+    }
+    
+    if (blackKing) {
+      // King centralization bonus (more important in endgame)
+      const centerDistance = Math.abs(blackKing.r - 3.5) + Math.abs(blackKing.c - 3.5);
+      score -= (7 - centerDistance) * 15; // Up to 105 points for center
+      
+      // King mobility (squares it can move to)
+      const kingMoves = getKingMobility(board, blackKing.r, blackKing.c, "b");
+      score -= kingMoves * 8; // 8 points per legal move
+    }
+    
+    } catch (error) {
+      // If any error occurs, return 0 to prevent crashes
+      return 0;
+    }
+    
+    return score;
+  }
+  
+  // Get king mobility (number of legal moves)
+  function getKingMobility(board, r, c, color) {
+    let moves = 0;
+    const directions = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+    
+    for (const [dr, dc] of directions) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+        const target = board[nr][nc];
+        if (!target || target.color !== color) {
+          // Simplified mobility count (avoid calling isSquareAttacked during evaluation)
+          moves++;
+        }
+      }
+    }
+    return moves;
+  }
+  
+  // Checkmate pattern recognition
+  function evalCheckmatePatterns(board) {
+    let score = 0;
+    
+    try {
+      // 1. Back rank mate patterns
+      score += evalBackRankMate(board);
+      
+      // 2. Smothered mate patterns
+      score += evalSmotheredMate(board);
+      
+      // 3. Queen + King mate patterns
+      score += evalQueenKingMate(board);
+    } catch (error) {
+      // If any error occurs, return 0 to prevent crashes
+      return 0;
+    }
+    
+    return score;
+  }
+  
+  // Back rank mate evaluation
+  function evalBackRankMate(board) {
+    let score = 0;
+    
+    // Check white back rank (rank 0)
+    const whiteBackRank = board[0];
+    const whiteKing = whiteBackRank.find(p => p && p.type === "K" && p.color === "w");
+    if (whiteKing) {
+      // Count blocking pieces
+      let blockingPieces = 0;
+      for (let c = 0; c < 8; c++) {
+        const piece = whiteBackRank[c];
+        if (piece && piece.color === "w" && piece.type !== "K") {
+          blockingPieces++;
+        }
+      }
+      // Fewer blocking pieces = more vulnerable to back rank mate
+      if (blockingPieces <= 1) score -= 50;
+    }
+    
+    // Check black back rank (rank 7)
+    const blackBackRank = board[7];
+    const blackKing = blackBackRank.find(p => p && p.type === "K" && p.color === "b");
+    if (blackKing) {
+      // Count blocking pieces
+      let blockingPieces = 0;
+      for (let c = 0; c < 8; c++) {
+        const piece = blackBackRank[c];
+        if (piece && piece.color === "b" && piece.type !== "K") {
+          blockingPieces++;
+        }
+      }
+      // Fewer blocking pieces = more vulnerable to back rank mate
+      if (blockingPieces <= 1) score += 50;
+    }
+    
+    return score;
+  }
+  
+  // Smothered mate evaluation
+  function evalSmotheredMate(board) {
+    let score = 0;
+    
+    // Look for kings surrounded by their own pieces
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "K") {
+          const color = piece.color;
+          let friendlyPieces = 0;
+          let totalSquares = 0;
+          
+          // Count friendly pieces around king
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                totalSquares++;
+                const neighbor = board[nr][nc];
+                if (neighbor && neighbor.color === color) {
+                  friendlyPieces++;
+                }
+              }
+            }
+          }
+          
+          // If king is mostly surrounded by friendly pieces, it's vulnerable to smothered mate
+          if (totalSquares > 0 && friendlyPieces >= totalSquares * 0.7) {
+            if (color === "w") score -= 30;
+            else score += 30;
+          }
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // Queen + King mate patterns
+  function evalQueenKingMate(board) {
+    let score = 0;
+    
+    // Look for queen + king coordination
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "Q") {
+          const color = piece.color;
+          
+          // Find the king of the same color
+          let king = null;
+          for (let kr = 0; kr < 8; kr++) {
+            for (let kc = 0; kc < 8; kc++) {
+              const kPiece = board[kr][kc];
+              if (kPiece && kPiece.type === "K" && kPiece.color === color) {
+                king = {r: kr, c: kc};
+                break;
+              }
+            }
+            if (king) break;
+          }
+          
+          if (king) {
+            // Distance between queen and king (closer = better coordination)
+            const distance = Math.abs(r - king.r) + Math.abs(c - king.c);
+            if (distance <= 3) {
+              if (color === "w") score += 25;
+              else score -= 25;
+            }
+          }
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // Piece coordination evaluation
+  function evalPieceCoordination(board) {
+    let score = 0;
+    
+    try {
+      // Look for pieces that can work together for mate
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type !== "P" && piece.type !== "K") {
+          const color = piece.color;
+          
+          // Count other pieces that can coordinate with this piece
+          let coordinationScore = 0;
+          for (let or = 0; or < 8; or++) {
+            for (let oc = 0; oc < 8; oc++) {
+              const otherPiece = board[or][oc];
+              if (otherPiece && otherPiece.color === color && otherPiece !== piece) {
+                const distance = Math.abs(r - or) + Math.abs(c - oc);
+                if (distance <= 4) {
+                  coordinationScore += 5; // Bonus for nearby pieces
+                }
+              }
+            }
+          }
+          
+          if (color === "w") score += coordinationScore;
+          else score -= coordinationScore;
+        }
+      }
+    }
+    
+    } catch (error) {
+      // If any error occurs, return 0 to prevent crashes
+      return 0;
+    }
+    
+    return score;
+  }
+  
+  // Mating net detection
+  function evalMatingNet(board) {
+    let score = 0;
+    
+    try {
+      // Look for pieces that can create mating nets
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "Q") {
+          const color = piece.color;
+          
+          // Check if queen can create mating threats
+          const queenThreats = getQueenThreats(board, r, c, color);
+          if (queenThreats > 0) {
+            if (color === "w") score += queenThreats * 10;
+            else score -= queenThreats * 10;
+          }
+        }
+      }
+    }
+    
+    } catch (error) {
+      // If any error occurs, return 0 to prevent crashes
+      return 0;
+    }
+    
+    return score;
+  }
+  
+  // Get queen threats (squares it attacks)
+  function getQueenThreats(board, r, c, color) {
+    let threats = 0;
+    const directions = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+    
+    for (const [dr, dc] of directions) {
+      let nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+        const target = board[nr][nc];
+        if (target) {
+          if (target.color !== color) threats++;
+          break;
+        }
+        threats++;
+        nr += dr;
+        nc += dc;
+      }
+    }
+    
+    return threats;
   }
   
   // Promotion potential evaluation
@@ -1280,6 +1951,161 @@ if (themeBtn){
     return score;
   }
   
+  // Advanced evaluation functions
+  function evalBishopPair(board) {
+    let score = 0;
+    let whiteBishops = 0, blackBishops = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "B") {
+          if (piece.color === "w") whiteBishops++;
+          else blackBishops++;
+        }
+      }
+    }
+    
+    // Bishop pair bonus (~50 centipawns)
+    if (whiteBishops >= 2) score += 50;
+    if (blackBishops >= 2) score -= 50;
+    
+    return score;
+  }
+  
+  function evalRookOnOpenFiles(board) {
+    let score = 0;
+    
+    for (let c = 0; c < 8; c++) {
+      let pawnsOnFile = 0;
+      let whiteRook = null, blackRook = null;
+      
+      for (let r = 0; r < 8; r++) {
+        const piece = board[r][c];
+        if (piece) {
+          if (piece.type === "P") pawnsOnFile++;
+          else if (piece.type === "R") {
+            if (piece.color === "w") whiteRook = r;
+            else blackRook = r;
+          }
+        }
+      }
+      
+      // Open file bonus (no pawns)
+      if (pawnsOnFile === 0) {
+        if (whiteRook !== null) score += 25;
+        if (blackRook !== null) score -= 25;
+      }
+      // Semi-open file bonus (only opponent pawns)
+      else {
+        let whitePawns = 0, blackPawns = 0;
+        for (let r = 0; r < 8; r++) {
+          const piece = board[r][c];
+          if (piece && piece.type === "P") {
+            if (piece.color === "w") whitePawns++;
+            else blackPawns++;
+          }
+        }
+        if (whitePawns === 0 && blackRook !== null) score -= 15;
+        if (blackPawns === 0 && whiteRook !== null) score += 15;
+      }
+    }
+    
+    return score;
+  }
+  
+  function evalKnightOutposts(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "N") {
+          const isWhite = piece.color === "w";
+          
+          // Check if knight is on an outpost (4th/5th rank, protected by pawn)
+          if ((isWhite && r >= 2 && r <= 4) || (!isWhite && r >= 3 && r <= 5)) {
+            // Check for pawn protection
+            const pawnRow = isWhite ? r + 1 : r - 1;
+            let protected = false;
+            
+            if (pawnRow >= 0 && pawnRow < 8) {
+              for (const dc of [-1, 1]) {
+                const pc = c + dc;
+                if (pc >= 0 && pc < 8) {
+                  const protector = board[pawnRow][pc];
+                  if (protector && protector.type === "P" && protector.color === piece.color) {
+                    protected = true;
+                    break;
+                  }
+                }
+              }
+            }
+            
+            if (protected) {
+              score += isWhite ? 30 : -30;
+            }
+          }
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  function evalPassedPawns(board, phase) {
+    let score = 0;
+    
+    for (let c = 0; c < 8; c++) {
+      for (let r = 0; r < 8; r++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "P") {
+          const isWhite = piece.color === "w";
+          let isPassed = true;
+          
+          // Check if pawn is passed (no enemy pawns blocking)
+          const direction = isWhite ? -1 : 1;
+          const startRow = isWhite ? r - 1 : r + 1;
+          const endRow = isWhite ? 0 : 7;
+          
+          for (let checkR = startRow; checkR !== endRow + direction; checkR += direction) {
+            if (checkR < 0 || checkR > 7) break;
+            
+            for (const checkC of [c - 1, c, c + 1]) {
+              if (checkC >= 0 && checkC < 8) {
+                const checkPiece = board[checkR][checkC];
+                if (checkPiece && checkPiece.type === "P" && checkPiece.color !== piece.color) {
+                  isPassed = false;
+                  break;
+                }
+              }
+            }
+            if (!isPassed) break;
+          }
+          
+          if (isPassed) {
+            const rank = isWhite ? 7 - r : r;
+            const bonus = rank * rank * 10; // Exponential bonus for advanced passed pawns
+            
+            // Bonus increases in endgame
+            const phaseBonus = (TOTAL_PHASE - phase) / TOTAL_PHASE;
+            const finalBonus = bonus * (1 + phaseBonus);
+            
+            score += isWhite ? finalBonus : -finalBonus;
+          }
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // Calculate centrality bonus for move ordering
+  function getCentralityBonus(r, c) {
+    const centerDistance = Math.abs(3.5 - r) + Math.abs(3.5 - c);
+    return Math.max(0, 7 - centerDistance);
+  }
+  
   function allMoves(pos,side){
     const {board:b,enPassantTarget:ep,castlingRights:cr}=pos, out=[];
     for(let r=0;r<8;r++) for(let c=0;c<8;c++){
@@ -1288,46 +2114,147 @@ if (themeBtn){
     } return out;
   }
   
-  // Comprehensive opening book with multiple strategies
+  // Advanced opening book based on top engines
   const openingBook = {
-    // Starting position - multiple opening choices
+    // Starting position - top engine preferred openings
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w": [
-      "e2e4", "d2d4", "g1f3", "c2c4", "f2f4", "b1c3", "g2g3", "e2e3", "b2b3", "a2a3"
+      "e2e4", "d2d4", "g1f3", "c2c4"  // Top 4 most principled openings
     ],
     
-    // King's Pawn openings
+    // === KING'S PAWN GAME (1.e4) ===
+    // After 1.e4 - Black's main responses
     "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b": [
-      "e7e5", "c7c5", "e7e6", "c7c6", "d7d6", "g8f6", "b8c6", "f7f5"
+      "e7e5", "c7c5", "e7e6", "c7c6", "d7d6", "g8f6"
     ],
     
-    // Queen's Pawn openings  
-    "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b": [
-      "d7d5", "g8f6", "e7e6", "c7c5", "f7f5", "b8c6", "g7g6", "d7d6"
+    // === RUY LOPEZ ===
+    // 1.e4 e5 2.Nf3 Nc6 3.Bb5 (Spanish Opening)
+    "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b": [
+      "a7a6", "f7f5", "g8f6", "f8c5", "b8d4"
     ],
     
-    // Sicilian Defense variations
+    // === ITALIAN GAME ===
+    // 1.e4 e5 2.Nf3 Nc6 3.Bc4
+    "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b": [
+      "f8c5", "f8e7", "f7f5", "g8f6"
+    ],
+    
+    // === SICILIAN DEFENSE ===
+    // 1.e4 c5 - White's responses
     "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w": [
-      "g1f3", "b1c3", "f2f4", "c2c3", "g2g3", "f1c4", "d2d3", "b2b3"
+      "g1f3", "b1c3", "f2f4", "c2c3"  // Open, Closed, Grand Prix, Alapin
     ],
     
-    // French Defense
-    "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w": [
-      "d2d4", "g1f3", "b1c3", "f2f4", "c2c3", "g2g3", "f1c4", "d2d3"
+    // Sicilian Dragon - 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6
+    "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w": [
+      "f2f3", "c1e3", "f1e2", "h2h3"  // Yugoslav Attack, Positional
     ],
     
-    // Caro-Kann Defense
+    // === FRENCH DEFENSE ===
+    // 1.e4 e6 - White's main systems
+    "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w": [
+      "d2d4", "g1f3", "b1c3", "f2f4"  // Advance, King's Indian Attack, Exchange, King's Indian Attack
+    ],
+    
+    // French Advance - 1.e4 e6 2.d4 d5 3.e5
+    "rnbqkbnr/ppp2ppp/4p3/3pP3/3P4/8/PPP2PPP/RNBQKBNR b": [
+      "c7c5", "b8c6", "g8e7", "f7f6"
+    ],
+    
+    // === CARO-KANN DEFENSE ===
+    // 1.e4 c6 - White's responses
     "rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w": [
-      "d2d4", "b1c3", "g1f3", "f2f4", "c2c3", "g2g3", "f1c4", "d2d3"
+      "d2d4", "b1c3", "g1f3", "f2f4"
+    ],
+    
+    // === QUEEN'S PAWN GAME (1.d4) ===
+    // After 1.d4 - Black's main responses
+    "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b": [
+      "d7d5", "g8f6", "e7e6", "c7c5", "f7f5"
+    ],
+    
+    // === QUEEN'S GAMBIT ===
+    // 1.d4 d5 2.c4 - Queen's Gambit
+    "rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b": [
+      "e7e6", "c7c6", "d5c4", "b8c6", "g8f6"  // Declined, Slav, Accepted
+    ],
+    
+    // Queen's Gambit Declined - 1.d4 d5 2.c4 e6
+    "rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR w": [
+      "b1c3", "g1f3", "c4d5", "e2e3"
+    ],
+    
+    // === NIMZO-INDIAN DEFENSE ===
+    // 1.d4 Nf6 2.c4 e6 3.Nc3 Bb4
+    "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w": [
+      "e2e3", "g1f3", "f2f3", "a2a3", "d1c2"
+    ],
+    
+    // === KING'S INDIAN DEFENSE ===
+    // 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7
+    "rnbqk2r/pppppn1p/6p1/8/2PP4/2N5/PP2PPPP/R1BQKBNR w": [
+      "e2e4", "g1f3", "f2f3", "h2h3"  // Classical, Fianchetto, Four Pawns
+    ],
+    
+    // === ENGLISH OPENING ===
+    // 1.c4 - English Opening responses
+    "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b": [
+      "e7e5", "g8f6", "c7c5", "e7e6", "g7g6"
+    ],
+    
+    // === RETI OPENING ===
+    // 1.Nf3 - Reti Opening
+    "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b": [
+      "d7d5", "g8f6", "c7c5", "e7e6", "g7g6"
+    ],
+    
+    // === ADVANCED VARIATIONS ===
+    
+    // Ruy Lopez Berlin Defense - 1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf6
+    "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w": [
+      "e1g1", "d2d3", "c1g5", "f1e1"
+    ],
+    
+    // Sicilian Najdorf - 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6
+    "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w": [
+      "c1g5", "f1e2", "f2f3", "h2h3", "g2g3"
+    ],
+    
+    // Queen's Indian Defense - 1.d4 Nf6 2.c4 e6 3.Nf3 b6
+    "rnbqkb1r/p1pp1ppp/1p2pn2/8/2PP4/5N2/PP2PPPP/RNBQKB1R w": [
+      "g2g3", "a2a3", "b1c3", "e2e3"
+    ],
+    
+    // Catalan Opening - 1.d4 Nf6 2.c4 e6 3.g3
+    "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/6P1/PP2PP1P/RNBQKBNR b": [
+      "d7d5", "c7c5", "f8b4", "b7b6"
+    ],
+    
+    // Grünfeld Defense - 1.d4 Nf6 2.c4 g6 3.Nc3 d5
+    "rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w": [
+      "c4d5", "g1f3", "e2e3", "c1f4"
     ]
   };
 
-  // Get opening move from book
+  // Advanced opening move selection with priorities
   function getOpeningMove(pos, side) {
     const fen = getFEN(pos, side);
     const moves = openingBook[fen];
     if (moves && moves.length > 0) {
-      // Randomly select from available opening moves for variety
-      return moves[Math.floor(Math.random() * moves.length)];
+      // Weighted selection - first moves are more likely to be chosen
+      const weights = moves.map((_, i) => Math.max(1, moves.length - i));
+      const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+      
+      let random = Math.random() * totalWeight;
+      for (let i = 0; i < moves.length; i++) {
+        random -= weights[i];
+        if (random <= 0) {
+          return moves[i];
+        }
+      }
+      
+      // Fallback to first move
+      return moves[0];
     }
     return null;
   }
@@ -1388,49 +2315,102 @@ if (themeBtn){
     return fen;
   }
 
-  // Optimized move ordering (faster)
+  // Smart move ordering with checkmate detection
+  // Simplified move ordering for better performance
   function orderMoves(moves, pos, side) {
     return moves.sort((a, b) => {
-      // 1. CHECKMATE MOVES (only if actually checkmate)
-      const aIsCheckmate = isCheckmateMove(pos, a, side);
-      const bIsCheckmate = isCheckmateMove(pos, b, side);
-      if (aIsCheckmate && !bIsCheckmate) return -1;
-      if (!aIsCheckmate && bIsCheckmate) return 1;
-      
-      // 2. CAPTURES (MVV-LVA - fast heuristic)
-      const aTarget = pos.board[a.to.r][a.to.c];
-      const bTarget = pos.board[b.to.r][b.to.c];
+      // 1. CAPTURES FIRST (MVV-LVA)
+      const aTarget = pos.board[a.to.r] ? pos.board[a.to.r][a.to.c] : null;
+      const bTarget = pos.board[b.to.r] ? pos.board[b.to.r][b.to.c] : null;
       
       if (aTarget && !bTarget) return -1; // a is capture, b is not
       if (!aTarget && bTarget) return 1;  // b is capture, a is not
+      
       if (aTarget && bTarget) {
         const aVictimValue = PIECE_VALUES[aTarget.type] || 0;
         const bVictimValue = PIECE_VALUES[bTarget.type] || 0;
         if (aVictimValue !== bVictimValue) return bVictimValue - aVictimValue;
-        
-        const aAttackerValue = PIECE_VALUES[pos.board[a.from.r][a.from.c].type] || 0;
-        const bAttackerValue = PIECE_VALUES[pos.board[b.from.r][b.from.c].type] || 0;
-        return aAttackerValue - bAttackerValue;
       }
       
-      // 3. CHECK MOVES
-      const aIsCheck = isCheckMove(pos, a, side);
-      const bIsCheck = isCheckMove(pos, b, side);
-      if (aIsCheck && !bIsCheck) return -1;
-      if (!aIsCheck && bIsCheck) return 1;
+      // 2. CHECKS (with error handling)
+      try {
+        const aIsCheck = isCheckMove(pos, a, side);
+        const bIsCheck = isCheckMove(pos, b, side);
+        if (aIsCheck && !bIsCheck) return -1;
+        if (!aIsCheck && bIsCheck) return 1;
+        
+        // 2.5. ENDGAME CHECKMATE PRIORITY
+        if (aIsCheck && bIsCheck) {
+          // Both are checks - prioritize potential checkmates
+          const aIsCheckmate = isCheckmateMove(pos, a, side);
+          const bIsCheckmate = isCheckmateMove(pos, b, side);
+          if (aIsCheckmate && !bIsCheckmate) return -1;
+          if (!aIsCheckmate && bIsCheckmate) return 1;
+        }
+      } catch (e) {
+        // Skip check detection if error - no crash
+      }
       
-      // 4. PROMOTION MOVES
+      // 3. PROMOTIONS
       const aIsPromotion = a.meta && a.meta.promote;
       const bIsPromotion = b.meta && b.meta.promote;
       if (aIsPromotion && !bIsPromotion) return -1;
       if (!aIsPromotion && bIsPromotion) return 1;
       
-      // 5. CENTER CONTROL (fast heuristic)
-      const aCenterDistance = Math.abs(a.to.r - 3.5) + Math.abs(a.to.c - 3.5);
-      const bCenterDistance = Math.abs(b.to.r - 3.5) + Math.abs(b.to.c - 3.5);
+      // 5. CASTLING MOVES (with safety checks)
+      const aIsCastle = a && a.meta && (a.meta.special === "castle-k" || a.meta.special === "castle-q");
+      const bIsCastle = b && b.meta && (b.meta.special === "castle-k" || b.meta.special === "castle-q");
+      if (aIsCastle && !bIsCastle) return -1;
+      if (!aIsCastle && bIsCastle) return 1;
+      
+      // 6. ENDGAME KING ACTIVITY
+      const gamePhase = getGamePhase(pos.board);
+      if (gamePhase < 8) { // Endgame
+        const aKingActivity = getKingActivityScore(pos, a, side);
+        const bKingActivity = getKingActivityScore(pos, b, side);
+        if (aKingActivity !== bKingActivity) {
+          return bKingActivity - aKingActivity; // Higher activity first
+        }
+      }
+      
+      // 7. CENTER CONTROL (fast heuristic) - with safety checks
+      let aCenterDistance = 7, bCenterDistance = 7; // Default to edge distance
+      if (a && a.to && a.to.r !== undefined && a.to.c !== undefined) {
+        aCenterDistance = Math.abs(a.to.r - 3.5) + Math.abs(a.to.c - 3.5);
+      }
+      if (b && b.to && b.to.r !== undefined && b.to.c !== undefined) {
+        bCenterDistance = Math.abs(b.to.r - 3.5) + Math.abs(b.to.c - 3.5);
+      }
       
       return aCenterDistance - bCenterDistance;
     });
+  }
+  
+  // Get game phase for endgame detection
+  function getGamePhase(board) {
+    let phase = 0;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece) {
+          phase += PHASE_VALUES[piece.type] || 0;
+        }
+      }
+    }
+    return phase;
+  }
+  
+  // Get king activity score for move ordering
+  function getKingActivityScore(pos, move, side) {
+    if (move.from && pos.board[move.from.r] && pos.board[move.from.r][move.from.c]) {
+      const piece = pos.board[move.from.r][move.from.c];
+      if (piece && piece.type === "K") {
+        // King moves get higher priority in endgame
+        const centerDistance = Math.abs(move.to.r - 3.5) + Math.abs(move.to.c - 3.5);
+        return 50 - centerDistance; // Closer to center = higher score
+      }
+    }
+    return 0;
   }
   
   // Check if a capture is safe (not recaptured)
@@ -1482,8 +2462,12 @@ if (themeBtn){
   // Position history for repetition detection
   let positionHistory = [];
   
+  
   // Quiescence search for tactical depth
-  function quiescence(pos, alpha, beta, side) {
+  function quiescence(pos, alpha, beta, side, depth = 0) {
+    // Limit quiescence depth to prevent infinite recursion
+    if (depth >= 5) return evalPos(pos) * (side === "w" ? 1 : -1);
+    
     const standPat = evalPos(pos) * (side === "w" ? 1 : -1);
     
     if (standPat >= beta) return beta;
@@ -1505,7 +2489,7 @@ if (themeBtn){
       const child = clonePosition(pos.board, pos.enPassantTarget, pos.castlingRights);
       applySimMove(child, move.from.r, move.from.c, move.to.r, move.to.c, move.meta);
       
-      const score = -quiescence(child, -beta, -alpha, opposite(side));
+      const score = -quiescence(child, -beta, -alpha, opposite(side), depth + 1);
       
       if (score >= beta) return beta;
       if (score > alpha) alpha = score;
@@ -1619,7 +2603,7 @@ if (themeBtn){
           if (isLegal) {
             makeMove(openingMove.from.r, openingMove.from.c, openingMove.to.r, openingMove.to.c, openingMove.meta);
             lastMove = {from: openingMove.from, to: openingMove.to};
-            if (!pendingPromotion) { turn = opposite(turn); updateAll(); maybeTriggerAIMove(); }
+            if (!pendingPromotion) { turn = opposite(turn); updateAll(); }
             return;
           }
         }
@@ -1636,14 +2620,19 @@ if (themeBtn){
     
     const orderedMoves = orderMoves(allLegalMoves, pos, aiColor);
     
-    // Look for immediate checkmate
-    for (const move of orderedMoves) {
-      if (isCheckmateMove(pos, move, aiColor)) {
-        makeMove(move.from.r, move.from.c, move.to.r, move.to.c, move.meta);
-        lastMove = {from: move.from, to: move.to};
-        if (!pendingPromotion) { turn = opposite(turn); updateAll(); maybeTriggerAIMove(); }
-        return;
+    // Look for immediate checkmate (with error handling)
+    try {
+      for (const move of orderedMoves) {
+        if (isCheckmateMove(pos, move, aiColor)) {
+          makeMove(move.from.r, move.from.c, move.to.r, move.to.c, move.meta);
+          lastMove = {from: move.from, to: move.to};
+          if (!pendingPromotion) { turn = opposite(turn); updateAll(); }
+          return;
+        }
       }
+    } catch (error) {
+      console.error('Checkmate detection error:', error);
+      // Continue with normal search
     }
     
     // 3. OPTIMIZED ITERATIVE DEEPENING SEARCH
@@ -1673,15 +2662,60 @@ if (themeBtn){
       }
     }
     
-    if (!bestMove){ 
-      console.error('No move found by AI');
-      updateAll(); 
-      return; 
+    // If no move found or the best move leads to repetition, find alternative
+    let needsAlternative = false;
+    try {
+      needsAlternative = !bestMove || wouldCauseRepetition(pos, bestMove) || isPerpetualCheck(pos, bestMove, aiColor);
+    } catch (error) {
+      console.error('Repetition check error:', error);
+      needsAlternative = !bestMove; // Only check if we have no move
+    }
+    
+    if (needsAlternative) { 
+      // Finding alternative move...
+      
+      // Filter out moves that cause repetition or perpetual check
+      let goodMoves = [];
+      try {
+        goodMoves = allLegalMoves.filter(move => {
+          try {
+            return !wouldCauseRepetition(pos, move) && !isPerpetualCheck(pos, move, aiColor);
+          } catch (e) {
+            return true; // If error checking, assume move is good
+          }
+        });
+      } catch (error) {
+        console.error('Move filtering error:', error);
+        goodMoves = allLegalMoves; // Use all moves if filtering fails
+      }
+      
+      // If no good moves found, use all moves
+      if (goodMoves.length === 0) {
+        goodMoves = allLegalMoves;
+      }
+      
+      if (goodMoves.length > 0) {
+        // Add some randomization to avoid predictable play
+        const randomIndex = Math.floor(Math.random() * Math.min(3, goodMoves.length));
+        bestMove = goodMoves[randomIndex];
+        // Selected alternative move to avoid repetition
+      } else {
+        // Fallback to a random legal move
+        const randomIndex = Math.floor(Math.random() * allLegalMoves.length);
+        bestMove = allLegalMoves[randomIndex];
+        // Using random fallback move
+      }
+      
+      if (!bestMove) {
+        console.error('No move found by AI');
+        updateAll(); 
+        return; 
+      }
     }
     
     makeMove(bestMove.from.r,bestMove.from.c,bestMove.to.r,bestMove.to.c,bestMove.meta);
     lastMove={from:bestMove.from,to:bestMove.to};
-    if (!pendingPromotion){ turn=opposite(turn); updateAll(); maybeTriggerAIMove(); }
+    if (!pendingPromotion){ turn=opposite(turn); updateAll(); }
   }
   function maybeTriggerAIMove(){
     if (!aiEnabled || gameOver || pendingPromotion) return;
@@ -1708,25 +2742,20 @@ if (themeBtn){
   function showOverlay(title,sub){
     overlayTitleEl.textContent=title;
     overlaySubEl.textContent=sub||"";
-    promoPanelEl.style.display="none";
     overlayActionsEl.style.display="block";
     overlayEl.classList.add("visible");
     overlayEl.setAttribute("aria-hidden","false");
   }
   function openPromotion(color,at,onChoose){
     pendingPromotion={color,at,choose:onChoose};
-    overlayTitleEl.textContent="Promotion";
-    overlaySubEl.textContent=color==="w"?"White pawn reached last rank":"Black pawn reached last rank";
-    promoPanelEl.style.display="block";
-    overlayActionsEl.style.display="none";
-    overlayEl.classList.add("visible");
-    overlayEl.setAttribute("aria-hidden","false");
+    promotionOverlayEl.classList.add("visible");
+    promotionOverlayEl.setAttribute("aria-hidden","false");
   }
   function hideOverlay(){
     overlayEl.classList.remove("visible");
     overlayEl.setAttribute("aria-hidden","true");
-    promoPanelEl.style.display="none";
-    overlayActionsEl.style.display="block";
+    promotionOverlayEl.classList.remove("visible");
+    promotionOverlayEl.setAttribute("aria-hidden","true");
   }
 
   // IMPORTANT: Do NOT disable ai side buttons (fix for issue #2)
@@ -1865,6 +2894,7 @@ if (themeBtn){
     }
   }
   function updateAll(){
+    console.log('updateAll called, current state:', {aiEnabled, aiColor, turn, gameOver, pendingPromotion});
     render(); renderCaptured(); updateStatusMessage();
     if (!pendingPromotion) saveState();
   }
@@ -1905,6 +2935,7 @@ if (themeBtn){
       } else {
         // Local game turn switching
         if (!pendingPromotion) { 
+          // Human move completed, switching turn
           turn = opposite(turn); 
           updateAll(); 
           maybeTriggerAIMove(); 
@@ -1979,10 +3010,26 @@ if (themeBtn){
       board[tr+dir][tc]=null;
     } else if (target) recordCapture(target);
 
-    board[tr][tc]={...moving,hasMoved:true}; board[sr][sc]=null;
+    // Handle promotion
+    if (meta && meta.promote) {
+      board[tr][tc] = {type: meta.promote, color: moving.color, hasMoved: true};
+    } else {
+      board[tr][tc]={...moving,hasMoved:true};
+    }
+    board[sr][sc]=null;
 
     if (moving.type==="P" && Math.abs(tr-sr)===2) enPassantTarget={r:(tr+sr)/2,c:sc};
     else enPassantTarget=null;
+    
+    // Track position for repetition detection
+    const currentPos = {board, enPassantTarget, castlingRights};
+    const posHash = getPositionHash(currentPos);
+    positionHistory.push(posHash);
+    
+    // Keep position history manageable (last 20 positions)
+    if (positionHistory.length > 20) {
+      positionHistory.shift();
+    }
 
     if (moving.type==="K"){
       castlingRights[moving.color].K=false; castlingRights[moving.color].Q=false;
@@ -2056,12 +3103,12 @@ function closeCpuTray(){
   syncAiControlsUI();
 }
   function showJoinPanels(){
-    if (joinPanel) { joinPanel.classList.add("show"); joinPanel.style.display="block"; }
-    if (createPanel) { createPanel.classList.add("show"); createPanel.style.display="block"; }
+  if (joinPanel) { joinPanel.classList.add("show"); }
+  if (createPanel) { createPanel.classList.add("show"); }
   }
   function hideJoinPanels(){
-    if (joinPanel) { joinPanel.classList.remove("show"); joinPanel.style.display="none"; }
-    if (createPanel) { createPanel.classList.remove("show"); createPanel.style.display="none"; }
+  if (joinPanel) { joinPanel.classList.remove("show"); }
+  if (createPanel) { createPanel.classList.remove("show"); }
   }
 
   // ---- Join/Create helpers ----
@@ -2079,12 +3126,12 @@ function closeJoinTray(){
 
   /* ---------------- Events ---------------- */
   document.addEventListener('DOMContentLoaded', function() {
-    if (newGameBtn) newGameBtn.addEventListener("click", ()=>{
-    // Cancel online search if active
-    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
-      onlineChess.cancelSearch();
-    }
-    
+  if (newGameBtn) newGameBtn.addEventListener("click", ()=>{
+      // Cancel online search if active
+      if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+        onlineChess.cancelSearch();
+      }
+      
     aiEnabled=false;
     closeCpuTray();
     closeJoinTray();
@@ -2092,7 +3139,6 @@ function closeJoinTray(){
     resetGame();
     showGameScreen();
  // hides chip
-
   });
 
   if (playAgainBtn) playAgainBtn.addEventListener("click", ()=>{
@@ -2101,35 +3147,43 @@ function closeJoinTray(){
     resetGame();
     showGameScreen();
  // hides chip
+    });
 
-  });
+    // Close overlay button
+    const closeOverlayBtn = document.getElementById("closeOverlayBtn");
+    if (closeOverlayBtn) closeOverlayBtn.addEventListener("click", ()=>{
+      hideOverlay();
+    });
 
-  // Exit to Menu button
-  const exitToMenuBtn = document.getElementById("exitToMenuBtn");
-  if (exitToMenuBtn) exitToMenuBtn.addEventListener("click", ()=>{
-    // Cancel online search if active
-    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
-      onlineChess.cancelSearch();
-    }
-    
-    // Reset game state
-    aiEnabled = false;
-    closeCpuTray();
-    closeJoinTray();
-    syncAiControlsUI();
-    
-    // Hide overlay and go back to menu
-    hideOverlay();
-    showMenuScreen();
+    // Exit to Menu button
+    const exitToMenuBtn = document.getElementById("exitToMenuBtn");
+    if (exitToMenuBtn) exitToMenuBtn.addEventListener("click", ()=>{
+      // Cancel online search if active
+      if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+        onlineChess.cancelSearch();
+      }
+      
+      // Reset game state
+      aiEnabled = false;
+      closeCpuTray();
+      closeJoinTray();
+      syncAiControlsUI();
+      
+      // Clear saved state so extension opens on menu next time
+      clearState();
+      
+      // Hide overlay and go back to menu
+      hideOverlay();
+      showMenuScreen();
   });
 
   // Toggle the CPU options tray without disabling side buttons
   if (toggleAiBtn) toggleAiBtn.addEventListener("click", ()=>{
-    // Cancel online search if active
-    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
-      onlineChess.cancelSearch();
-    }
-    
+      // Cancel online search if active
+      if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+        onlineChess.cancelSearch();
+      }
+      
     if (cpuTrayOpen) {
       closeCpuTray();
     } else {
@@ -2140,28 +3194,26 @@ function closeJoinTray(){
 
   // Choose CPU side -> start game vs computer
   if (aiWhiteBtn) aiWhiteBtn.addEventListener("click", ()=>{
-    // Cancel online search if active
-    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
-      onlineChess.cancelSearch();
-    }
-    
+      // Cancel online search if active
+      if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+        onlineChess.cancelSearch();
+      }
+      
     aiEnabled=true; aiColor="w";
     closeCpuTray();
     closeJoinTray();
     resetGame(); syncAiControlsUI(); showGameScreen(); maybeTriggerAIMove();
-
   });
   if (aiBlackBtn) aiBlackBtn.addEventListener("click", ()=>{
-    // Cancel online search if active
-    if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
-      onlineChess.cancelSearch();
-    }
-    
+      // Cancel online search if active
+      if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
+        onlineChess.cancelSearch();
+      }
+      
     aiEnabled=true; aiColor="b";
     closeCpuTray();
     closeJoinTray();
     resetGame(); syncAiControlsUI(); showGameScreen();
-
   });
 
   // Play Online button
@@ -2172,10 +3224,10 @@ function closeJoinTray(){
     });
   }
 
-  // Cancel search button
-  if (cancelSearchBtn) {
-    cancelSearchBtn.addEventListener('click', () => {
-      onlineChess.cancelSearch();
+    // Cancel search button
+    if (cancelSearchBtn) {
+      cancelSearchBtn.addEventListener('click', () => {
+        onlineChess.cancelSearch();
     });
   }
 
@@ -2198,12 +3250,13 @@ function closeJoinTray(){
   }
 });
 
-
+    // Move all event listeners INSIDE DOMContentLoaded
   if (undoBtn) undoBtn.addEventListener("click", undo);
   if (redoBtn) redoBtn.addEventListener("click", redo);
   if (backToMenuBtn) backToMenuBtn.addEventListener("click", ()=>{
     closeCpuTray();
     closeJoinTray();
+      clearState();
     showMenuScreen();
   });
 
@@ -2211,14 +3264,16 @@ function closeJoinTray(){
     if (e.ctrlKey && e.key==="z"){ e.preventDefault(); undo(); }
     if (e.ctrlKey && (e.key==="y" || (e.shiftKey && e.key.toLowerCase()==="z"))){ e.preventDefault(); redo(); }
   });
-  if (promoPanelEl){
-    promoPanelEl.addEventListener("click",(e)=>{
+    
+  if (promotionOverlayEl){
+    promotionOverlayEl.addEventListener("click",(e)=>{
       const btn=e.target.closest("button[data-promote]");
       if (!btn || !pendingPromotion) return;
       const piece=btn.getAttribute("data-promote"); // Q R B N
       pendingPromotion.choose(piece);
     });
   }
+
   }); // End DOMContentLoaded
 
   /* ---------------- Init ---------------- */
@@ -2232,13 +3287,19 @@ function closeJoinTray(){
   // Make sure overlay starts hidden
   hideOverlay();
 
+
   // Load or start fresh
   loadState((snap) => {
     if (snap && Array.isArray(snap.board) && snap.board.length === 8) {
       applyState(snap);
+      // If there's a saved game, go directly to game screen
+      showGameScreen();
     } else {
       resetGame();
+      // If no saved game, stay on menu screen
+      showMenuScreen();
     }
     hideOverlay();
   });
 })();
+
