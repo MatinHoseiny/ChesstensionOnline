@@ -1,97 +1,61 @@
-# Dependencies
+# ======================= DEPENDENCIES =======================
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Archive files
-*.zip
-*.tar.gz
-*.rar
-*.7z
-
-# Environment variables
-.env
-.env.local
-.env.production
-.env.test
-
-# Logs
-logs/
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# Runtime data
+# ======================= ARCHIVES =======================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.tgz
+
+# ======================= ENVIRONMENT & CONFIG =======================
+.env
+.env.local
+.env.production
+.env.test
+.env.development
+
+# ======================= LOGS =======================
+logs/
+*.log
+debug.log
+error.log
+access.log
+
+# ======================= RUNTIME & CACHE =======================
 pids/
 *.pid
 *.seed
 *.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
 .npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-.env.test
-.env.local
-.env.production
-
-# parcel-bundler cache
 .cache
 .parcel-cache
+.rpt2_cache/
+.rpt2_cache_cjs/
+.rpt2_cache_es/
+.rpt2_cache_umd/
+.node_repl_history
 
-# Next.js build output
-.next
+# ======================= BUILD & DIST =======================
+build/
+dist/
+out/
+.next/
+.nuxt/
+public/
+.storybook-out/
 
-# Nuxt.js build / generate output
-.nuxt
-dist
+# ======================= TESTING & COVERAGE =======================
+coverage/
+.nyc_output
+*.lcov
+test-results/
 
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
-tmp/
-temp/
-
-# OS generated files
+# ======================= OS FILES =======================
 .DS_Store
 .DS_Store?
 ._*
@@ -100,41 +64,34 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# IDE files
+# ======================= IDE & EDITORS =======================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.eslintcache
 
-# Build outputs
-build/
-dist/
-out/
-
-# Chrome extension specific
+# ======================= CHROME EXTENSION =======================
 *.crx
 *.pem
 key.pem
+extension.zip
 
-# Development files
-debug.log
-error.log
-access.log
-
-# Database files
+# ======================= DATABASE =======================
 *.db
 *.sqlite
 *.sqlite3
 
-# Backup files
+# ======================= BACKUP & TEMP =======================
 *.bak
 *.backup
 *.old
+tmp/
+temp/
 
-# Test files
-test-results/
-coverage/
-
-# Documentation build
+# ======================= DOCUMENTATION =======================
 docs/_build/
+
+# ======================= YARN =======================
+.yarn-integrity

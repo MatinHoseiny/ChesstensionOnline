@@ -323,23 +323,7 @@ button:hover{ border-color:var(--accent-2); }
 }
 
 
-/* ======================= CAPTURED PANELS (legacy) ======================= */
-.captured-wrap{
-  width:calc(var(--board) * .90);
-  margin:0 auto var(--gap);
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.captured-section{
-  background:var(--glass);
-  border:1px solid var(--glass-strong);
-  border-radius:12px;
-  padding:6px;
-  min-height:44px;
-}
-.captured-title{ color:var(--muted); font-size:11px; margin-bottom:4px; letter-spacing:.3px; }
-.captured-pieces img{ width:16px; height:16px; margin:1px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.6)); }
+/* Legacy captured panels removed - using slim trays instead */
 
 /* ======================= SLIM CAPTURE TRAYS (top/bottom) ======================= */
 .captured-tray{
@@ -897,7 +881,6 @@ body.game-active .status-bar{
   background:linear-gradient(180deg,#10b98133,#10b98122);
   box-shadow:0 0 0 1px rgba(16,185,129,.25) inset;
 }
-/* Player info removed - no profile concept */
 
 
 /* Online button container */
