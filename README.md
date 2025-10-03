@@ -1,8 +1,10 @@
+# ♟️ Chesstention
+
 <div align="center">
 
-<img src="images/chesstention-logo.png" alt="Chesstention Logo" width="800">
+**A modern chess extension with AI, online multiplayer, and professional-grade pieces**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstensionOnline)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/chesstention)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://chrome.google.com/webstore)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--on-orange.svg)](https://addons.mozilla.org)
@@ -58,7 +60,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/MatinHoseiny/ChesstensionOnline.git
+git clone https://github.com/yourusername/chesstention.git
 
 # Load as extension
 # Follow installation steps above
@@ -74,60 +76,9 @@ git clone https://github.com/MatinHoseiny/ChesstensionOnline.git
 |-----------|------------|---------|
 | **Frontend** | Vanilla JavaScript | Zero dependencies |
 | **Styling** | CSS3 + Custom Properties | Modern responsive design |
+| **Graphics** | SVG | Scalable piece rendering |
 | **Networking** | WebSocket | Real-time multiplayer |
 | **Architecture** | Modular ES6+ | Clean, maintainable code |
-
----
-
-## 🧠 Advanced Chess AI Engine
-
-Our chess AI implements **professional-grade algorithms** inspired by modern engines like Stockfish. Here's what makes it special:
-
-### **🔍 Core Algorithms**
-- **Negamax with Alpha-Beta Pruning** - Efficient search with position caching
-- **Quiescence Search** - Tactical depth for captures and checks  
-- **Iterative Deepening** - Progressive depth search with time management
-- **Transposition Table** - Position caching for repeated positions
-
-### **🎯 Evaluation System (11 Factors)**
-1. **Checkmate Detection** (50,000 points - highest priority)
-2. **Material Balance** (modern piece values)
-3. **Positional Evaluation** (piece-square tables)
-4. **King Safety** (critical for checkmate)
-5. **Pawn Structure** (doubled, isolated, passed pawns)
-6. **Mobility** (piece activity)
-7. **Check Bonus** (pressure on king)
-8. **Castling Bonus**
-9. **Promotion Potential**
-10. **Endgame Knowledge** (king activity, pawn advancement)
-11. **Repetition Penalty**
-
-### **📚 Opening Variety**
-- **6+ Major Openings**: Sicilian, French, Caro-Kann, Queen's Pawn, etc.
-- **Randomized Selection** - No repetitive play
-- **Theory-Based Moves** - Strong opening play
-
-### **⚡ Performance Features**
-- **Move Ordering**: Checkmate → Checks → Captures → Center
-- **Early Termination** on winning moves
-- **Browser-Optimized** for web performance
-- **Memory Management** with automatic cleanup
-
-### **🏆 AI Strength**
-| Level | ELO Range | Description |
-|-------|-----------|-------------|
-| **Beginner** | 800-1000 | Casual players |
-| **Intermediate** | 1200-1400 | Club players |
-| **Advanced** | 1600-1800 | Tournament players |
-| **Expert** | 2000+ | Tactical positions |
-
-### **🎮 Unique Features**
-- **Checkmate-First Strategy** - Prioritizes winning over material
-- **Varied Openings** - Different strategies each game
-- **Tactical Awareness** - Finds combinations and threats
-- **Adaptive Play** - Adjusts to game phase
-
-**Result**: A challenging AI that plays like a strong human opponent with varied strategies and tactical awareness.
 
 ---
 
@@ -195,9 +146,9 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 ## 📞 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/MatinHoseiny/ChesstensionOnline/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/MatinHoseiny/ChesstensionOnline/discussions)
-
+- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/chesstention/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/chesstention/discussions)
+- 📧 **Email**: [Contact Support](mailto:support@chesstention.com)
 
 ---
 
@@ -205,7 +156,7 @@ This project is licensed under the **GNU Affero General Public License v3.0**.
 
 **Built with ♟️ and ❤️ for chess enthusiasts worldwide**
 
-[![GitHub stars](https://img.shields.io/github/stars/MatinHoseiny/ChesstensionOnline?style=social)](https://github.com/MatinHoseiny/ChesstensionOnline)
-[![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstensionOnline?style=social)](https://github.com/MatinHoseiny/ChesstensionOnline)
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
+[![GitHub forks](https://img.shields.io/badge/github/forks/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
 
 </div>

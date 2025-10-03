@@ -6,6 +6,8 @@
   <title>Chesstention</title>
 
   <!-- Fonts & CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
@@ -70,26 +72,6 @@
             <button id="copyCreateCode" type="button">Copy</button>
           </div>
         </div>
-<!-- PROFILE PANEL (hidden by default) -->
-<div id="profilePanel" class="lan-panel" style="display:none;">
-  <div class="row">
-    <label class="lbl" for="profileName">Your name</label>
-    <input id="profileName" class="input" type="text" placeholder="Enter your name" />
-    <button id="profileSaveBtn" type="button">Save</button>
-  </div>
-  <div class="row">
-    <label class="lbl" for="profilePic">Profile picture</label>
-    <input id="profilePic" class="input" type="file" accept="image/*" />
-    <button id="profileClearBtn" type="button">Clear</button>
-  </div>
-  <div class="row" style="grid-template-columns:96px 1fr;">
-    <span class="lbl">Preview</span>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <img id="profilePreview" alt="Profile preview" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-strong);" />
-      <span id="profilePreviewName" style="font-weight:700;"></span>
-    </div>
-  </div>
-</div>
 
       </div>
     </div>
@@ -121,7 +103,6 @@
 
           <div id="gameStatus" class="game-status"></div>
         </div>
-<!-- Player info removed - no profile concept -->
 
         <!-- Right group: undo / redo -->
         <div class="nav-buttons">
