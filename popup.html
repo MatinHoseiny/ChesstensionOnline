@@ -1,168 +1,373 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Chesstention</title>
-
-  <!-- Fonts & CSS -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chesstention - Chess Extension</title>
+  <meta name="description" content="Play chess locally, vs computer, or online with friends. Clean UI, multiple themes, and professional chess experience.">
+  
+  <!-- Preconnect to external domains for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font loading with display=swap for better performance -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Background video (JS swaps source between menu/game) -->
-  <video id="bgVideo" class="bg-video" autoplay muted loop playsinline>
-    <!-- Start with menu background since menu is the first visible screen -->
+  <!-- Background video with accessibility considerations -->
+  <video id="bgVideo" class="bg-video" autoplay muted loop playsinline aria-hidden="true">
     <source src="media/menu-background.mp4" type="video/mp4">
+    <!-- Fallback for browsers that don't support video -->
+    Your browser does not support the video tag.
   </video>
-  <div class="bg-dim"></div>
+  <div class="bg-dim" aria-hidden="true"></div>
 
-  <div id="app">
-    <!-- ============== MENU SCREEN (active on load) ============== -->
-    <div id="menuScreen" class="screen menu-screen is-active">
-      <div class="menu">
+  <main id="app" role="main">
+    <!-- ============== MENU SCREEN ============== -->
+    <section id="menuScreen" class="screen menu-screen is-active" aria-label="Main menu">
+      <header class="menu">
         <div class="menu-header">
-          <img src="images/chesstention-logo.png" alt="Chesstention Logo" class="menu-logo-img">
+          <img src="images/chesstention-logo.png" 
+               alt="Chesstention Logo" 
+               class="menu-logo-img"
+               width="350" 
+               height="auto"
+               loading="eager">
         </div>
 
-        <div class="menu-buttons">
+        <nav class="menu-buttons" role="navigation" aria-label="Game mode selection">
+          <!-- Online Play Section -->
           <div id="playOnlineContainer" class="online-btn-container">
-            <button id="playOnlineBtn" type="button" class="menu-btn menu-btn--primary">Play Online</button>
-            <button id="cancelSearchBtn" type="button" class="cancel-search-btn" style="display: none;">×</button>
+            <button id="playOnlineBtn" 
+                    type="button" 
+                    class="menu-btn menu-btn--primary"
+                    aria-describedby="online-description">
+              Play Online
+            </button>
+            <button id="cancelSearchBtn" 
+                    type="button" 
+                    class="cancel-search-btn" 
+                    style="display: none;"
+                    aria-label="Cancel search">
+              ×
+            </button>
+            <div id="online-description" class="sr-only">
+              Play chess online with other players
+            </div>
           </div>
           
-          <button id="toggleAiBtn" type="button" class="menu-btn">Play vs Computer</button>
-
-          <!-- CPU color choice (hidden until shown by script) -->
-          <div id="cpuOptions" class="cpu-options">
-            <button id="aiWhiteBtn" type="button" class="btn-toggle">CPU: White</button>
-            <button id="aiBlackBtn" type="button" class="btn-toggle">CPU: Black</button>
+          <!-- Computer Play Section -->
+          <button id="toggleAiBtn" 
+                  type="button" 
+                  class="menu-btn"
+                  aria-expanded="false"
+                  aria-controls="cpuOptions"
+                  aria-describedby="computer-description">
+            Play vs Computer
+          </button>
+          <div id="computer-description" class="sr-only">
+            Play against the computer with adjustable difficulty
           </div>
 
-          <button id="newGameBtn" type="button" class="menu-btn">1v1 (Hot-Seat)</button>
-          <button id="openJoinPanel" type="button" class="menu-btn">Join/Create Room</button>
-        </div>
+          <!-- CPU Color Selection -->
+          <div id="cpuOptions" 
+               class="cpu-options" 
+               role="group" 
+               aria-label="Choose computer color"
+               aria-hidden="true">
+            <button id="aiWhiteBtn" 
+                    type="button" 
+                    class="btn-toggle"
+                    aria-pressed="false">
+              CPU: White
+            </button>
+            <button id="aiBlackBtn" 
+                    type="button" 
+                    class="btn-toggle"
+                    aria-pressed="false">
+              CPU: Black
+            </button>
+          </div>
 
-        <!-- LAN PANELS (collapsed until opened) -->
-        <div id="joinPanel" class="lan-panel">
+          <!-- Local Play -->
+          <button id="newGameBtn" 
+                  type="button" 
+                  class="menu-btn"
+                  aria-describedby="local-description">
+            1v1 (Hot-Seat)
+          </button>
+          <div id="local-description" class="sr-only">
+            Play locally with two players on the same device
+          </div>
+
+          <!-- LAN Play -->
+          <button id="openJoinPanel" 
+                  type="button" 
+                  class="menu-btn"
+                  aria-expanded="false"
+                  aria-controls="joinPanel"
+                  aria-describedby="lan-description">
+            Join/Create Room
+          </button>
+          <div id="lan-description" class="sr-only">
+            Play over local network with friends
+          </div>
+        </nav>
+
+        <!-- LAN Connection Panels -->
+        <section id="joinPanel" 
+                 class="lan-panel" 
+                 role="region" 
+                 aria-label="Join room"
+                 aria-hidden="true">
           <div class="row">
             <label class="lbl" for="joinHost">Signaling host</label>
-            <input id="joinHost" class="input" type="text" placeholder="e.g. 192.168.1.35" />
+            <input id="joinHost" 
+                   class="input" 
+                   type="text" 
+                   placeholder="e.g. 192.168.1.35"
+                   aria-describedby="joinHost-help">
             <button id="joinConnectBtn" type="button">Connect</button>
           </div>
           <div class="row">
             <label class="lbl" for="joinRoomCode">Room code</label>
-            <input id="joinRoomCode" class="input" type="text" placeholder="Enter code from host" />
+            <input id="joinRoomCode" 
+                   class="input" 
+                   type="text" 
+                   placeholder="Enter code from host"
+                   aria-describedby="joinRoomCode-help">
             <button id="joinDoBtn" type="button" class="btn-primary">Join Room</button>
           </div>
-        </div>
+          <div id="joinHost-help" class="sr-only">Enter the IP address of the signaling server</div>
+          <div id="joinRoomCode-help" class="sr-only">Enter the room code provided by the host</div>
+        </section>
 
-        <div id="createPanel" class="lan-panel">
+        <section id="createPanel" 
+                 class="lan-panel" 
+                 role="region" 
+                 aria-label="Create room"
+                 aria-hidden="true">
           <div class="row">
             <label class="lbl" for="createHost">Signaling host</label>
-            <input id="createHost" class="input" type="text" placeholder="e.g. 192.168.1.35" />
+            <input id="createHost" 
+                   class="input" 
+                   type="text" 
+                   placeholder="e.g. 192.168.1.35"
+                   aria-describedby="createHost-help">
             <button id="createConnectBtn" type="button">Connect</button>
           </div>
           <div class="row">
             <button id="createDoBtn" type="button" class="btn-primary">Create Room</button>
-            <input id="createRoomCode" class="input" type="text" placeholder="Room code will appear here" readonly />
+            <input id="createRoomCode" 
+                   class="input" 
+                   type="text" 
+                   placeholder="Room code will appear here" 
+                   readonly
+                   aria-label="Generated room code">
             <button id="copyCreateCode" type="button">Copy</button>
           </div>
-        </div>
+          <div id="createHost-help" class="sr-only">Enter the IP address of the signaling server</div>
+        </section>
+      </header>
+    </section>
 
-      </div>
-    </div>
-
-    <!-- ============== GAME SCREEN (hidden on load, animated in) ============== -->
-    <div id="gameScreen" class="screen game-screen is-hidden">
-      <div class="status-bar">
-        <!-- Back to Menu (left) -->
-        <button id="backToMenuBtn" class="back-btn" aria-label="Back to Menu" title="Back to Menu">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ============== GAME SCREEN ============== -->
+    <section id="gameScreen" 
+             class="screen game-screen is-hidden" 
+             aria-label="Chess game"
+             aria-hidden="true">
+      
+      <!-- Game Status Bar -->
+      <header class="status-bar" role="banner">
+        <!-- Navigation -->
+        <button id="backToMenuBtn" 
+                class="back-btn" 
+                aria-label="Back to Menu" 
+                title="Back to Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" 
+               width="22" 
+               height="22" 
+               viewBox="0 0 24 24"
+               fill="none" 
+               stroke="currentColor" 
+               stroke-width="2.2" 
+               stroke-linecap="round" 
+               stroke-linejoin="round"
+               aria-hidden="true">
             <line x1="4" y1="12" x2="20" y2="12"></line>
             <polyline points="10 6 4 12 10 18"></polyline>
           </svg>
         </button>
 
-        <div id="banner" class="banner" aria-live="polite"></div>
+        <!-- Game Status Banner -->
+        <div id="banner" 
+             class="banner" 
+             aria-live="polite" 
+             aria-atomic="true"
+             role="status"></div>
 
-        <!-- Center group: turn + theme button + short status -->
+        <!-- Center Status Group -->
         <div class="status-center">
-          <div id="turnIndicator" class="turn-indicator">White's Turn</div>
+          <div id="turnIndicator" 
+               class="turn-indicator" 
+               role="status" 
+               aria-live="polite">
+            White's Turn
+          </div>
 
-          <!-- Theme toggle (3-position switch) -->
-          <button id="themeBtn" type="button" class="theme-inline classic" title="Toggle theme" aria-label="Toggle theme">
-            <span class="theme-indicator"></span>
-            <span class="theme-indicator"></span>
-            <span class="theme-indicator"></span>
+          <!-- Theme Selector -->
+          <button id="themeBtn" 
+                  type="button" 
+                  class="theme-inline classic" 
+                  title="Toggle theme" 
+                  aria-label="Toggle theme"
+                  aria-pressed="false">
+            <span class="theme-indicator" aria-hidden="true"></span>
+            <span class="theme-indicator" aria-hidden="true"></span>
+            <span class="theme-indicator" aria-hidden="true"></span>
           </button>
 
-          <div id="gameStatus" class="game-status"></div>
+          <div id="gameStatus" 
+               class="game-status" 
+               role="status" 
+               aria-live="polite"></div>
         </div>
 
-        <!-- Right group: undo / redo -->
-        <div class="nav-buttons">
-          <button id="undoBtn" class="undo-btn" aria-label="Undo Move" title="Undo">⤺</button>
-          <button id="redoBtn" class="redo-btn" aria-label="Redo Move" title="Redo">⤻</button>
-        </div>
-      </div>
+        <!-- Game Controls -->
+        <nav class="nav-buttons" role="toolbar" aria-label="Game controls">
+          <button id="undoBtn" 
+                  class="undo-btn" 
+                  aria-label="Undo Move" 
+                  title="Undo"
+                  disabled>
+            ⤺
+          </button>
+          <button id="redoBtn" 
+                  class="redo-btn" 
+                  aria-label="Redo Move" 
+                  title="Redo"
+                  disabled>
+            ⤻
+          </button>
+          <button id="disconnectBtn" 
+                  class="disconnect-btn" 
+                  aria-label="Disconnect" 
+                  title="Leave Game" 
+                  style="display: none;">
+            ✕
+          </button>
+        </nav>
+      </header>
 
-      <!-- Captured by Black (top tray) -->
-      <div class="captured-tray top-tray">
-        <span class="captured-title"></span>
-        <div id="capturedByBlack" class="captured-pieces"></div>
-      </div>
+      <!-- Captured Pieces - Black (Top) -->
+      <section class="captured-tray top-tray" 
+               role="region" 
+               aria-label="Captured pieces by black">
+        <span class="captured-title" aria-hidden="true"></span>
+        <div id="capturedByBlack" 
+             class="captured-pieces" 
+             role="list" 
+             aria-label="Pieces captured by black player"></div>
+      </section>
 
-      <!-- Board -->
-      <div class="board-wrap">
-        <div id="board" class="board" aria-label="Chess board" role="grid"></div>
-      </div>
+      <!-- Chess Board -->
+      <section class="board-wrap" role="region" aria-label="Chess board">
+        <div id="board" 
+             class="board" 
+             role="grid" 
+             aria-label="Chess board"
+             aria-rowcount="8"
+             aria-colcount="8"
+             tabindex="0"></div>
+      </section>
 
-      <!-- Captured by White (bottom tray) -->
-      <div class="captured-tray bottom-tray">
-        <span class="captured-title"></span>
-        <div id="capturedByWhite" class="captured-pieces"></div>
-      </div>
+      <!-- Captured Pieces - White (Bottom) -->
+      <section class="captured-tray bottom-tray" 
+               role="region" 
+               aria-label="Captured pieces by white">
+        <span class="captured-title" aria-hidden="true"></span>
+        <div id="capturedByWhite" 
+             class="captured-pieces" 
+             role="list" 
+             aria-label="Pieces captured by white player"></div>
+      </section>
 
-      <!-- Game End Overlay (checkmate/stalemate) -->
-      <div id="overlay" class="overlay" aria-hidden="true">
+      <!-- Game End Overlay -->
+      <dialog id="overlay" 
+              class="overlay" 
+              aria-labelledby="overlayTitle"
+              aria-describedby="overlaySub"
+              aria-modal="true">
         <div class="overlay-card">
-          <button id="closeOverlayBtn" type="button" class="close-overlay-btn">×</button>
+          <button id="closeOverlayBtn" 
+                  type="button" 
+                  class="close-overlay-btn"
+                  aria-label="Close dialog">
+            ×
+          </button>
           <h2 id="overlayTitle" class="overlay-title">CHECKMATE</h2>
           <p id="overlaySub" class="overlay-sub"></p>
 
-          <div class="overlay-actions" id="overlayActions">
-            <button id="playAgainBtn" type="button" class="btn-primary">Play Again</button>
-            <button id="exitToMenuBtn" type="button" class="btn-secondary">Exit to Menu</button>
+          <div class="overlay-actions" id="overlayActions" role="group" aria-label="Game end actions">
+            <button id="playAgainBtn" 
+                    type="button" 
+                    class="btn-primary">
+              Play Again
+            </button>
+            <button id="exitToMenuBtn" 
+                    type="button" 
+                    class="btn-secondary">
+              Exit to Menu
+            </button>
           </div>
         </div>
-      </div>
+      </dialog>
 
-      <!-- Promotion Overlay (separate from game end) -->
-      <div id="promotionOverlay" class="overlay" aria-hidden="true">
+      <!-- Promotion Overlay -->
+      <dialog id="promotionOverlay" 
+              class="overlay" 
+              aria-labelledby="promotionTitle"
+              aria-describedby="promotionSub"
+              aria-modal="true">
         <div class="overlay-card">
-          <h2 class="overlay-title">Promotion</h2>
-          <p class="overlay-sub">Choose piece to promote to:</p>
-          <div style="display:flex; gap:12px; justify-content:center; margin:20px 0;">
-            <button class="btn-primary" data-promote="Q">Queen</button>
-            <button data-promote="R">Rook</button>
-            <button data-promote="B">Bishop</button>
-            <button data-promote="N">Knight</button>
+          <h2 id="promotionTitle" class="overlay-title">Promotion</h2>
+          <p id="promotionSub" class="overlay-sub">Choose piece to promote to:</p>
+          <div class="promotion-options" 
+               role="group" 
+               aria-label="Promotion piece selection">
+            <button class="btn-primary" 
+                    data-promote="Q" 
+                    aria-label="Promote to Queen">
+              Queen
+            </button>
+            <button data-promote="R" 
+                    aria-label="Promote to Rook">
+              Rook
+            </button>
+            <button data-promote="B" 
+                    aria-label="Promote to Bishop">
+              Bishop
+            </button>
+            <button data-promote="N" 
+                    aria-label="Promote to Knight">
+              Knight
+            </button>
           </div>
         </div>
-      </div>
+      </dialog>
 
-      <footer class="footer">
+      <!-- Footer -->
+      <footer class="footer" role="contentinfo">
         <small>Developed in unipd 2025</small>
       </footer>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <!-- App logic -->
+  <!-- Application Script -->
   <script src="script.js"></script>
 </body>
 </html>

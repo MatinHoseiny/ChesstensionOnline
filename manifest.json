@@ -1,8 +1,10 @@
 {
 	"manifest_version": 3,
 	"name": "Chesstention",
-	"description":  "Chesstention: play chess locally, vs computer, or with friends on LAN. Clean UI, themes, and the best way to rizz and aura farm over the board. Chess pieces from Lichess Maestro set (AGPL-3.0).",
-	"version": "1.0",
+	"version": "1.0.0",
+	"version_name": "1.0.0",
+	"description": "Join the chesstension team. Play chess and compete with friends online or challenge AI opponents. Level up your game and dominate the board.",
+	"author": "Matin Hosseini",
 	"action": {
 	  "default_popup": "popup.html",
 	  "default_icon": {
