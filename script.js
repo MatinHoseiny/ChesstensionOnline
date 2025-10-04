@@ -80,6 +80,7 @@
   const backToMenuBtn  = document.getElementById("backToMenuBtn");
   const undoBtn        = document.getElementById("undoBtn");
   const redoBtn        = document.getElementById("redoBtn");
+  const disconnectBtn  = document.getElementById("disconnectBtn");
   let   themeBtn       = document.getElementById("themeBtn");
 
   // Join/Create controls
@@ -129,7 +130,6 @@ class OnlineChess {
     
     this.ws.onerror = (error) => {
       console.error('WebSocket error:', error);
-      this.updateUI('disconnected');
     };
   }
   
@@ -307,16 +307,19 @@ class OnlineChess {
         btn.textContent = 'Searching for opponent...';
         btn.disabled = true;
         if (cancelBtn) cancelBtn.style.display = 'flex';
+        if (disconnectBtn) disconnectBtn.style.display = 'none';
         break;
       case 'playing':
         btn.textContent = 'Playing Online';
         btn.disabled = true;
         if (cancelBtn) cancelBtn.style.display = 'none';
+        if (disconnectBtn) disconnectBtn.style.display = 'block';
         break;
       case 'disconnected':
         btn.textContent = 'Play Online';
         btn.disabled = false;
         if (cancelBtn) cancelBtn.style.display = 'none';
+        if (disconnectBtn) disconnectBtn.style.display = 'none';
         break;
     }
   }
@@ -324,8 +327,9 @@ class OnlineChess {
   handleOpponentDisconnect() {
     this.isOnline = false;
     this.updateUI('disconnected');
-    alert('Opponent disconnected. Returning to menu.');
-    showMenuScreen();
+    
+    // Show proper disconnect notification instead of alert
+    showDisconnectNotification();
   }
   
   cancelSearch() {
@@ -343,6 +347,7 @@ class OnlineChess {
       resetGame();
     }
   }
+  
 }
 
 // Initialize online chess
@@ -588,6 +593,17 @@ if (themeBtn){
     future.length=0;
   }
   function undo(){
+    // Only disable undo/redo in online multiplayer mode, not in AI mode
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !aiEnabled) {
+      console.log('Undo/Redo disabled in online multiplayer mode to prevent server state conflicts');
+      // Show brief visual feedback that undo is disabled
+      if (undoBtn) {
+        undoBtn.style.opacity = '0.5';
+        setTimeout(() => { if (undoBtn) undoBtn.style.opacity = '1'; }, 200);
+      }
+      return;
+    }
+    
     if (!history.length) return;
     future.push(JSON.stringify(snapshotState()));
     const prev=JSON.parse(history.pop());
@@ -595,6 +611,17 @@ if (themeBtn){
     updateAll();
   }
   function redo(){
+    // Only disable undo/redo in online multiplayer mode, not in AI mode
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !aiEnabled) {
+      console.log('Undo/Redo disabled in online multiplayer mode to prevent server state conflicts');
+      // Show brief visual feedback that redo is disabled
+      if (redoBtn) {
+        redoBtn.style.opacity = '0.5';
+        setTimeout(() => { if (redoBtn) redoBtn.style.opacity = '1'; }, 200);
+      }
+      return;
+    }
+    
     if (!future.length) return;
     history.push(JSON.stringify(snapshotState()));
     if (history.length>200) history.shift();
@@ -2743,9 +2770,72 @@ if (themeBtn){
     overlayTitleEl.textContent=title;
     overlaySubEl.textContent=sub||"";
     overlayActionsEl.style.display="block";
+    
+    // Hide play again button in online mode since it can't communicate with opponent
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+      if (playAgainBtn) playAgainBtn.style.display = 'none';
+    } else {
+      if (playAgainBtn) playAgainBtn.style.display = 'block';
+    }
+    
+    // Hide exit to menu button for normal game end overlays (not disconnect)
+    if (backToMenuBtn) backToMenuBtn.style.display = 'none';
+    
     overlayEl.classList.add("visible");
     overlayEl.setAttribute("aria-hidden","false");
   }
+  
+  function showDisconnectNotification() {
+    overlayTitleEl.textContent = "Opponent Disconnected";
+    overlaySubEl.textContent = "Your opponent has left the game. You can return to the menu to find a new opponent.";
+    overlayActionsEl.style.display = "block";
+    
+    // Create custom buttons for disconnect notification
+    overlayActionsEl.innerHTML = `
+      <button id="exitToMenuFromDisconnectBtn" class="menu-btn menu-btn--primary">Exit to Menu</button>
+    `;
+    
+    overlayEl.classList.add("visible");
+    overlayEl.setAttribute("aria-hidden","false");
+    
+    // Add event listener for the exit button
+    document.getElementById('exitToMenuFromDisconnectBtn').addEventListener('click', () => {
+      hideOverlay();
+      showMenuScreen();
+    });
+  }
+  
+  function showLeaveGameConfirmation() {
+    overlayTitleEl.textContent = "Leave Game?";
+    overlaySubEl.textContent = "Are you sure you want to leave this game?";
+    overlayActionsEl.style.display = "block";
+    
+    // Hide play again button
+    if (playAgainBtn) playAgainBtn.style.display = 'none';
+    
+    // Show custom buttons for confirmation
+    overlayActionsEl.innerHTML = `
+      <button id="confirmLeaveBtn" class="menu-btn menu-btn--danger">Yes</button>
+      <button id="cancelLeaveBtn" class="menu-btn">Cancel</button>
+    `;
+    
+    overlayEl.classList.add("visible");
+    overlayEl.setAttribute("aria-hidden","false");
+    
+    // Add event listeners for the confirmation buttons
+    document.getElementById('confirmLeaveBtn').addEventListener('click', () => {
+      hideOverlay();
+      if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+        onlineChess.cancelSearch();
+        showMenuScreen();
+      }
+    });
+    
+    document.getElementById('cancelLeaveBtn').addEventListener('click', () => {
+      hideOverlay();
+    });
+  }
+  
   function openPromotion(color,at,onChoose){
     pendingPromotion={color,at,choose:onChoose};
     promotionOverlayEl.classList.add("visible");
@@ -2756,6 +2846,45 @@ if (themeBtn){
     overlayEl.setAttribute("aria-hidden","true");
     promotionOverlayEl.classList.remove("visible");
     promotionOverlayEl.setAttribute("aria-hidden","true");
+    
+    // Restore original overlay buttons
+    restoreOverlayButtons();
+  }
+  
+  function restoreOverlayButtons() {
+    // Restore the original overlay actions HTML
+    overlayActionsEl.innerHTML = `
+      <button id="playAgainBtn" class="menu-btn menu-btn--primary">Play Again</button>
+      <button id="backToMenuBtn" class="menu-btn">Back to Menu</button>
+    `;
+    
+    // Re-add event listeners for the restored buttons
+    const restoredPlayAgainBtn = document.getElementById("playAgainBtn");
+    const restoredBackToMenuBtn = document.getElementById("backToMenuBtn");
+    
+    if (restoredPlayAgainBtn) {
+      restoredPlayAgainBtn.addEventListener("click", ()=>{
+        closeCpuTray();
+        closeJoinTray();
+        resetGame();
+        showGameScreen();
+      });
+    }
+    
+    if (restoredBackToMenuBtn) {
+      restoredBackToMenuBtn.addEventListener("click", ()=>{
+        // Check if we're in an online game and show confirmation
+        if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+          showLeaveGameConfirmation();
+          return;
+        }
+        
+        closeCpuTray();
+        closeJoinTray();
+        clearState();
+        showMenuScreen();
+      });
+    }
   }
 
   // IMPORTANT: Do NOT disable ai side buttons (fix for issue #2)
@@ -2808,6 +2937,7 @@ if (themeBtn){
     } else {
       boardEl.classList.remove('flipped');
     }
+    
     
     const k = findKing(turn, board);
     let inChk = false;
@@ -3253,14 +3383,34 @@ function closeJoinTray(){
     // Move all event listeners INSIDE DOMContentLoaded
   if (undoBtn) undoBtn.addEventListener("click", undo);
   if (redoBtn) redoBtn.addEventListener("click", redo);
+  if (disconnectBtn) disconnectBtn.addEventListener("click", () => {
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+      showLeaveGameConfirmation();
+    }
+  });
   if (backToMenuBtn) backToMenuBtn.addEventListener("click", ()=>{
+    // Check if we're in an online game and show confirmation
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+      showLeaveGameConfirmation();
+      return;
+    }
+    
     closeCpuTray();
     closeJoinTray();
-      clearState();
+    clearState();
     showMenuScreen();
   });
 
   window.addEventListener("keydown",(e)=>{
+    // Only disable undo/redo shortcuts in online multiplayer mode, not in AI mode
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !aiEnabled) {
+      if (e.ctrlKey && (e.key==="z" || e.key==="y")) {
+        e.preventDefault();
+        console.log('Undo/Redo disabled in online multiplayer mode');
+        return;
+      }
+    }
+    
     if (e.ctrlKey && e.key==="z"){ e.preventDefault(); undo(); }
     if (e.ctrlKey && (e.key==="y" || (e.shiftKey && e.key.toLowerCase()==="z"))){ e.preventDefault(); redo(); }
   });

@@ -1,97 +1,26 @@
-# ======================= DEPENDENCIES =======================
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# ======================= ARCHIVES =======================
-*.zip
-*.tar.gz
-*.rar
-*.7z
-*.tgz
-
-# ======================= ENVIRONMENT & CONFIG =======================
-.env
-.env.local
-.env.production
-.env.test
-.env.development
-
-# ======================= LOGS =======================
-logs/
-*.log
-debug.log
-error.log
-access.log
-
-# ======================= RUNTIME & CACHE =======================
-pids/
-*.pid
-*.seed
-*.pid.lock
-.npm
-.cache
-.parcel-cache
-.rpt2_cache/
-.rpt2_cache_cjs/
-.rpt2_cache_es/
-.rpt2_cache_umd/
-.node_repl_history
-
-# ======================= BUILD & DIST =======================
-build/
-dist/
-out/
-.next/
-.nuxt/
-public/
-.storybook-out/
-
-# ======================= TESTING & COVERAGE =======================
-coverage/
-.nyc_output
-*.lcov
-test-results/
-
-# ======================= OS FILES =======================
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# ======================= IDE & EDITORS =======================
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.eslintcache
-
-# ======================= CHROME EXTENSION =======================
-*.crx
+# Security & Secrets
+.env*
+config.json
+secrets.json
+credentials.json
 *.pem
-key.pem
+*.key
+
+# Chrome Extension
+*.crx
+*.xpi
 extension.zip
+Chesstension*.zip
 
-# ======================= DATABASE =======================
-*.db
-*.sqlite
-*.sqlite3
+# OS Files
+.DS_Store
+Thumbs.db
+*~
 
-# ======================= BACKUP & TEMP =======================
-*.bak
-*.backup
-*.old
-tmp/
-temp/
+# IDE
+.vscode/
 
-# ======================= DOCUMENTATION =======================
-docs/_build/
-
-# ======================= YARN =======================
-.yarn-integrity
+# Project specific
+images/icon-source.png
+.railway/
+railway.json
