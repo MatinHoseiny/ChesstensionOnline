@@ -24,12 +24,6 @@
   /* Board Colors */
   --light-square: #f0d9b5;
   --dark-square: #b58863;
-
-  /* Brand Colors */
-  --unipd-red: #9b1c31;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
 }
 
 /* ======================= 2. RESET & BASE STYLES ======================= */
@@ -141,15 +135,17 @@ button:active {
 }
 
 .menu-btn--danger {
-  background: var(--danger);
-  color: #ffffff;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #000000;
   border: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .menu-btn--danger:hover {
-  background: #dc2626;
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #000000;
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
 /* Control Buttons */
@@ -436,6 +432,7 @@ button:active {
 .piece:hover::before {
   left: 100%;
 }
+
 
 /* Move Indicators */
 .move-indicator {
@@ -758,7 +755,7 @@ button:active {
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.55);
+  background: transparent;
   z-index: 50;
   opacity: 0;
   pointer-events: none;
@@ -772,62 +769,98 @@ button:active {
 }
 
 .overlay-card {
-  min-width: 240px;
   max-width: 90vw;
   padding: 16px 18px;
   border-radius: 12px;
   background: rgba(20,26,36,0.95);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03);
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
   text-align: center;
   position: relative;
+  color: white;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
-.close-overlay-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: none;
-  color: #a5b4c3;
-  font-size: 20px;
-  font-weight: 300;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
-  z-index: 10;
+/* Force remove any borders from overlay and its children */
+.overlay,
+.overlay *,
+.overlay-card,
+.overlay-card * {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-.close-overlay-btn:hover {
-  color: #e8eef7;
+/* ======================= 14. LEAVE GAME CONFIRMATION PANEL ======================= */
+.overlay-card.leave-game-panel {
+  min-width: 300px !important;
+  max-width: 90vw;
 }
+
+.overlay-card.leave-game-panel .overlay-actions {
+  justify-content: space-between !important;
+  margin: 20px 0 0 0 !important;
+  padding: 0 !important;
+}
+
+.overlay-card.leave-game-panel .btn-primary {
+  order: 1; /* Yes button on left */
+}
+
+.overlay-card.leave-game-panel .btn-secondary {
+  order: 2; /* Cancel button on right */
+}
+
+/* ======================= 15. DISCONNECT NOTIFICATION PANEL ======================= */
+.overlay-card.disconnect-panel {
+  min-width: 280px !important;
+  max-width: 90vw;
+}
+
+.overlay-card.disconnect-panel .overlay-actions {
+  justify-content: center !important;
+  margin: 20px 0 0 0 !important;
+  padding: 0 !important;
+}
+
+.overlay-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.overlay-sub {
+  color: white;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  opacity: 0.9;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
 
 .overlay-actions {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 16px;
   align-items: center;
-  margin: 20px 16px 0 16px;
-  padding: 0 12px;
-  flex-direction: row;
+  flex-direction: row !important;
   flex-wrap: nowrap;
+  width: 100%;
 }
 
 .btn-primary, .btn-secondary {
   font-family: 'IBM Plex Sans', sans-serif;
-  min-width: 140px;
+  width: 100px;
   height: 44px;
-  padding: 12px 24px;
+  padding: 12px 16px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -835,26 +868,22 @@ button:active {
 
 .btn-primary {
   background: linear-gradient(180deg, #10b981, #059669);
-  border-color: #10b981;
   color: white;
 }
 
 .btn-primary:hover {
   background: linear-gradient(180deg, #059669, #047857);
-  border-color: #059669;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .btn-secondary {
   background: linear-gradient(180deg, #6b7280, #4b5563);
-  border-color: #6b7280;
   color: white;
 }
 
 .btn-secondary:hover {
   background: linear-gradient(180deg, #4b5563, #374151);
-  border-color: #4b5563;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
