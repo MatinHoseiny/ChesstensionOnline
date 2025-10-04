@@ -3114,6 +3114,7 @@ if (themeBtn){
     const s=getURL(PIECES[p.color][p.type]);
     if (p.color==="w") capturedByBlack.push(s); else capturedByWhite.push(s);
   }
+  
   function makeMove(sr,sc,tr,tc,meta){
     // Validate move parameters
     if (sr < 0 || sr > 7 || sc < 0 || sc > 7 || tr < 0 || tr > 7 || tc < 0 || tc > 7) {
@@ -3126,6 +3127,7 @@ if (themeBtn){
       console.error('No piece at source position:', {sr, sc});
       return;
     }
+    
     
     // Check if it's online and if it's the player's turn
     if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !onlineChess.canMakeMove()) {
