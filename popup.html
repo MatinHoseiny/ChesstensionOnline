@@ -242,15 +242,13 @@
           <button id="undoBtn" 
                   class="undo-btn" 
                   aria-label="Undo Move" 
-                  title="Undo"
-                  disabled>
+                  title="Undo">
             ⤺
           </button>
           <button id="redoBtn" 
                   class="redo-btn" 
                   aria-label="Redo Move" 
-                  title="Redo"
-                  disabled>
+                  title="Redo">
             ⤻
           </button>
           <button id="disconnectBtn" 
@@ -303,6 +301,12 @@
               aria-describedby="overlaySub"
               aria-modal="true">
         <div class="overlay-card">
+          <button id="closeOverlayBtn" 
+                  class="close-overlay-btn" 
+                  type="button" 
+                  aria-label="Close overlay">
+            ×
+          </button>
           <h2 id="overlayTitle" class="overlay-title">CHECKMATE</h2>
           <p id="overlaySub" class="overlay-sub"></p>
 
