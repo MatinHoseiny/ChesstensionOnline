@@ -179,6 +179,21 @@ button:active {
   transform: translateY(-1px);
 }
 
+/* Disabled undo/redo buttons in online mode */
+.undo-btn:disabled, .redo-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.3 !important;
+  color: #6b7280 !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
+.undo-btn:disabled:hover, .redo-btn:disabled:hover {
+  color: #6b7280 !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
 /* ======================= 5. STATUS BAR & CONTROLS ======================= */
 .status-bar {
   position: relative;
@@ -769,8 +784,9 @@ button:active {
 }
 
 .overlay-card {
+  min-width: 320px;
   max-width: 90vw;
-  padding: 16px 18px;
+  padding: 24px 28px;
   border-radius: 12px;
   background: rgba(20,26,36,0.95);
   border: 0 !important;
@@ -790,6 +806,32 @@ button:active {
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Close overlay button */
+.close-overlay-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  z-index: 10;
+}
+
+.close-overlay-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.close-overlay-btn:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ======================= 14. LEAVE GAME CONFIRMATION PANEL ======================= */
@@ -826,38 +868,41 @@ button:active {
 
 .overlay-title {
   color: white;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   font-family: 'IBM Plex Sans', sans-serif;
+  line-height: 1.2;
 }
 
 .overlay-sub {
   color: white;
-  font-size: 14px;
-  margin: 0 0 20px 0;
+  font-size: 16px;
+  margin: 0 0 24px 0;
   opacity: 0.9;
   font-family: 'IBM Plex Sans', sans-serif;
+  line-height: 1.3;
 }
 
 
 .overlay-actions {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   align-items: center;
-  flex-direction: row !important;
+  flex-direction: column !important;
   flex-wrap: nowrap;
   width: 100%;
+  margin-top: 8px;
 }
 
 .btn-primary, .btn-secondary {
   font-family: 'IBM Plex Sans', sans-serif;
-  width: 100px;
-  height: 44px;
-  padding: 12px 16px;
+  width: 140px;
+  height: 48px;
+  padding: 14px 20px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;

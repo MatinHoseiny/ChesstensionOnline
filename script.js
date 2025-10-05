@@ -80,6 +80,26 @@
   const backToMenuBtn  = document.getElementById("backToMenuBtn");
   const undoBtn        = document.getElementById("undoBtn");
   const redoBtn        = document.getElementById("redoBtn");
+  
+  console.log('Button elements found:', {
+    undoBtn: !!undoBtn,
+    redoBtn: !!redoBtn,
+    undoBtnElement: undoBtn,
+    redoBtnElement: redoBtn
+  });
+  
+  // Test function to show checkmate panel (for development)
+  window.testCheckmatePanel = function() {
+    console.log('Testing checkmate panel...');
+    overlayTitleEl.textContent = "CHECKMATE";
+    overlaySubEl.textContent = "White wins";
+    overlayActionsEl.style.display = "block";
+    if (playAgainBtn) playAgainBtn.style.display = 'block';
+    if (backToMenuBtn) backToMenuBtn.style.display = 'block';
+    overlayEl.classList.add("visible");
+    overlayEl.setAttribute("aria-hidden","false");
+    console.log('Checkmate panel should now be visible!');
+  };
   const disconnectBtn  = document.getElementById("disconnectBtn");
   let   themeBtn       = document.getElementById("themeBtn");
 
@@ -212,7 +232,9 @@ class OnlineChess {
     
     // Use the existing makeMove function to properly apply the move
     const { from, to, meta } = moveData;
+    suppressAIMove = true; // This is an opponent move, not a player move
     makeMove(from.r, from.c, to.r, to.c, meta);
+    suppressAIMove = false;
     
     // Restore online state
     this.isOnline = wasOnline;
@@ -588,46 +610,124 @@ if (themeBtn){
 
   /* ---------------- History ---------------- */
   function pushHistory(){
+    console.log('pushHistory called - suppressAIMove:', suppressAIMove, 'aiEnabled:', aiEnabled);
     history.push(JSON.stringify(snapshotState()));
     if (history.length>200) history.shift();
     future.length=0;
+    console.log('History length after push:', history.length);
+    updateUndoRedoButtons();
+  }
+  
+  function updateUndoRedoButtons(){
+    // Check if we're in online mode - disable buttons completely
+    const isOnlineMode = typeof onlineChess !== 'undefined' && onlineChess.isOnline;
+    
+    if (undoBtn) {
+      if (isOnlineMode) {
+        // In online mode, always disable undo/redo to prevent server conflicts
+        undoBtn.disabled = true;
+        undoBtn.style.opacity = '0.3';
+        undoBtn.title = 'Undo disabled in online mode';
+      } else {
+        // In AI/local mode, enable based on history
+        undoBtn.disabled = history.length === 0;
+        undoBtn.style.opacity = history.length === 0 ? '0.5' : '1';
+        undoBtn.title = 'Undo Move';
+      }
+    }
+    
+    if (redoBtn) {
+      if (isOnlineMode) {
+        // In online mode, always disable undo/redo to prevent server conflicts
+        redoBtn.disabled = true;
+        redoBtn.style.opacity = '0.3';
+        redoBtn.title = 'Redo disabled in online mode';
+      } else {
+        // In AI/local mode, enable based on future
+        redoBtn.disabled = future.length === 0;
+        redoBtn.style.opacity = future.length === 0 ? '0.5' : '1';
+        redoBtn.title = 'Redo Move';
+      }
+    }
   }
   function undo(){
-    // Only disable undo/redo in online multiplayer mode, not in AI mode
-    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !aiEnabled) {
+    console.log('Undo called - Debug info:', {
+      onlineChessExists: typeof onlineChess !== 'undefined',
+      isOnline: typeof onlineChess !== 'undefined' ? onlineChess.isOnline : 'N/A',
+      aiEnabled: aiEnabled,
+      historyLength: history.length,
+      futureLength: future.length
+    });
+    
+    // Disable undo/redo ONLY in online multiplayer mode
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
       console.log('Undo/Redo disabled in online multiplayer mode to prevent server state conflicts');
-      // Show brief visual feedback that undo is disabled
+      // Show visual feedback that undo is disabled in online mode
       if (undoBtn) {
-        undoBtn.style.opacity = '0.5';
-        setTimeout(() => { if (undoBtn) undoBtn.style.opacity = '1'; }, 200);
+        undoBtn.style.opacity = '0.3';
+        undoBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => { 
+          if (undoBtn) {
+            undoBtn.style.opacity = '0.3';
+            undoBtn.style.transform = 'scale(1)';
+          }
+        }, 200);
       }
       return;
     }
     
-    if (!history.length) return;
+    if (!history.length) {
+      console.log('No history to undo');
+      return;
+    }
+    
+    console.log('Performing undo...');
     future.push(JSON.stringify(snapshotState()));
     const prev=JSON.parse(history.pop());
     suppressAIMove=true; applyState(prev); suppressAIMove=false;
     updateAll();
+    updateUndoRedoButtons();
+    console.log('Undo completed');
   }
   function redo(){
-    // Only disable undo/redo in online multiplayer mode, not in AI mode
-    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !aiEnabled) {
+    console.log('Redo called - Debug info:', {
+      onlineChessExists: typeof onlineChess !== 'undefined',
+      isOnline: typeof onlineChess !== 'undefined' ? onlineChess.isOnline : 'N/A',
+      aiEnabled: aiEnabled,
+      historyLength: history.length,
+      futureLength: future.length
+    });
+    
+    // Disable undo/redo ONLY in online multiplayer mode
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
       console.log('Undo/Redo disabled in online multiplayer mode to prevent server state conflicts');
-      // Show brief visual feedback that redo is disabled
+      // Show visual feedback that redo is disabled in online mode
       if (redoBtn) {
-        redoBtn.style.opacity = '0.5';
-        setTimeout(() => { if (redoBtn) redoBtn.style.opacity = '1'; }, 200);
+        redoBtn.style.opacity = '0.3';
+        redoBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => { 
+          if (redoBtn) {
+            redoBtn.style.opacity = '0.3';
+            redoBtn.style.transform = 'scale(1)';
+          }
+        }, 200);
       }
       return;
     }
     
-    if (!future.length) return;
+    if (!future.length) {
+      console.log('No future moves to redo');
+      return;
+    }
+    
+    console.log('Performing redo...');
     history.push(JSON.stringify(snapshotState()));
     if (history.length>200) history.shift();
     const next=JSON.parse(future.pop());
     suppressAIMove=true; applyState(next); suppressAIMove=false;
     updateAll();
+    updateUndoRedoButtons();
+    console.log('Redo completed');
   }
 
   /* ---------------- Helpers ---------------- */
@@ -2628,7 +2728,9 @@ if (themeBtn){
           );
           
           if (isLegal) {
+            suppressAIMove = true;
             makeMove(openingMove.from.r, openingMove.from.c, openingMove.to.r, openingMove.to.c, openingMove.meta);
+            suppressAIMove = false;
             lastMove = {from: openingMove.from, to: openingMove.to};
             if (!pendingPromotion) { turn = opposite(turn); updateAll(); }
             return;
@@ -2651,7 +2753,9 @@ if (themeBtn){
     try {
       for (const move of orderedMoves) {
         if (isCheckmateMove(pos, move, aiColor)) {
+          suppressAIMove = true;
           makeMove(move.from.r, move.from.c, move.to.r, move.to.c, move.meta);
+          suppressAIMove = false;
           lastMove = {from: move.from, to: move.to};
           if (!pendingPromotion) { turn = opposite(turn); updateAll(); }
           return;
@@ -2740,7 +2844,9 @@ if (themeBtn){
       }
     }
     
+    suppressAIMove = true;
     makeMove(bestMove.from.r,bestMove.from.c,bestMove.to.r,bestMove.to.c,bestMove.meta);
+    suppressAIMove = false;
     lastMove={from:bestMove.from,to:bestMove.to};
     if (!pendingPromotion){ turn=opposite(turn); updateAll(); }
   }
@@ -2916,7 +3022,10 @@ if (themeBtn){
     document.body.classList.toggle("game-active", !menuActive);
   }
   const showMenuScreen=()=>useScreen(true);
-  const showGameScreen=()=>useScreen(false);
+  const showGameScreen=()=>{
+    useScreen(false);
+    updateUndoRedoButtons(); // Update button states when game screen is shown
+  };
 
   /* ---------------- Render ---------------- */
   function render(){
@@ -3027,6 +3136,7 @@ if (themeBtn){
     console.log('updateAll called, current state:', {aiEnabled, aiColor, turn, gameOver, pendingPromotion});
     render(); renderCaptured(); updateStatusMessage();
     if (!pendingPromotion) saveState();
+    updateUndoRedoButtons(); // Update button states
   }
 
   /* ---------------- Interaction ---------------- */
@@ -3134,7 +3244,11 @@ if (themeBtn){
       return; // Not the player's turn
     }
     
-    pushHistory();
+    // Only push history for player moves, not AI moves
+    // AI moves are handled separately and shouldn't be undoable
+    if (!suppressAIMove) {
+      pushHistory();
+    }
     const target = board[tr][tc];
     if (meta && meta.special==="enpassant"){
       const dir=moving.color==="w"?1:-1, cap=board[tr+dir][tc];
@@ -3203,6 +3317,7 @@ if (themeBtn){
     capturedByWhite=[]; capturedByBlack=[];
     gameOver=false; lastMove=null; pendingPromotion=null;
     gameStatusEl.textContent=""; history.length=0; future.length=0;
+    updateUndoRedoButtons(); // Update button states after clearing history
     
     // Clear AI state
     moveHistory = [];
@@ -3383,8 +3498,25 @@ function closeJoinTray(){
 });
 
     // Move all event listeners INSIDE DOMContentLoaded
-  if (undoBtn) undoBtn.addEventListener("click", undo);
-  if (redoBtn) redoBtn.addEventListener("click", redo);
+  console.log('Setting up undo/redo event listeners...');
+  if (undoBtn) {
+    console.log('Adding undo event listener');
+    undoBtn.addEventListener("click", (e) => {
+      console.log('Undo button clicked!');
+      undo();
+    });
+  } else {
+    console.error('undoBtn not found!');
+  }
+  if (redoBtn) {
+    console.log('Adding redo event listener');
+    redoBtn.addEventListener("click", (e) => {
+      console.log('Redo button clicked!');
+      redo();
+    });
+  } else {
+    console.error('redoBtn not found!');
+  }
   if (disconnectBtn) disconnectBtn.addEventListener("click", () => {
     if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
       showLeaveGameConfirmation();
@@ -3404,8 +3536,8 @@ function closeJoinTray(){
   });
 
   window.addEventListener("keydown",(e)=>{
-    // Only disable undo/redo shortcuts in online multiplayer mode, not in AI mode
-    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline && !aiEnabled) {
+    // Disable undo/redo shortcuts ONLY in online multiplayer mode
+    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
       if (e.ctrlKey && (e.key==="z" || e.key==="y")) {
         e.preventDefault();
         console.log('Undo/Redo disabled in online multiplayer mode');
