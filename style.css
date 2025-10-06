@@ -196,21 +196,21 @@ button:active {
 
 /* ======================= 5. MODERN GAME HEADER ======================= */
 .game-header {
-  margin-bottom: 4px;
+  margin-bottom: 0px;
 }
 
 .header-container {
   background: #282A36;
-  border: 1px solid #44475A;
+  border: 1px solid #1c1e26;
   border-radius: 12px;
   padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  min-height: 44px;
-  width: 100%;
-  margin: 0;
+  box-shadow: 0 2px 8px rgba(31, 247, 128, 0.3);
+  min-height: 42px;
+  width: 420px;
+  margin: 0 auto;
 }
 
 /* Navigation Buttons */
@@ -299,8 +299,8 @@ button:active {
 
 .theme-option {
   background: transparent;
-  border: 1px solid #44475A;
-  border-radius: 4px;
+  border: none;
+  border-radius: 50%;
   padding: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -312,19 +312,19 @@ button:active {
 }
 
 .theme-option:hover {
-  border-color: #6272A4;
   transform: scale(1.05);
 }
 
 .theme-option.active {
-  border-color: #F8F8F2;
-  box-shadow: 0 0 0 1px #F8F8F2;
+  border: none;
+  box-shadow: none;
+  border-radius: 50%;
 }
 
 .theme-square {
   width: 12px;
   height: 12px;
-  border-radius: 2px;
+  border-radius: 50%;
   position: relative;
   overflow: hidden;
 }
@@ -456,7 +456,7 @@ button:active {
 .board-wrap {
   position: relative;
   width: var(--board);
-  margin: 4px auto;
+  margin: 0px auto; 
   z-index: 1;
   flex-grow: 1;
   display: flex;
@@ -472,7 +472,7 @@ button:active {
   grid-template-rows: repeat(8, var(--cell));
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
+  /* box-shadow will be set dynamically by JavaScript */
   margin: 0 auto;
   transition: box-shadow 0.3s ease, border 0.3s ease;
 }
@@ -633,7 +633,7 @@ button:active {
 /* ======================= 9. CAPTURED PIECES ======================= */
 .captured-tray {
   width: calc(var(--board) - 40px);
-  margin: 4px auto;
+  margin: 20px auto;
   padding: 6px 8px;
   display: flex;
   flex-direction: column;
@@ -1179,26 +1179,10 @@ body.game-active #app {
   border: 1px solid #44475A;
   box-shadow: 0 8px 25px rgba(0,0,0,0.40), inset 0 0 0 1px rgba(255,255,255,0.03);
   background: #282A36;
-  margin-top: 8px;
   padding: 8px;
+  margin: 0;
 }
 
-body.game-active .status-bar {
-  margin-top: 25px;
-}
-
-body.game-active .status-bar,
-body.game-active .captured-section,
-body.game-active .board {
-  border: 1px solid #44475A;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.30), inset 0 0 0 1px rgba(255,255,255,0.02);
-}
-
-body.game-active .captured-title {
-  opacity: 0.95;
-}
-
-/* Game screen fills entire container with proper padding */
 .game-screen {
   display: flex;
   flex-direction: column;
@@ -1206,8 +1190,9 @@ body.game-active .captured-title {
   justify-content: flex-start;
   height: 100%;
   width: 100%;
-  padding: 4px;
+  padding: 15px;
   box-sizing: border-box;
+  gap: 4px;
 }
 
 /* Keep menu background visible when game is active */
