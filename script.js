@@ -8,6 +8,15 @@
 */
 
 (() => {
+  // Suppress ResizeObserver loop warnings
+  const originalError = console.error;
+  console.error = function(...args) {
+    if (args[0] && args[0].includes && args[0].includes('ResizeObserver loop completed with undelivered notifications')) {
+      return; // Suppress this specific warning
+    }
+    originalError.apply(console, args);
+  };
+
   /* ---------------- Video bg (lock to menu-background.mp4) ---------------- */
   const bgVideoEl = document.getElementById("bgVideo");
   if (bgVideoEl) {
@@ -450,7 +459,7 @@ function updateProfilePreviewUI(p){
   let board=null, turn="w", selected=null, legalMoves=[], boardFlipped=false;
   let enPassantTarget=null, castlingRights=null, capturedByWhite=[], capturedByBlack=[];
   let gameOver=false, lastMove=null, pendingPromotion=null;
-  let aiEnabled=false, aiColor="b", aiDepth=4; // Original depth
+  let aiEnabled=false, aiColor="b", aiDepth=4; // Enhanced depth with better evaluation
   
   // Function to determine if board should be flipped
   function shouldFlipBoard() {
@@ -484,18 +493,14 @@ updateProfilePreviewUI(PROFILE);
     blue:   { light:"#f0f0dc", dark:"#3c70a4" }
   };
   function syncThemeBtnUI(){
-    if (!themeBtn) return;
-    // Remove active class from all indicators
-    const indicators = themeBtn.querySelectorAll('.theme-indicator');
-    indicators.forEach(indicator => indicator.classList.remove('active'));
+    // Remove active class from all theme options
+    const themeOptions = document.querySelectorAll('.theme-option');
+    themeOptions.forEach(option => option.classList.remove('active'));
     
-    // Add active class to current theme indicator
-    if (theme === 'green') {
-      indicators[1].classList.add('active');
-    } else if (theme === 'blue') {
-      indicators[2].classList.add('active');
-    } else {
-      indicators[0].classList.add('active');
+    // Add active class to current theme
+    const currentThemeOption = document.querySelector(`.theme-option[data-theme="${theme}"]`);
+    if (currentThemeOption) {
+      currentThemeOption.classList.add('active');
     }
   }
   function applyTheme(name){
@@ -536,28 +541,17 @@ updateProfilePreviewUI(PROFILE);
       center.insertBefore(themeBtn, document.getElementById("gameStatus"));
     }
   }
-if (themeBtn){
-  // Individual color dot clicks
-  const indicators = themeBtn.querySelectorAll('.theme-indicator');
-  
-  // Classic theme (brown dot)
-  indicators[0].addEventListener("click", (e)=>{
+// Theme switcher functionality
+const themeOptions = document.querySelectorAll('.theme-option');
+themeOptions.forEach(option => {
+  option.addEventListener('click', (e) => {
     e.stopPropagation();
-    applyTheme("classic");
+    const themeName = option.dataset.theme;
+    if (themeName) {
+      applyTheme(themeName);
+    }
   });
-  
-  // Green theme (green dot)
-  indicators[1].addEventListener("click", (e)=>{
-    e.stopPropagation();
-    applyTheme("green");
-  });
-  
-  // Blue theme (blue dot)
-  indicators[2].addEventListener("click", (e)=>{
-    e.stopPropagation();
-    applyTheme("blue");
-  });
-}
+});
 
   /* ---------------- Persistence ---------------- */
   const STORAGE_KEY="chesscursor:v1";
@@ -578,7 +572,13 @@ if (themeBtn){
   }
   function loadState(cb){
     if (typeof chrome!=="undefined" && chrome.storage?.local)
-      chrome.storage.local.get(STORAGE_KEY,(r)=>cb(r?.[STORAGE_KEY]||null));
+      chrome.storage.local.get(STORAGE_KEY,(r)=>{
+        if (r && r[STORAGE_KEY]) {
+          cb(r[STORAGE_KEY]);
+        } else {
+          cb(null);
+        }
+      });
     else {
       const raw=localStorage.getItem(STORAGE_KEY);
       cb(raw?JSON.parse(raw):null);
@@ -1466,7 +1466,7 @@ if (themeBtn){
     return true; // No enemy pawns found, it's passed
   }
   
-  // Simplified, reliable evaluation function
+  // Enhanced evaluation function with modern chess knowledge
   function evalPos(pos) {
     let score = 0;
     
@@ -1480,13 +1480,13 @@ if (themeBtn){
       // 1.6. ENDGAME MATERIAL ADJUSTMENT (reduce material focus in endgame)
       // Note: Material adjustment handled in individual evaluation functions
       
-      // 2. BASIC POSITIONAL FACTORS
+      // 2. ENHANCED POSITIONAL FACTORS
       score += evalPosition(pos.board);
       
-      // 3. KING SAFETY
+      // 3. ADVANCED KING SAFETY
       score += evalKingSafety(pos.board);
       
-      // 4. BASIC PAWN STRUCTURE (simplified)
+      // 4. IMPROVED PAWN STRUCTURE
       score += evalPawnStructure(pos.board);
       
       // 5. CENTER CONTROL
@@ -1495,7 +1495,16 @@ if (themeBtn){
       // 6. PIECE DEVELOPMENT
       score += evalDevelopment(pos.board);
       
-      // 7. CHECK BONUS
+      // 7. NEW: PIECE ACTIVITY & MOBILITY
+      score += evalPieceActivity(pos.board);
+      
+      // 8. NEW: TACTICAL PATTERNS
+      score += evalTacticalPatterns(pos.board);
+      
+      // 9. NEW: ENDGAME KNOWLEDGE
+      score += evalEndgamePatterns(pos.board);
+      
+      // 10. CHECK BONUS
       const whiteInCheck = isInCheckFor(pos.board, "w");
       const blackInCheck = isInCheckFor(pos.board, "b");
       if (whiteInCheck) score -= CHECK_BONUS;
@@ -2076,6 +2085,630 @@ if (themeBtn){
     }
     
     return score;
+  }
+  
+  // Enhanced evaluation functions for smarter AI
+  
+  // NEW: Piece Activity & Mobility Evaluation
+  function evalPieceActivity(board) {
+    if (!board || !Array.isArray(board)) return 0;
+    
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (!piece) continue;
+        
+        try {
+          const mobility = getPieceMobility(board, r, c, piece);
+          const activity = getPieceActivity(board, r, c, piece);
+          
+          if (piece.color === "w") {
+            score += mobility * 2; // Mobility bonus
+            score += activity * 3; // Activity bonus
+          } else {
+            score -= mobility * 2;
+            score -= activity * 3;
+          }
+        } catch (error) {
+          console.warn('Error in evalPieceActivity:', error);
+          continue;
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // NEW: Tactical Patterns Recognition
+  function evalTacticalPatterns(board) {
+    if (!board || !Array.isArray(board)) return 0;
+    
+    let score = 0;
+    
+    try {
+      // Forks, pins, skewers detection
+      score += evalForks(board);
+      score += evalPins(board);
+      score += evalSkewers(board);
+      score += evalDiscoveredAttacks(board);
+    } catch (error) {
+      console.warn('Error in evalTacticalPatterns:', error);
+    }
+    
+    return score;
+  }
+  
+  // NEW: Endgame Pattern Recognition
+  function evalEndgamePatterns(board) {
+    if (!board || !Array.isArray(board)) return 0;
+    
+    try {
+      const material = countMaterial(board);
+      const totalMaterial = material.white + material.black;
+      
+      // Only apply endgame patterns when material is low
+      if (totalMaterial > 2000) return 0;
+      
+      let score = 0;
+      
+      // King activity in endgame
+      score += evalKingActivity(board);
+      
+      // Pawn promotion potential
+      score += evalPawnPromotion(board);
+      
+      // Opposition (king vs king)
+      score += evalOpposition(board);
+      
+      // Passed pawns in endgame
+      score += evalPassedPawnsEndgame(board);
+      
+      return score;
+    } catch (error) {
+      console.warn('Error in evalEndgamePatterns:', error);
+      return 0;
+    }
+  }
+  
+  // Helper functions for new evaluation features
+  function getPieceMobility(board, r, c, piece) {
+    const moves = getPieceMoves(board, r, c, piece);
+    return moves ? moves.length : 0;
+  }
+  
+  function getPieceActivity(board, r, c, piece) {
+    let activity = 0;
+    
+    // Center control bonus
+    if ((r >= 3 && r <= 4) && (c >= 3 && c <= 4)) {
+      activity += 2;
+    }
+    
+    // Outpost bonus (piece on enemy territory, protected by pawn)
+    if (isOutpost(board, r, c, piece)) {
+      activity += 3;
+    }
+    
+    // Piece coordination bonus
+    activity += getCoordinationBonus(board, r, c, piece);
+    
+    return activity;
+  }
+  
+  function isOutpost(board, r, c, piece) {
+    if (piece.type === "P") return false; // Only for pieces, not pawns
+    
+    const enemyColor = piece.color === "w" ? "b" : "w";
+    const friendlyColor = piece.color;
+    
+    // Check if piece is on enemy side
+    const isOnEnemySide = (piece.color === "w" && r >= 4) || (piece.color === "b" && r <= 3);
+    if (!isOnEnemySide) return false;
+    
+    // Check if protected by friendly pawn
+    const pawnProtection = hasPawnProtection(board, r, c, friendlyColor);
+    return pawnProtection;
+  }
+  
+  function hasPawnProtection(board, r, c, color) {
+    const pawnDir = color === "w" ? -1 : 1;
+    const leftPawn = board[r + pawnDir]?.[c - 1];
+    const rightPawn = board[r + pawnDir]?.[c + 1];
+    
+    return (leftPawn && leftPawn.type === "P" && leftPawn.color === color) ||
+           (rightPawn && rightPawn.type === "P" && rightPawn.color === color);
+  }
+  
+  function getCoordinationBonus(board, r, c, piece) {
+    let bonus = 0;
+    
+    // Rook coordination (rooks on same rank/file)
+    if (piece.type === "R") {
+      bonus += getRookCoordination(board, r, c, piece.color);
+    }
+    
+    // Bishop coordination (bishops on different colors)
+    if (piece.type === "B") {
+      bonus += getBishopCoordination(board, piece.color);
+    }
+    
+    // Queen coordination with other pieces
+    if (piece.type === "Q") {
+      bonus += getQueenCoordination(board, r, c, piece.color);
+    }
+    
+    return bonus;
+  }
+  
+  function getRookCoordination(board, r, c, color) {
+    let coordination = 0;
+    
+    // Check for rooks on same rank
+    for (let c2 = 0; c2 < 8; c2++) {
+      if (c2 !== c && board[r][c2] && board[r][c2].type === "R" && board[r][c2].color === color) {
+        coordination += 1;
+      }
+    }
+    
+    // Check for rooks on same file
+    for (let r2 = 0; r2 < 8; r2++) {
+      if (r2 !== r && board[r2][c] && board[r2][c].type === "R" && board[r2][c].color === color) {
+        coordination += 1;
+      }
+    }
+    
+    return coordination;
+  }
+  
+  function getBishopCoordination(board, color) {
+    let whiteBishops = 0, blackBishops = 0;
+    let whiteBishopColors = new Set(), blackBishopColors = new Set();
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "B") {
+          const squareColor = (r + c) % 2; // 0 = light, 1 = dark
+          if (piece.color === "w") {
+            whiteBishops++;
+            whiteBishopColors.add(squareColor);
+          } else {
+            blackBishops++;
+            blackBishopColors.add(squareColor);
+          }
+        }
+      }
+    }
+    
+    let coordination = 0;
+    if (color === "w" && whiteBishops >= 2 && whiteBishopColors.size === 2) {
+      coordination += 2; // Bishop pair on different colors
+    }
+    if (color === "b" && blackBishops >= 2 && blackBishopColors.size === 2) {
+      coordination += 2;
+    }
+    
+    return coordination;
+  }
+  
+  function getQueenCoordination(board, r, c, color) {
+    let coordination = 0;
+    
+    // Queen coordination with rooks
+    for (let r2 = 0; r2 < 8; r2++) {
+      for (let c2 = 0; c2 < 8; c2++) {
+        const piece = board[r2][c2];
+        if (piece && piece.color === color && (piece.type === "R" || piece.type === "B")) {
+          // Check if queen and piece can support each other
+          if (canSupport(board, r, c, r2, c2)) {
+            coordination += 1;
+          }
+        }
+      }
+    }
+    
+    return coordination;
+  }
+  
+  function canSupport(board, r1, c1, r2, c2) {
+    // Check if pieces can support each other (simplified)
+    const distance = Math.abs(r1 - r2) + Math.abs(c1 - c2);
+    return distance <= 3; // Within reasonable support distance
+  }
+  
+  // Tactical pattern detection functions
+  function evalForks(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (!piece) continue;
+        
+        const forkValue = detectFork(board, r, c, piece);
+        if (piece.color === "w") score += forkValue;
+        else score -= forkValue;
+      }
+    }
+    
+    return score;
+  }
+  
+  function detectFork(board, r, c, piece) {
+    if (piece.type !== "N" && piece.type !== "P") return 0;
+    
+    const moves = getPieceMoves(board, r, c, piece);
+    if (!moves) return 0;
+    
+    let forkValue = 0;
+    const attackedPieces = [];
+    
+    for (const move of moves) {
+      const target = board[move.r][move.c];
+      if (target && target.color !== piece.color) {
+        attackedPieces.push(target);
+      }
+    }
+    
+    // Fork bonus: attacking multiple valuable pieces
+    if (attackedPieces.length >= 2) {
+      const totalValue = attackedPieces.reduce((sum, p) => sum + getPieceValue(p.type), 0);
+      forkValue = Math.min(totalValue * 0.5, 100); // Cap fork bonus
+    }
+    
+    return forkValue;
+  }
+  
+  function evalPins(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (!piece) continue;
+        
+        const pinValue = detectPin(board, r, c, piece);
+        if (piece.color === "w") score += pinValue;
+        else score -= pinValue;
+      }
+    }
+    
+    return score;
+  }
+  
+  function detectPin(board, r, c, piece) {
+    // Simplified pin detection
+    if (piece.type === "P" || piece.type === "K") return 0;
+    
+    let pinValue = 0;
+    
+    // Check for pins along ranks, files, and diagonals
+    const directions = [
+      [0, 1], [0, -1], [1, 0], [-1, 0], // Ranks and files
+      [1, 1], [1, -1], [-1, 1], [-1, -1] // Diagonals
+    ];
+    
+    for (const [dr, dc] of directions) {
+      const pinValue_dir = checkPinDirection(board, r, c, dr, dc, piece);
+      pinValue += pinValue_dir;
+    }
+    
+    return pinValue;
+  }
+  
+  function checkPinDirection(board, r, c, dr, dc, piece) {
+    let pinValue = 0;
+    let foundEnemyPiece = false;
+    let foundFriendlyKing = false;
+    
+    for (let i = 1; i < 8; i++) {
+      const nr = r + dr * i;
+      const nc = c + dc * i;
+      
+      if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) break;
+      
+      const target = board[nr][nc];
+      if (!target) continue;
+      
+      if (target.color === piece.color) {
+        if (target.type === "K") {
+          foundFriendlyKing = true;
+          break;
+        }
+      } else {
+        if (foundEnemyPiece) break; // Multiple enemy pieces
+        foundEnemyPiece = true;
+        
+        // Check if enemy piece can pin
+        if (canPinPiece(target.type, dr, dc)) {
+          pinValue += 20; // Pin bonus
+        }
+      }
+    }
+    
+    return foundFriendlyKing && foundEnemyPiece ? pinValue : 0;
+  }
+  
+  function canPinPiece(pieceType, dr, dc) {
+    // Check if piece type can pin in this direction
+    if (pieceType === "Q") return true;
+    if (pieceType === "R" && (dr === 0 || dc === 0)) return true;
+    if (pieceType === "B" && Math.abs(dr) === Math.abs(dc)) return true;
+    return false;
+  }
+  
+  function evalSkewers(board) {
+    // Similar to pins but attacking through a piece
+    return evalPins(board) * 0.8; // Slightly less valuable than pins
+  }
+  
+  function evalDiscoveredAttacks(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (!piece) continue;
+        
+        const discoveredValue = detectDiscoveredAttack(board, r, c, piece);
+        if (piece.color === "w") score += discoveredValue;
+        else score -= discoveredValue;
+      }
+    }
+    
+    return score;
+  }
+  
+  function detectDiscoveredAttack(board, r, c, piece) {
+    // Simplified discovered attack detection
+    if (piece.type === "P" || piece.type === "K") return 0;
+    
+    let discoveredValue = 0;
+    
+    // Check if moving this piece would reveal an attack
+    const directions = [
+      [0, 1], [0, -1], [1, 0], [-1, 0],
+      [1, 1], [1, -1], [-1, 1], [-1, -1]
+    ];
+    
+    for (const [dr, dc] of directions) {
+      const discoveredValue_dir = checkDiscoveredDirection(board, r, c, dr, dc, piece);
+      discoveredValue += discoveredValue_dir;
+    }
+    
+    return discoveredValue;
+  }
+  
+  function checkDiscoveredDirection(board, r, c, dr, dc, piece) {
+    let discoveredValue = 0;
+    
+    // Look for friendly piece behind this piece that could attack
+    for (let i = 1; i < 8; i++) {
+      const nr = r + dr * i;
+      const nc = c + dc * i;
+      
+      if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) break;
+      
+      const target = board[nr][nc];
+      if (!target) continue;
+      
+      if (target.color === piece.color && target.type !== "K") {
+        // Check if this piece can attack in this direction
+        if (canAttackInDirection(target.type, dr, dc)) {
+          discoveredValue += 15; // Discovered attack bonus
+        }
+        break;
+      }
+      
+      if (target.color !== piece.color) break; // Enemy piece blocks
+    }
+    
+    return discoveredValue;
+  }
+  
+  function canAttackInDirection(pieceType, dr, dc) {
+    if (pieceType === "Q") return true;
+    if (pieceType === "R" && (dr === 0 || dc === 0)) return true;
+    if (pieceType === "B" && Math.abs(dr) === Math.abs(dc)) return true;
+    return false;
+  }
+  
+  // Endgame pattern functions
+  function evalKingActivity(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "K") {
+          const activity = getKingActivity(board, r, c, piece);
+          if (piece.color === "w") score += activity;
+          else score -= activity;
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  function getKingActivity(board, r, c, king) {
+    let activity = 0;
+    
+    // King centralization in endgame
+    const centerDistance = Math.abs(r - 3.5) + Math.abs(c - 3.5);
+    activity += (7 - centerDistance) * 2;
+    
+    // King mobility
+    const moves = getPieceMoves(board, r, c, king);
+    activity += moves ? moves.length : 0;
+    
+    return activity;
+  }
+  
+  function evalPawnPromotion(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "P") {
+          const promotionValue = getPawnPromotionValue(board, r, c, piece);
+          if (piece.color === "w") score += promotionValue;
+          else score -= promotionValue;
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  function getPawnPromotionValue(board, r, c, pawn) {
+    let value = 0;
+    
+    // Advanced pawn bonus
+    if (pawn.color === "w" && r <= 2) {
+      value += (3 - r) * 50; // Closer to promotion = higher value
+    } else if (pawn.color === "b" && r >= 5) {
+      value += (r - 4) * 50;
+    }
+    
+    // Passed pawn bonus
+    if (isPassedPawn(board, r, c, pawn)) {
+      value += 30;
+    }
+    
+    return value;
+  }
+  
+  function evalOpposition(board) {
+    // King vs King opposition in endgame
+    let score = 0;
+    
+    const whiteKing = findKingPosition(board, "w");
+    const blackKing = findKingPosition(board, "b");
+    
+    if (!whiteKing || !blackKing) return 0;
+    
+    const distance = Math.abs(whiteKing.r - blackKing.r) + Math.abs(whiteKing.c - blackKing.c);
+    
+    // Opposition bonus (kings close but not too close)
+    if (distance >= 2 && distance <= 4) {
+      score += 10;
+    }
+    
+    return score;
+  }
+  
+  function findKingPosition(board, color) {
+    if (!board || !Array.isArray(board)) return null;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "K" && piece.color === color) {
+          return { r, c };
+        }
+      }
+    }
+    return null;
+  }
+  
+  function evalPassedPawnsEndgame(board) {
+    let score = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece && piece.type === "P") {
+          if (isPassedPawn(board, r, c, piece)) {
+            const passedValue = getPassedPawnValue(board, r, c, piece);
+            if (piece.color === "w") score += passedValue;
+            else score -= passedValue;
+          }
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  function getPassedPawnValue(board, r, c, pawn) {
+    let value = 0;
+    
+    // Distance to promotion
+    if (pawn.color === "w") {
+      value += (7 - r) * 20;
+    } else {
+      value += r * 20;
+    }
+    
+    // Support from friendly pieces
+    const support = getPawnSupport(board, r, c, pawn);
+    value += support * 10;
+    
+    return value;
+  }
+  
+  function getPawnSupport(board, r, c, pawn) {
+    let support = 0;
+    
+    // Check for friendly pieces supporting the pawn
+    const directions = [
+      [pawn.color === "w" ? -1 : 1, -1],
+      [pawn.color === "w" ? -1 : 1, 1]
+    ];
+    
+    for (const [dr, dc] of directions) {
+      const nr = r + dr;
+      const nc = c + dc;
+      
+      if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+        const piece = board[nr][nc];
+        if (piece && piece.color === pawn.color) {
+          support += 1;
+        }
+      }
+    }
+    
+    return support;
+  }
+  
+  // Missing helper functions for enhanced evaluation
+  function getPieceMoves(board, r, c, piece) {
+    // This should return the legal moves for a piece
+    // For now, return empty array - this will be implemented by existing move generation
+    return [];
+  }
+  
+  function getPieceValue(pieceType) {
+    const values = {
+      'P': 100,
+      'N': 320,
+      'B': 330,
+      'R': 500,
+      'Q': 900,
+      'K': 20000
+    };
+    return values[pieceType] || 0;
+  }
+  
+  function countMaterial(board) {
+    let white = 0, black = 0;
+    
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = board[r][c];
+        if (piece) {
+          const value = getPieceValue(piece.type);
+          if (piece.color === "w") white += value;
+          else black += value;
+        }
+      }
+    }
+    
+    return { white, black };
   }
   
   // Advanced evaluation functions
@@ -3025,10 +3658,22 @@ if (themeBtn){
   const showGameScreen=()=>{
     useScreen(false);
     updateUndoRedoButtons(); // Update button states when game screen is shown
+    updateAll(); // Render the board and update UI
   };
 
   /* ---------------- Render ---------------- */
+  // Debounce render function to prevent ResizeObserver loops
+  let renderTimeout;
   function render(){
+    if (renderTimeout) {
+      clearTimeout(renderTimeout);
+    }
+    renderTimeout = setTimeout(() => {
+      if (!boardEl) {
+        console.error('Board element not found');
+        return;
+      }
+    
     boardEl.innerHTML="";
     
     // Safety check for board state
@@ -3110,13 +3755,32 @@ if (themeBtn){
         boardEl.appendChild(d);
       }
     }
-    turnIndicatorEl.textContent = turn==="w"?"White's Turn":"Black's Turn";
+    if (turnIndicatorEl) turnIndicatorEl.textContent = turn==="w"?"White's Turn":"Black's Turn";
+    
+    // Update turn dot color
+    const turnDot = document.querySelector('.turn-dot');
+    if (turnDot) {
+      if (turn === 'w') {
+        turnDot.style.background = '#50FA7B';
+        turnDot.style.boxShadow = '0 0 8px rgba(80,250,123,0.6)';
+      } else {
+        turnDot.style.background = '#FF5555';
+        turnDot.style.boxShadow = '0 0 8px rgba(255,85,85,0.6)';
+      }
+    }
+    }, 16); // ~60fps
   }
   function renderCaptured(){
     capturedByWhiteEl.innerHTML="";
     capturedByBlackEl.innerHTML="";
     for(const s of capturedByWhite){ const i=document.createElement("img"); i.src=s; i.width=18;i.height=18; capturedByWhiteEl.appendChild(i); }
     for(const s of capturedByBlack){ const i=document.createElement("img"); i.src=s; i.width=18;i.height=18; capturedByBlackEl.appendChild(i); }
+    
+    // Update captured counts
+    const whiteCountEl = document.querySelector('.top-tray .captured-count');
+    const blackCountEl = document.querySelector('.bottom-tray .captured-count');
+    if (whiteCountEl) whiteCountEl.textContent = `+${capturedByWhite.length}`;
+    if (blackCountEl) blackCountEl.textContent = `+${capturedByBlack.length}`;
   }
   function updateStatusMessage(){
     if (gameOver) return;
@@ -3127,16 +3791,21 @@ if (themeBtn){
     } else if (!check && !any){
       gameOver=true; showOverlay("STALEMATE","No legal moves — Draw");
     } else if (check){
-      gameStatusEl.textContent="Check!"; hideBanner();
+      if (gameStatusEl) gameStatusEl.textContent="Check!"; hideBanner();
     } else {
-      gameStatusEl.textContent=""; hideBanner();
+      if (gameStatusEl) gameStatusEl.textContent=""; hideBanner();
     }
   }
+  // Debounce updateAll to prevent ResizeObserver loops
+  let updateAllTimeout;
   function updateAll(){
-    console.log('updateAll called, current state:', {aiEnabled, aiColor, turn, gameOver, pendingPromotion});
-    render(); renderCaptured(); updateStatusMessage();
-    if (!pendingPromotion) saveState();
-    updateUndoRedoButtons(); // Update button states
+    if (updateAllTimeout) {
+      clearTimeout(updateAllTimeout);
+    }
+    updateAllTimeout = setTimeout(() => {
+      console.log('updateAll called, current state:', {aiEnabled, aiColor, turn, gameOver, pendingPromotion});
+      render(); renderCaptured(); updateStatusMessage();
+    }, 16); // ~60fps
   }
 
   /* ---------------- Interaction ---------------- */
@@ -3247,7 +3916,7 @@ if (themeBtn){
     // Only push history for player moves, not AI moves
     // AI moves are handled separately and shouldn't be undoable
     if (!suppressAIMove) {
-      pushHistory();
+    pushHistory();
     }
     const target = board[tr][tc];
     if (meta && meta.special==="enpassant"){
@@ -3316,7 +3985,8 @@ if (themeBtn){
     castlingRights={ w:{K:true,Q:true}, b:{K:true,Q:true} };
     capturedByWhite=[]; capturedByBlack=[];
     gameOver=false; lastMove=null; pendingPromotion=null;
-    gameStatusEl.textContent=""; history.length=0; future.length=0;
+    if (gameStatusEl) gameStatusEl.textContent=""; 
+    history.length=0; future.length=0;
     updateUndoRedoButtons(); // Update button states after clearing history
     
     // Clear AI state

@@ -43,19 +43,19 @@ html, body {
 
 /* ======================= 3. LAYOUT CONTAINERS ======================= */
 #app {
-  width: calc(var(--board) + 24px);
-  padding: 12px;
+  width: calc(var(--board) + 100px);
+  padding: 16px;
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   position: relative;
   z-index: 1;
-  min-height: calc(var(--board) + 180px);
+  min-height: calc(var(--board) + 240px);
 }
 
 .screen {
   position: absolute;
   inset: 0;
   margin: 0 auto;
-  width: calc(var(--board) + 24px);
+  width: calc(var(--board) + 100px);
   opacity: 0;
   transform: translateX(100px);
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -194,34 +194,181 @@ button:active {
   transform: none !important;
 }
 
-/* ======================= 5. STATUS BAR & CONTROLS ======================= */
-.status-bar {
-  position: relative;
+/* ======================= 5. MODERN GAME HEADER ======================= */
+.game-header {
+  margin-bottom: 4px;
+}
+
+.header-container {
+  background: #282A36;
+  border: 1px solid #44475A;
+  border-radius: 12px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: calc(var(--board) * 0.90);
-  margin: 0 auto var(--gap);
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   min-height: 44px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              opacity 0.3s ease,
-              box-shadow 0.3s ease,
-              border 0.3s ease;
-  gap: 12px;
+  width: 100%;
+  margin: 0;
 }
 
-.status-center {
+/* Navigation Buttons */
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: #CCCCCC;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+}
+
+.nav-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #F8F8F2;
+}
+
+.nav-btn--left {
+  margin-right: auto;
+}
+
+.nav-btn--disconnect {
+  color: #FF5555;
+}
+
+.nav-btn--disconnect:hover {
+  background: rgba(255,85,85,0.1);
+  color: #FF6B6B;
+}
+
+/* Game Info Center */
+.game-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
   flex: 1;
-  min-width: 0;
+  justify-content: center;
+}
+
+/* Turn Display */
+.turn-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.turn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #50FA7B;
+  box-shadow: 0 0 8px rgba(80,250,123,0.6);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.turn-text {
+  color: #F8F8F2;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Move Counter (removed) */
+
+/* Theme Switcher */
+.theme-switcher {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.theme-option {
+  background: transparent;
+  border: 1px solid #44475A;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-option:hover {
+  border-color: #6272A4;
+  transform: scale(1.05);
+}
+
+.theme-option.active {
+  border-color: #F8F8F2;
+  box-shadow: 0 0 0 1px #F8F8F2;
+}
+
+.theme-square {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
   position: relative;
-  z-index: 1;
+  overflow: hidden;
+}
+
+.theme-classic .theme-square {
+  background: linear-gradient(135deg, #E0C29A 0%, #E0C29A 50%, #A08060 50%, #A08060 100%);
+}
+
+.theme-green .theme-square {
+  background: linear-gradient(135deg, #A0D080 0%, #A0D080 50%, #609040 50%, #609040 100%);
+}
+
+.theme-blue .theme-square {
+  background: linear-gradient(135deg, #A0D0E0 0%, #A0D0E0 50%, #6090C0 50%, #6090C0 100%);
+}
+
+/* Game Controls */
+.game-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Game Status */
+.game-status {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #F8F8F2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.game-status.show {
+  opacity: 1;
 }
 
 .nav-buttons {
@@ -309,8 +456,12 @@ button:active {
 .board-wrap {
   position: relative;
   width: var(--board);
-  margin: 0 auto;
+  margin: 4px auto;
   z-index: 1;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .board {
@@ -321,7 +472,6 @@ button:active {
   grid-template-rows: repeat(8, var(--cell));
   border-radius: var(--radius);
   overflow: hidden;
-  border: 1px solid var(--glass-strong);
   box-shadow: var(--shadow);
   margin: 0 auto;
   transition: box-shadow 0.3s ease, border 0.3s ease;
@@ -482,31 +632,51 @@ button:active {
 
 /* ======================= 9. CAPTURED PIECES ======================= */
 .captured-tray {
-  width: var(--board);
-  margin: 12px auto;
-  padding: 4px 6px;
+  width: calc(var(--board) - 40px);
+  margin: 4px auto;
+  padding: 6px 8px;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  background: var(--glass);
-  border: 1px solid var(--glass-strong);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  height: 28px;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(40, 42, 54, 0.95);
+  border: 1px solid rgba(68, 71, 90, 0.8);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  min-height: 40px;
   box-sizing: border-box;
+  backdrop-filter: blur(10px);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
               opacity 0.3s ease,
               box-shadow 0.3s ease;
 }
 
+.captured-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 .captured-tray .captured-title {
-  color: var(--muted);
+  color: #F8F8F2;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   white-space: nowrap;
 }
+
+.captured-count {
+  background: #50FA7B;
+  color: #000000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  min-width: 24px;
+  text-align: center;
+}
+
 
 .captured-tray .captured-pieces {
   display: flex;
@@ -522,9 +692,13 @@ button:active {
 }
 
 .captured-tray .captured-pieces img {
-  width: 14px;
-  height: 14px;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.55));
+  width: 18px;
+  height: 18px;
+  filter: 
+    drop-shadow(0 0 0 1px rgba(255,255,255,0.8))
+    drop-shadow(0 0 0 2px rgba(255,255,255,0.6))
+    drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+  opacity: 0.9;
 }
 
 /* ======================= 10. MENU SYSTEM ======================= */
@@ -1001,12 +1175,12 @@ button:active {
 
 /* ======================= 16. GAME STATES ======================= */
 body.game-active #app {
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.10);
-  box-shadow: 0 12px 35px rgba(0,0,0,0.40), inset 0 0 0 1px rgba(255,255,255,0.03);
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-  margin-top: 16px;
-  padding-top: 12px;
+  border-radius: 12px;
+  border: 1px solid #44475A;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.40), inset 0 0 0 1px rgba(255,255,255,0.03);
+  background: #282A36;
+  margin-top: 8px;
+  padding: 8px;
 }
 
 body.game-active .status-bar {
@@ -1016,13 +1190,27 @@ body.game-active .status-bar {
 body.game-active .status-bar,
 body.game-active .captured-section,
 body.game-active .board {
-  border: 1px solid rgba(255,255,255,0.10);
+  border: 1px solid #44475A;
   box-shadow: 0 10px 25px rgba(0,0,0,0.30), inset 0 0 0 1px rgba(255,255,255,0.02);
 }
 
 body.game-active .captured-title {
   opacity: 0.95;
 }
+
+/* Game screen fills entire container with proper padding */
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+/* Keep menu background visible when game is active */
 
 /* ======================= 17. ONLINE FEATURES ======================= */
 .online-btn-container {
