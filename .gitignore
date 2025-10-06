@@ -1,4 +1,4 @@
-# Security & Secrets
+
 .env*
 config.json
 secrets.json
@@ -6,21 +6,20 @@ credentials.json
 *.pem
 *.key
 
-# Chrome Extension
 *.crx
 *.xpi
 extension.zip
 Chesstension*.zip
 
-# OS Files
+
 .DS_Store
 Thumbs.db
 *~
 
-# IDE
+
 .vscode/
 
-# Project specific
+
 images/icon-source.png
 .railway/
 railway.json

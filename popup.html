@@ -6,48 +6,43 @@
   <title>Chesstention - Chess Extension</title>
   <meta name="description" content="Play chess locally, vs computer, or online with friends. Clean UI, multiple themes, and professional chess experience.">
   
-  <!-- Preconnect to external domains for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   
-  <!-- Font loading with display=swap for better performance -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Background video with accessibility considerations -->
   <video id="bgVideo" class="bg-video" autoplay muted loop playsinline aria-hidden="true">
     <source src="media/menu-background.mp4" type="video/mp4">
-    <!-- Fallback for browsers that don't support video -->
     Your browser does not support the video tag.
   </video>
   <div class="bg-dim" aria-hidden="true"></div>
 
   <main id="app" role="main">
-    <!-- ============== MENU SCREEN ============== -->
     <section id="menuScreen" class="screen menu-screen is-active" aria-label="Main menu">
       <header class="menu">
         <div class="menu-header">
-          <img src="images/chesstention-logo.png" 
-               alt="Chesstention Logo" 
-               class="menu-logo-img"
-               width="350" 
-               height="auto"
-               loading="eager">
+          <a href="https://github.com/MatinHoseiny/ChesstensionOnline" target="_blank" rel="noopener noreferrer">
+  <img src="images/chesstention-logo.png" 
+       alt="Chesstention Logo" 
+       class="menu-logo-img"
+       width="350" 
+       height="auto"
+       loading="eager">
+</a>
         </div>
 
         <nav class="menu-buttons" role="navigation" aria-label="Game mode selection">
-          <!-- Online Play Section -->
           <div id="playOnlineContainer" class="online-btn-container">
             <button id="playOnlineBtn" 
-                    type="button" 
-                    class="menu-btn menu-btn--primary"
-                    aria-describedby="online-description">
-              Play Online
-            </button>
+        type="button" 
+        class="menu-btn menu-btn--primary"
+        aria-describedby="online-description">
+  <span class="text-content">Play Online</span>
+</button>
             <button id="cancelSearchBtn" 
                     type="button" 
                     class="cancel-search-btn" 
@@ -60,7 +55,6 @@
             </div>
           </div>
           
-          <!-- Computer Play Section -->
           <button id="toggleAiBtn" 
                   type="button" 
                   class="menu-btn"
@@ -73,7 +67,6 @@
             Play against the computer with adjustable difficulty
           </div>
 
-          <!-- CPU Color Selection -->
           <div id="cpuOptions" 
                class="cpu-options" 
                role="group" 
@@ -93,7 +86,6 @@
             </button>
           </div>
 
-          <!-- Local Play -->
           <button id="newGameBtn" 
                   type="button" 
                   class="menu-btn"
@@ -104,7 +96,6 @@
             Play locally with two players on the same device
           </div>
 
-          <!-- LAN Play -->
           <button id="openJoinPanel" 
                   type="button" 
                   class="menu-btn"
@@ -118,7 +109,6 @@
           </div>
         </nav>
 
-        <!-- LAN Connection Panels -->
         <section id="joinPanel" 
                  class="lan-panel" 
                  role="region" 
@@ -175,16 +165,13 @@
       </header>
     </section>
 
-    <!-- ============== GAME SCREEN ============== -->
     <section id="gameScreen" 
              class="screen game-screen is-hidden" 
              aria-label="Chess game"
              aria-hidden="true">
       
-      <!-- Modern Game Status Bar -->
       <header class="game-header" role="banner">
         <div class="header-container">
-          <!-- Left Navigation -->
           <button id="backToMenuBtn" 
                   class="nav-btn nav-btn--left" 
                   aria-label="Back to Menu" 
@@ -195,17 +182,13 @@
             </svg>
           </button>
 
-          <!-- Center Game Info -->
           <div class="game-info">
-            <!-- Turn Indicator with Dot -->
             <div class="turn-display">
               <div class="turn-dot"></div>
-              <span id="turnIndicator" class="turn-text">White's Turn</span>
+              <span id="turnIndicator" class="turn-text">White's turn</span>
             </div>
             
-            <!-- Move Counter (removed - not needed) -->
             
-            <!-- Theme Switcher -->
             <div class="theme-switcher">
               <button class="theme-option theme-classic active" data-theme="classic" title="Classic Theme">
                 <div class="theme-square"></div>
@@ -219,7 +202,6 @@
             </div>
           </div>
 
-          <!-- Right Controls -->
           <div class="game-controls">
             <button id="undoBtn" 
                     class="nav-btn nav-btn--control" 
@@ -249,27 +231,24 @@
           </div>
         </div>
 
-        <!-- Game Status Banner -->
         <div id="banner" 
              class="banner" 
              aria-live="polite" 
              aria-atomic="true"
              role="status"></div>
         
-        <!-- Game Status Element -->
         <div id="gameStatus" 
              class="game-status" 
              role="status" 
              aria-live="polite"></div>
       </header>
 
-      <!-- Captured Pieces - Black (Top) -->
       <section class="captured-tray top-tray" 
                role="region" 
                aria-label="Captured pieces by black">
         <div class="captured-header">
           <span class="captured-title">CAPTURED BY BLACK</span>
-          <div class="captured-count">+3</div>
+         
         </div>
         <div id="capturedByBlack" 
              class="captured-pieces" 
@@ -277,7 +256,6 @@
              aria-label="Pieces captured by black player"></div>
       </section>
 
-      <!-- Chess Board -->
       <section class="board-wrap" role="region" aria-label="Chess board">
         <div id="board" 
              class="board" 
@@ -288,13 +266,12 @@
              tabindex="0"></div>
       </section>
 
-      <!-- Captured Pieces - White (Bottom) -->
       <section class="captured-tray bottom-tray" 
                role="region" 
                aria-label="Captured pieces by white">
         <div class="captured-header">
           <span class="captured-title">CAPTURED BY WHITE</span>
-          <div class="captured-count">+3</div>
+         
         </div>
         <div id="capturedByWhite" 
              class="captured-pieces" 
@@ -302,7 +279,6 @@
              aria-label="Pieces captured by white player"></div>
       </section>
 
-      <!-- Game End Overlay -->
       <dialog id="overlay" 
               class="overlay" 
               aria-labelledby="overlayTitle"
@@ -333,7 +309,6 @@
         </div>
       </dialog>
 
-      <!-- Promotion Overlay -->
       <dialog id="promotionOverlay" 
               class="overlay" 
               aria-labelledby="promotionTitle"
@@ -369,7 +344,6 @@
     </section>
   </main>
 
-  <!-- Application Script -->
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,88 +1,129 @@
-# ♟️ Chesstention
+<p align="center" style="margin-top: -20px; margin-bottom: -40px;">
+  <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="900" style="border-radius: 12px; box-shadow: 0 0 6px rgba(0,0,0,0.15);" />
+</p>
+
+
+<p align="center" style="color: #aaaaaa; font-size: 15px;">
+  A sleek, intelligent chess extension — play online, offline, or against adaptive AI.
+</p>
+
 
 <div align="center">
 
-**A modern chess extension with AI, online multiplayer, and professional-grade pieces**
-
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/chesstention)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstentionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://chrome.google.com/webstore)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--on-orange.svg)](https://addons.mozilla.org)
 
 </div>
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
-## ✨ Features
 
-<table>
-<tr>
-<td width="50%">
+## ✨ Highlights
+<div align="center">
 
-### 🎮 **Game Modes**
-- 🏠 **Local Play** - Hot-seat multiplayer
-- 🤖 **AI Challenge** - Intelligent opponents
-- 🌐 **Online Multiplayer** - Global matchmaking
+| | |
+|:--:|:--:|
+| 🌐 **Online Multiplayer** | Real-time WebSocket + WebRTC matches |
+| 🤖 **Adaptive AI** | Negamax + α-β pruning + positional heuristics |
+| 🏠 **Local Play** | Hot-seat 2-player mode |
+| 💾 **Smart Saving** | Resume games anytime |
+| 🔄 **Undo / Redo** | Full move history navigation |
 
-</td>
-<td width="50%">
+</div>
 
-### 🎨 **Visual Quality**
-- 🎯 **Lichess Maestro Pieces** - Tournament quality
-- 📐 **Board Coordinates** - Standard notation
-- ⚡ **Real-time Updates** - WebSocket powered
 
-</td>
-</tr>
-</table>
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
----
 
-## 🚀 Installation
+## 📸 In-game media
 
-### Chrome / Edge
-1. Download the latest release
-2. Extract the ZIP file
-3. Open `chrome://extensions/`
-4. Enable "Developer mode"
-5. Click "Load unpacked" → Select folder
-6. Pin the extension to toolbar
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <img src="images/readme1 (2).png" alt="Main Menu" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <sub><b>Main Menu</b><br><i>Select between Online, AI, or Local play modes instantly</i></sub>
+      </td>
+      <td align="center" width="50%">
+        <img src="media/readme1 (1).gif" alt="Chesstention Gameplay Demo" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <sub><b>Gameplay Demo</b><br><i>Board, moves, and AI in action</i></sub>
+      </td>
+    </tr>
+  </table>
+</div>
 
-### Firefox
-1. Download the latest release
-2. Open `about:debugging`
-3. Click "Load Temporary Add-on"
-4. Select `manifest.json`
 
----
 
-## 🎯 Quick Start
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/chesstention.git
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
-# Load as extension
-# Follow installation steps above
-```
 
-**That's it!** No accounts, no ads, no bloat.
 
----
+## 🧠 Engine Overview
 
-## 🛠️ Technical Stack
+> Built for realistic, tactical, and human-like chess play.
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Frontend** | Vanilla JavaScript | Zero dependencies |
-| **Styling** | CSS3 + Custom Properties | Modern responsive design |
-| **Graphics** | SVG | Scalable piece rendering |
-| **Networking** | WebSocket | Real-time multiplayer |
-| **Architecture** | Modular ES6+ | Clean, maintainable code |
+- **Negamax search** with α-β pruning & iterative deepening  
+- **Evaluation:** material, mobility, king safety, pawn structure  
+- **Heuristics:** MVV-LVA, history ordering  
+- **Dynamic difficulty:** adaptive depth & evaluation noise for realism  
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
-## 📊 Project Structure
+## 🔬 Deep AI Capabilities
+
+The custom engine is a highly capable and professionally engineered system, moving beyond simple minimax to achieve strategic depth:
+
+* **⚡️ Optimized Search Engine:** Utilizes **Iterative Deepening Search (IDS)** paired with **Transposition Tables (TT)**. This guarantees the engine finds the best move within its time limit and avoids re-evaluating identical positions, **significantly improving speed and maximum depth**.
+* **🎯 Tactical Depth (Q-Search):** An essential tactical layer that is activated at the end of the primary search. It specifically evaluates **forcing moves** (checks and captures) to prevent the "Horizon Effect" and ensures no immediate **tactical blunders** are missed.
+* **⚖️ Adaptive Evaluation & Game Phase:** The positional evaluation is **dynamic**, relying on a game phase calculation (based on remaining material). This allows the AI to correctly shift strategic focus:
+    * **Middlegame:** Prioritizes **King Safety** 👑, **Development**, and **Center Control**.
+    * **Endgame:** Prioritizes **King Activity** and the advanced push of **Passed Pawns** (using an exponential bonus).
+* **💡 Strategic Pattern Recognition:** The engine contains explicit logic for advanced chess concepts, including the detection and evaluation of favorable **Outposts**, the **Bishop Pair** advantage, and penalties for poor structure (e.g., Doubled/Isolated Pawns).
+* **🛡️ Tactical Awareness & Ordering:** Implements **$\text{MVV-LVA}$ (Most Valuable Victim - Least Valuable Attacker)** move ordering to prioritize dangerous captures. It also includes heuristics to recognize and exploit immediate **Forks**, **Pins**, and **Skewers**.
+* **📚 Opening Book:** Integrates a curated library of **top-engine opening lines**, ensuring the AI begins the game with theoretically sound and high-quality moves.
+
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
+## ⚙️ Tech Stack
+
+<div align="center">
+
+| Layer | Technology |
+|-------|-------------|
+| 🎮 Gameplay | Vanilla JavaScript (ES6 Modules) |
+| 🧩 Interface | CSS3 + Custom Themes |
+| 🔗 Networking | WebSocket + WebRTC |
+| 🧠 AI | Custom Negamax Engine |
+| 📦 Packaging | Chrome / Firefox Extension APIs |
+
+</div>
+
+
+<p align="center">
+  <img src="https://img.shields.io/badge/JavaScript-ES6+-yellow?logo=javascript&logoColor=white&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/WebSocket-Real--Time-blue?logo=websocket&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/CSS3-Responsive-blueviolet?logo=css3&logoColor=white&style=for-the-badge" />
+</p>
+
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
+
+## 🚀 Quick Install
+
+### 🧩 Chrome / Edge
+1. Download the latest release  
+2. Go to `chrome://extensions/` → enable **Developer Mode** 3. Click **Load unpacked** → select the folder  
+4. Pin **Chesstention** for quick access  
+
+### 🦊 Firefox
+1. Open `about:debugging` → **This Firefox** 2. Click **Load Temporary Add-on** → select `manifest.json`
+
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
+## 🧱 Project Structure
 
 ```
 chesstention/
@@ -95,68 +136,27 @@ chesstention/
 └── 📄 README.md        # Documentation
 ```
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
-## 🤝 Contributing
+## 💡 Roadmap
 
-We welcome contributions! Here's how to get started:
+- 📘 Opening Book & ECO support  
+- 🧠 ML-based evaluation tuning  
+- 💬 In-game chat  
+- 📱 PWA mobile version  
 
-### 🐛 **Bug Reports**
-- Use GitHub Issues
-- Include reproduction steps
-- Provide browser/OS details
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
-### ✨ **Feature Requests**
-- Describe the use case
-- Consider implementation complexity
-- Check existing issues first
+## 📜 License
 
-### 💻 **Code Contributions**
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Licensed under the **GNU AGPL-3.0**.  
+Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
 
----
-
-## 📄 License
-
-This project is licensed under the **GNU Affero General Public License v3.0**.
-
-### 🎨 **Chess Pieces Attribution**
-- **Source**: [Lichess Maestro Set](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
-- **License**: AGPL-3.0
-- **Attribution**: Lichess.org
-
----
-
-## 🌟 Why Chesstention?
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 <div align="center">
 
-| **For Beginners** | **For Casual Players** | **For Serious Players** |
-|:-----------------:|:---------------------:|:----------------------:|
-| 🎯 Visual guidance | ⚡ Quick games | 🏆 Tournament quality |
-| 📚 Learn notation | 🌐 Online play | 🧠 AI challenges |
-| 🎮 Easy interface | 📱 Any device | 📊 Professional pieces |
+**Built with ♟️, ❤️.**
 
-</div>
-
----
-
-## 📞 Support
-
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/chesstention/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/chesstention/discussions)
-- 📧 **Email**: [Contact Support](mailto:support@chesstention.com)
-
----
-
-<div align="center">
-
-**Built with ♟️ and ❤️ for chess enthusiasts worldwide**
-
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
-[![GitHub forks](https://img.shields.io/badge/github/forks/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
-
-</div>
+[![GitHub stars](https://img.shields.io/github/stars/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
+[![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
