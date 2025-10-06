@@ -181,27 +181,73 @@
              aria-label="Chess game"
              aria-hidden="true">
       
-      <!-- Game Status Bar -->
-      <header class="status-bar" role="banner">
-        <!-- Navigation -->
-        <button id="backToMenuBtn" 
-                class="back-btn" 
-                aria-label="Back to Menu" 
-                title="Back to Menu">
-          <svg xmlns="http://www.w3.org/2000/svg" 
-               width="22" 
-               height="22" 
-               viewBox="0 0 24 24"
-               fill="none" 
-               stroke="currentColor" 
-               stroke-width="2.2" 
-               stroke-linecap="round" 
-               stroke-linejoin="round"
-               aria-hidden="true">
-            <line x1="4" y1="12" x2="20" y2="12"></line>
-            <polyline points="10 6 4 12 10 18"></polyline>
-          </svg>
-        </button>
+      <!-- Modern Game Status Bar -->
+      <header class="game-header" role="banner">
+        <div class="header-container">
+          <!-- Left Navigation -->
+          <button id="backToMenuBtn" 
+                  class="nav-btn nav-btn--left" 
+                  aria-label="Back to Menu" 
+                  title="Back to Menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <polyline points="10 6 4 12 10 18"></polyline>
+            </svg>
+          </button>
+
+          <!-- Center Game Info -->
+          <div class="game-info">
+            <!-- Turn Indicator with Dot -->
+            <div class="turn-display">
+              <div class="turn-dot"></div>
+              <span id="turnIndicator" class="turn-text">White's Turn</span>
+            </div>
+            
+            <!-- Move Counter (removed - not needed) -->
+            
+            <!-- Theme Switcher -->
+            <div class="theme-switcher">
+              <button class="theme-option theme-classic active" data-theme="classic" title="Classic Theme">
+                <div class="theme-square"></div>
+              </button>
+              <button class="theme-option theme-green" data-theme="green" title="Forest Theme">
+                <div class="theme-square"></div>
+              </button>
+              <button class="theme-option theme-blue" data-theme="blue" title="Ocean Theme">
+                <div class="theme-square"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Controls -->
+          <div class="game-controls">
+            <button id="undoBtn" 
+                    class="nav-btn nav-btn--control" 
+                    aria-label="Undo Move"
+                    title="Undo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 14L4 9l5-5"></path>
+                <path d="M20 20v-7a4 4 0 00-4-4H4"></path>
+              </svg>
+            </button>
+            <button id="redoBtn" 
+                    class="nav-btn nav-btn--control" 
+                    aria-label="Redo Move"
+                    title="Redo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 14l5-5-5-5"></path>
+                <path d="M4 20v-7a4 4 0 014-4h12"></path>
+              </svg>
+            </button>
+            <button id="disconnectBtn" 
+                    class="nav-btn nav-btn--disconnect" 
+                    aria-label="Disconnect" 
+                    title="Leave Game" 
+                    style="display: none;">
+              ✕
+            </button>
+          </div>
+        </div>
 
         <!-- Game Status Banner -->
         <div id="banner" 
@@ -209,63 +255,22 @@
              aria-live="polite" 
              aria-atomic="true"
              role="status"></div>
-
-        <!-- Center Status Group -->
-        <div class="status-center">
-          <div id="turnIndicator" 
-               class="turn-indicator" 
-               role="status" 
-               aria-live="polite">
-            White's Turn
-          </div>
-
-          <!-- Theme Selector -->
-          <button id="themeBtn" 
-                  type="button" 
-                  class="theme-inline classic" 
-                  title="Toggle theme" 
-                  aria-label="Toggle theme"
-                  aria-pressed="false">
-            <span class="theme-indicator" aria-hidden="true"></span>
-            <span class="theme-indicator" aria-hidden="true"></span>
-            <span class="theme-indicator" aria-hidden="true"></span>
-          </button>
-
-          <div id="gameStatus" 
-               class="game-status" 
-               role="status" 
-               aria-live="polite"></div>
-        </div>
-
-        <!-- Game Controls -->
-        <nav class="nav-buttons" role="toolbar" aria-label="Game controls">
-          <button id="undoBtn" 
-                  class="undo-btn" 
-                  aria-label="Undo Move" 
-                  title="Undo">
-            ⤺
-          </button>
-          <button id="redoBtn" 
-                  class="redo-btn" 
-                  aria-label="Redo Move" 
-                  title="Redo">
-            ⤻
-          </button>
-          <button id="disconnectBtn" 
-                  class="disconnect-btn" 
-                  aria-label="Disconnect" 
-                  title="Leave Game" 
-                  style="display: none;">
-            ✕
-          </button>
-        </nav>
+        
+        <!-- Game Status Element -->
+        <div id="gameStatus" 
+             class="game-status" 
+             role="status" 
+             aria-live="polite"></div>
       </header>
 
       <!-- Captured Pieces - Black (Top) -->
       <section class="captured-tray top-tray" 
                role="region" 
                aria-label="Captured pieces by black">
-        <span class="captured-title" aria-hidden="true"></span>
+        <div class="captured-header">
+          <span class="captured-title">CAPTURED BY BLACK</span>
+          <div class="captured-count">+3</div>
+        </div>
         <div id="capturedByBlack" 
              class="captured-pieces" 
              role="list" 
@@ -287,7 +292,10 @@
       <section class="captured-tray bottom-tray" 
                role="region" 
                aria-label="Captured pieces by white">
-        <span class="captured-title" aria-hidden="true"></span>
+        <div class="captured-header">
+          <span class="captured-title">CAPTURED BY WHITE</span>
+          <div class="captured-count">+3</div>
+        </div>
         <div id="capturedByWhite" 
              class="captured-pieces" 
              role="list" 
@@ -358,10 +366,6 @@
         </div>
       </dialog>
 
-      <!-- Footer -->
-      <footer class="footer" role="contentinfo">
-        <small>Developed in unipd 2025</small>
-      </footer>
     </section>
   </main>
 
