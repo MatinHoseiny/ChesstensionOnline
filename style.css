@@ -971,6 +971,8 @@ body.theme-blue .header-container {
 }
 
 /* ======================= 13. OVERLAYS & MODALS ======================= */
+
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -1109,7 +1111,7 @@ body.theme-blue .header-container {
   padding: 14px 20px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;

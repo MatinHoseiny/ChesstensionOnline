@@ -83,6 +83,7 @@
   const overlayActionsEl= document.getElementById("overlayActions");
   const promotionOverlayEl = document.getElementById("promotionOverlay");
   const playAgainBtn   = document.getElementById("playAgainBtn");
+  const exitToMenuBtn  = document.getElementById("exitToMenuBtn");
   const cancelSearchBtn = document.getElementById("cancelSearchBtn");
   const capturedByWhiteEl = document.getElementById("capturedByWhite");
   const capturedByBlackEl = document.getElementById("capturedByBlack");
@@ -3525,8 +3526,11 @@ themeOptions.forEach(option => {
       if (playAgainBtn) playAgainBtn.style.display = 'block';
     }
     
-    // Hide exit to menu button for normal game end overlays (not disconnect)
+    // Hide header back button for normal game end overlays (not disconnect)
     if (backToMenuBtn) backToMenuBtn.style.display = 'none';
+    
+    // Show exit to menu button in overlay for game end scenarios
+    if (exitToMenuBtn) exitToMenuBtn.style.display = 'block';
     
     overlayEl.classList.add("visible");
     overlayEl.setAttribute("aria-hidden","false");
@@ -3572,8 +3576,22 @@ themeOptions.forEach(option => {
     // Add event listeners for the confirmation buttons
     document.getElementById('confirmLeaveBtn').addEventListener('click', () => {
       hideOverlay();
+      
+      // Handle different game modes
       if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
+        // Online game - cancel search and go to menu
         onlineChess.cancelSearch();
+        showMenuScreen();
+      } else if (aiEnabled) {
+        // AI game - clear state and go to menu
+        closeCpuTray();
+        closeJoinTray();
+        clearState();
+        showMenuScreen();
+      } else {
+        // Local game - just go to menu
+        closeCpuTray();
+        closeJoinTray();
         showMenuScreen();
       }
     });
@@ -3620,16 +3638,8 @@ themeOptions.forEach(option => {
     
     if (restoredBackToMenuBtn) {
       restoredBackToMenuBtn.addEventListener("click", ()=>{
-        // Check if we're in an online game and show confirmation
-        if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
-          showLeaveGameConfirmation();
-          return;
-        }
-        
-        closeCpuTray();
-        closeJoinTray();
-        clearState();
-        showMenuScreen();
+        // Show confirmation for all game modes
+        showLeaveGameConfirmation();
       });
     }
   }
@@ -3984,6 +3994,9 @@ themeOptions.forEach(option => {
         }
       }
     }
+    
+    // Save state after move is made (for AI games)
+    saveState();
   }
 
   /* ---------------- Flow ---------------- */
@@ -4081,7 +4094,6 @@ function closeJoinTray(){
     });
 
     // Exit to Menu button
-    const exitToMenuBtn = document.getElementById("exitToMenuBtn");
     if (exitToMenuBtn) exitToMenuBtn.addEventListener("click", ()=>{
       // Cancel online search if active
       if (typeof onlineChess !== 'undefined' && onlineChess.isWaiting) {
@@ -4201,16 +4213,8 @@ function closeJoinTray(){
     }
   });
   if (backToMenuBtn) backToMenuBtn.addEventListener("click", ()=>{
-    // Check if we're in an online game and show confirmation
-    if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
-      showLeaveGameConfirmation();
-      return;
-    }
-    
-    closeCpuTray();
-    closeJoinTray();
-    clearState();
-    showMenuScreen();
+    // Show confirmation for all game modes
+    showLeaveGameConfirmation();
   });
 
   window.addEventListener("keydown",(e)=>{
