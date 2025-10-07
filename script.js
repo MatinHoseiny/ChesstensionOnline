@@ -89,7 +89,10 @@
   const backToMenuBtn  = document.getElementById("backToMenuBtn");
   const undoBtn        = document.getElementById("undoBtn");
   const redoBtn        = document.getElementById("redoBtn");
-  
+  const playOnlineBtn = document.getElementById('playOnlineBtn');
+  const cancelBtn = document.getElementById("cancelSearchBtn"); 
+
+
   console.log('Button elements found:', {
     undoBtn: !!undoBtn,
     redoBtn: !!redoBtn,
@@ -329,29 +332,34 @@ class OnlineChess {
   }
   
   updateUI(state) {
-    const btn = document.getElementById('playOnlineBtn');
-    const cancelBtn = document.getElementById('cancelSearchBtn');
-    if (!btn) return;
-    
-    switch(state) {
-      case 'searching':
-        btn.textContent = 'Searching for opponent...';
-        btn.disabled = true;
-        if (cancelBtn) cancelBtn.style.display = 'flex';
-        if (disconnectBtn) disconnectBtn.style.display = 'none';
-        break;
-      case 'playing':
-        btn.textContent = 'Playing Online';
-        btn.disabled = true;
-        if (cancelBtn) cancelBtn.style.display = 'none';
-        if (disconnectBtn) disconnectBtn.style.display = 'block';
-        break;
-      case 'disconnected':
-        btn.textContent = 'Play Online';
-        btn.disabled = false;
-        if (cancelBtn) cancelBtn.style.display = 'none';
-        if (disconnectBtn) disconnectBtn.style.display = 'none';
-        break;
+  // ... inside updateUI(state) function
+const btn = document.getElementById('playOnlineBtn');
+if (!btn) return;
+const textContentSpan = btn.querySelector('.text-content');
+if (!textContentSpan) return;
+
+switch(state) {
+  case 'searching':
+    btn.classList.add('is-fading');
+    setTimeout(() => {
+      textContentSpan.textContent = 'Searching for opponent...';
+      btn.classList.remove('is-fading');
+    }, 300); // Wait for fade-out to complete
+    btn.disabled = true;
+    if (cancelBtn) cancelBtn.style.display = 'flex';
+    if (disconnectBtn) disconnectBtn.style.display = 'none';
+    break;
+
+  case 'disconnected':
+    btn.classList.add('is-fading');
+    setTimeout(() => {
+      textContentSpan.textContent = 'Play Online';
+      btn.classList.remove('is-fading');
+    }, 300); // Wait for fade-out to complete
+    btn.disabled = false;
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (disconnectBtn) disconnectBtn.style.display = 'none';
+    break;
     }
   }
   
@@ -486,7 +494,7 @@ updateProfilePreviewUI(PROFILE);
   /* ---------------- Theme ---------------- */
   const THEME_KEY="chesscursor:theme";
   let theme="classic";
-  let themeStyleEl=null;
+  let themeStyleEl=null; // (unused after fix)
   const THEMES={
     classic:{ light:"#f0d9b5", dark:"#b58863" },
     green:  { light:"#EEEED2", dark:"#769656" },
@@ -505,21 +513,21 @@ updateProfilePreviewUI(PROFILE);
   }
   function applyTheme(name){
     theme = THEMES[name] ? name : "classic";
-    const { light,dark } = THEMES[theme];
-    if (!themeStyleEl){
-      themeStyleEl=document.createElement("style");
-      themeStyleEl.id="chess-theme-style";
-      document.head.appendChild(themeStyleEl);
-    }
-    themeStyleEl.textContent = `
-      .light { background:${light} !important; }
-      .dark  { background:${dark}  !important; }
-    `;
+    const { light, dark } = THEMES[theme];
+    // Update board colors via CSS variables (affects only squares), not global .light/.dark classes
+    const root = document.documentElement;
+    root.style.setProperty('--light-square', light);
+    root.style.setProperty('--dark-square',  dark);
     syncThemeBtnUI();
-    if (typeof chrome !== "undefined" && chrome.storage?.local)
-      chrome.storage.local.set({ [THEME_KEY]:theme });
-    else
+    // Persist
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      chrome.storage.local.set({ [THEME_KEY]: theme });
+    } else {
       localStorage.setItem(THEME_KEY, theme);
+    }
+    // Update body class for header shadow, etc.
+    document.body.classList.remove('theme-classic', 'theme-green', 'theme-blue');
+    document.body.classList.add(`theme-${theme}`);
   }
   function loadTheme(){
     const set=(t)=>applyTheme(t||"classic");
@@ -3761,11 +3769,11 @@ themeOptions.forEach(option => {
     const turnDot = document.querySelector('.turn-dot');
     if (turnDot) {
       if (turn === 'w') {
-        turnDot.style.background = '#50FA7B';
-        turnDot.style.boxShadow = '0 0 8px rgba(80,250,123,0.6)';
+        turnDot.style.background = '#ffffffff';
+        turnDot.style.boxShadow = '0 0 8px rgba(222, 216, 216, 0.6)';
       } else {
-        turnDot.style.background = '#FF5555';
-        turnDot.style.boxShadow = '0 0 8px rgba(255,85,85,0.6)';
+        turnDot.style.background = '#444444ff';
+        turnDot.style.boxShadow = '0 0 8px rgba(0, 0, 0, 0.6)';
       }
     }
     }, 16); // ~60fps

@@ -31,23 +31,25 @@
     <section id="menuScreen" class="screen menu-screen is-active" aria-label="Main menu">
       <header class="menu">
         <div class="menu-header">
-          <img src="images/chesstention-logo.png" 
-               alt="Chesstention Logo" 
-               class="menu-logo-img"
-               width="350" 
-               height="auto"
-               loading="eager">
+          <a href="https://github.com/MatinHoseiny/ChesstensionOnline" target="_blank" rel="noopener noreferrer">
+  <img src="images/chesstention-logo.png" 
+       alt="Chesstention Logo" 
+       class="menu-logo-img"
+       width="350" 
+       height="auto"
+       loading="eager">
+</a>
         </div>
 
         <nav class="menu-buttons" role="navigation" aria-label="Game mode selection">
           <!-- Online Play Section -->
           <div id="playOnlineContainer" class="online-btn-container">
             <button id="playOnlineBtn" 
-                    type="button" 
-                    class="menu-btn menu-btn--primary"
-                    aria-describedby="online-description">
-              Play Online
-            </button>
+        type="button" 
+        class="menu-btn menu-btn--primary"
+        aria-describedby="online-description">
+  <span class="text-content">Play Online</span>
+</button>
             <button id="cancelSearchBtn" 
                     type="button" 
                     class="cancel-search-btn" 
@@ -200,7 +202,7 @@
             <!-- Turn Indicator with Dot -->
             <div class="turn-display">
               <div class="turn-dot"></div>
-              <span id="turnIndicator" class="turn-text">White's Turn</span>
+              <span id="turnIndicator" class="turn-text">White</span>
             </div>
             
             <!-- Move Counter (removed - not needed) -->
