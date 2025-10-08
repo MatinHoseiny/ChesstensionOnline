@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="850" style="border-radius: 12px; box-shadow: 0 0 8px rgba(0,0,0,0.15);" />
+<p align="center" style="margin-top: -20px; margin-bottom: -40px;">
+  <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="220" style="border-radius: 12px; box-shadow: 0 0 6px rgba(0,0,0,0.15);" />
 </p>
 
 
@@ -25,11 +25,20 @@
 | 🌐 **Online Multiplayer** | Real-time WebSocket + WebRTC matches |
 | 🤖 **Adaptive AI** | Negamax + α-β pruning + positional heuristics |
 | 🏠 **Local Play** | Hot-seat 2-player mode |
-| 🎨 **Modern Design** | Themed boards, Maestro pieces, video backgrounds |
 | 💾 **Smart Saving** | Resume games anytime |
 | 🔄 **Undo / Redo** | Full move history navigation |
 
 ---
+
+## 🖼️ Screenshots
+
+<p align="center">
+  <img src="images/readme1%20(1).png" alt="Chesstention Game Interface" width="420" style="border-radius: 10px; margin: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.25);" />
+  <img src="images/readme1%20(2).png" alt="Chesstention AI Gameplay" width="420" style="border-radius: 10px; margin: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.25);" />
+</p>
+
+---
+
 
 ## 🧠 Engine Overview
 
@@ -37,7 +46,7 @@
 
 - **Negamax search** with α-β pruning & iterative deepening  
 - **Evaluation:** material, mobility, king safety, pawn structure  
-- **Heuristics:** killer moves, MVV-LVA, history ordering  
+- **Heuristics:** MVV-LVA, history ordering  
 - **Dynamic difficulty:** adaptive depth & evaluation noise for realism  
 
 ---
@@ -49,7 +58,6 @@
 | 🎮 Gameplay | Vanilla JavaScript (ES6 Modules) |
 | 🧩 Interface | CSS3 + Custom Themes |
 | 🔗 Networking | WebSocket + WebRTC |
-| 💾 Storage | LocalStorage |
 | 🧠 AI | Custom Negamax Engine |
 | 📦 Packaging | Chrome / Firefox Extension APIs |
 
@@ -102,7 +110,7 @@ Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lich
 
 <div align="center">
 
-**Built with ♟️, ❤️, and pure JavaScript for chess lovers worldwide.**
+**Built with ♟️, ❤️.**
 
 [![GitHub stars](https://img.shields.io/github/stars/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
 [![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)

@@ -15,6 +15,6 @@
     "nodemon": "^3.0.1"
   },
   "keywords": ["chess", "websocket", "multiplayer", "game"],
-  "author": "Chesstention Team",
+  "author": "Matin Hosseini",
   "license": "AGPL-3.0"
 }
