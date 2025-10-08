@@ -67,9 +67,9 @@
 - **Dynamic difficulty:** adaptive depth & evaluation noise for realism  
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
-<p align ="center">
-## ⚙️ Tech Stack
 
+## ⚙️ Tech Stack
+<p align ="center">
 | Layer | Technology |
 |-------|-------------|
 | 🎮 Gameplay | Vanilla JavaScript (ES6 Modules) |
