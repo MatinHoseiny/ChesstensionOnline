@@ -2,9 +2,9 @@
 
 <div align="center">
 
-**A modern chess extension with AI, online multiplayer, and professional-grade pieces**
+**A sleek, intelligent chess extension — play online, offline, or against adaptive AI.**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/chesstention)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstentionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-green.svg)](https://chrome.google.com/webstore)
 [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--on-orange.svg)](https://addons.mozilla.org)
@@ -13,150 +13,84 @@
 
 ---
 
-## ✨ Features
+## ✨ Highlights
 
-<table>
-<tr>
-<td width="50%">
-
-### 🎮 **Game Modes**
-- 🏠 **Local Play** - Hot-seat multiplayer
-- 🤖 **AI Challenge** - Intelligent opponents
-- 🌐 **Online Multiplayer** - Global matchmaking
-
-</td>
-<td width="50%">
-
-### 🎨 **Visual Quality**
-- 🎯 **Lichess Maestro Pieces** - Tournament quality
-- 📐 **Board Coordinates** - Standard notation
-- ⚡ **Real-time Updates** - WebSocket powered
-
-</td>
-</tr>
-</table>
+| | |
+|:--|:--|
+| 🌐 **Online Multiplayer** | Real-time WebSocket + WebRTC matches |
+| 🤖 **Adaptive AI** | Negamax + α-β pruning + positional heuristics |
+| 🏠 **Local Play** | Hot-seat 2-player mode |
+| 🎨 **Modern Design** | Themed boards, Maestro pieces, video backgrounds |
+| 💾 **Smart Saving** | Resume games anytime |
+| 🔄 **Undo / Redo** | Full move history navigation |
 
 ---
 
-## 🚀 Installation
+## 🧠 Engine Overview
 
-### Chrome / Edge
-1. Download the latest release
-2. Extract the ZIP file
-3. Open `chrome://extensions/`
-4. Enable "Developer mode"
-5. Click "Load unpacked" → Select folder
-6. Pin the extension to toolbar
+> Designed for tactical depth and human-like play.
 
-### Firefox
-1. Download the latest release
-2. Open `about:debugging`
-3. Click "Load Temporary Add-on"
-4. Select `manifest.json`
+- **Search:** Negamax with α-β pruning & iterative deepening  
+- **Heuristics:** mobility, king safety, pawn structure, center control  
+- **Evaluation:** Piece-square tables + dynamic weighting  
+- **Move ordering:** MVV-LVA, killer, history heuristics  
+- **Difficulty scaling:** adaptive depth & randomness for realism  
 
 ---
 
-## 🎯 Quick Start
+## ⚙️ Tech Stack
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/chesstention.git
-
-# Load as extension
-# Follow installation steps above
-```
-
-**That's it!** No accounts, no ads, no bloat.
-
----
-
-## 🛠️ Technical Stack
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Frontend** | Vanilla JavaScript | Zero dependencies |
-| **Styling** | CSS3 + Custom Properties | Modern responsive design |
-| **Graphics** | SVG | Scalable piece rendering |
-| **Networking** | WebSocket | Real-time multiplayer |
-| **Architecture** | Modular ES6+ | Clean, maintainable code |
+| Layer | Technology |
+|-------|-------------|
+| 🎮 Gameplay | Vanilla JavaScript (ES6 Modules) |
+| 🧩 Interface | CSS3 + Custom Themes |
+| 🔗 Networking | WebSocket + WebRTC |
+| 💾 Storage | LocalStorage |
+| 🧠 AI | Custom Negamax Engine |
+| 📦 Packaging | Chrome / Firefox Extension APIs |
 
 ---
 
-## 📊 Project Structure
+## 🚀 Quick Install
 
-```
-chesstention/
-├── 📁 images/          # Chess pieces & icons
-├── 📁 media/           # Background videos
-├── 📄 manifest.json    # Extension manifest
-├── 📄 popup.html       # Main interface
-├── 📄 script.js        # Game logic
-├── 📄 style.css        # Styling
-└── 📄 README.md        # Documentation
-```
+### 🧩 Chrome / Edge
+1. Download the latest ZIP  
+2. Visit `chrome://extensions/` → enable **Developer Mode**  
+3. Click **Load unpacked** → select the folder  
+4. Pin **Chesstention** for easy access  
 
----
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how to get started:
-
-### 🐛 **Bug Reports**
-- Use GitHub Issues
-- Include reproduction steps
-- Provide browser/OS details
-
-### ✨ **Feature Requests**
-- Describe the use case
-- Consider implementation complexity
-- Check existing issues first
-
-### 💻 **Code Contributions**
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+### 🦊 Firefox
+1. Open `about:debugging` → **This Firefox**  
+2. Click **Load Temporary Add-on** → select `manifest.json`
 
 ---
 
-## 📄 License
+## 🧱 Project Structure
 
-This project is licensed under the **GNU Affero General Public License v3.0**.
-
-### 🎨 **Chess Pieces Attribution**
-- **Source**: [Lichess Maestro Set](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
-- **License**: AGPL-3.0
-- **Attribution**: Lichess.org
 
 ---
 
-## 🌟 Why Chesstention?
+## 💡 Roadmap
 
-<div align="center">
-
-| **For Beginners** | **For Casual Players** | **For Serious Players** |
-|:-----------------:|:---------------------:|:----------------------:|
-| 🎯 Visual guidance | ⚡ Quick games | 🏆 Tournament quality |
-| 📚 Learn notation | 🌐 Online play | 🧠 AI challenges |
-| 🎮 Easy interface | 📱 Any device | 📊 Professional pieces |
-
-</div>
+- 📘 Opening Book & ECO support  
+- 🧠 ML-based evaluation tuning  
+- 💬 In-game chat  
+- 📱 PWA mobile version  
 
 ---
 
-## 📞 Support
+## 📜 License
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/chesstention/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/chesstention/discussions)
-- 📧 **Email**: [Contact Support](mailto:support@chesstention.com)
+Licensed under the **GNU AGPL-3.0**.  
+Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lichess-org/lila/tree/master/public/piece/maestro).
 
 ---
 
 <div align="center">
 
-**Built with ♟️ and ❤️ for chess enthusiasts worldwide**
+**Built with ♟️, ❤️, and pure JavaScript for chess lovers worldwide.**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
-[![GitHub forks](https://img.shields.io/badge/github/forks/yourusername/chesstention?style=social)](https://github.com/yourusername/chesstention)
+[![GitHub stars](https://img.shields.io/github/stars/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
+[![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
 
 </div>
