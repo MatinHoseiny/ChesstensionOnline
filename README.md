@@ -39,17 +39,16 @@
   <table>
     <tr>
       <td align="center" width="50%">
-        <img src="images/readme1%20(2).png" alt="AI Gameplay" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
-        <sub><b>AI Challenge Mode</b><br><i>Adaptive opponent powered by Negamax search</i></sub>
+        <img src="media/game-demo.gif" alt="Chesstention Gameplay Demo" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <sub><b>Gameplay Demo</b><br><i>Board, moves, and AI in action</i></sub>
       </td>
       <td align="center" width="50%">
         <img src="images/readme1%20(1).png" alt="Local Multiplayer" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
-        <sub><b>Local Multiplayer</b><br><i>Play side-by-side with real pieces & custom themes</i></sub>
+        <sub><b>Local Multiplayer</b><br><i>Play side-by-side with custom themes</i></sub>
       </td>
     </tr>
   </table>
 </div>
-
 
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
