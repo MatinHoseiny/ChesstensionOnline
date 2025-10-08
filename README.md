@@ -3,9 +3,10 @@
 </p>
 
 
-<p align="center">
-  <b>A sleek, intelligent chess extension — play online, offline, or against adaptive AI.</b>
+<p align="center" style="color: #aaaaaa; font-size: 15px;">
+  A sleek, intelligent chess extension — play online, offline, or against adaptive AI.
 </p>
+
 
 <div align="center">
 
@@ -16,7 +17,8 @@
 
 </div>
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
 
 ## ✨ Highlights
 
@@ -28,25 +30,30 @@
 | 💾 **Smart Saving** | Resume games anytime |
 | 🔄 **Undo / Redo** | Full move history navigation |
 
----
-
-## 🖼️ Screenshots
-
-<table align="center">
-<tr>
-<td align="center" width="50%">
-  <img src="images/readme1%20(2).png" width="95%" style="border-radius:16px; box-shadow:0 0 12px rgba(0,0,0,0.25);" /><br>
-  <sub><b>AI Challenge Mode</b></sub>
-</td>
-<td align="center" width="50%">
-  <img src="images/readme1%20(1).png" width="95%" style="border-radius:16px; box-shadow:0 0 12px rgba(0,0,0,0.25);" /><br>
-  <sub><b>Local Multiplayer Interface</b></sub>
-</td>
-</tr>
-</table>
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 
----
+## 📸 Screenshots
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <img src="images/readme1%20(2).png" alt="AI Gameplay" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <sub><b>AI Challenge Mode</b><br><i>Adaptive opponent powered by Negamax search</i></sub>
+      </td>
+      <td align="center" width="50%">
+        <img src="images/readme1%20(1).png" alt="Local Multiplayer" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <sub><b>Local Multiplayer</b><br><i>Play side-by-side with real pieces & custom themes</i></sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
 
 
 ## 🧠 Engine Overview
@@ -58,7 +65,13 @@
 - **Heuristics:** MVV-LVA, history ordering  
 - **Dynamic difficulty:** adaptive depth & evaluation noise for realism  
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
+<p align="center">
+  <img src="https://img.shields.io/badge/JavaScript-ES6+-yellow?logo=javascript&logoColor=white&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/WebSocket-Real--Time-blue?logo=websocket&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/CSS3-Responsive-blueviolet?logo=css3&logoColor=white&style=for-the-badge" />
+</p>
 
 ## ⚙️ Tech Stack
 
@@ -70,7 +83,8 @@
 | 🧠 AI | Custom Negamax Engine |
 | 📦 Packaging | Chrome / Firefox Extension APIs |
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
 
 ## 🚀 Quick Install
 
@@ -85,6 +99,12 @@
 2. Click **Load Temporary Add-on** → select `manifest.json`
 
 ---
+## 🌐 Live Demo
+
+<p align="center">
+  🚀 Coming soon to the Chrome Web Store & Firefox Add-ons!
+</p>
+
 
 ## 🧱 Project Structure
 
