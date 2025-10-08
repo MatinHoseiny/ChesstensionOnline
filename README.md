@@ -69,7 +69,9 @@
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 ## ⚙️ Tech Stack
-<p align ="center">
+
+<div align="center">
+
 | Layer | Technology |
 |-------|-------------|
 | 🎮 Gameplay | Vanilla JavaScript (ES6 Modules) |
@@ -77,7 +79,9 @@
 | 🔗 Networking | WebSocket + WebRTC |
 | 🧠 AI | Custom Negamax Engine |
 | 📦 Packaging | Chrome / Firefox Extension APIs |
-</p>
+
+</div>
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/JavaScript-ES6+-yellow?logo=javascript&logoColor=white&style=for-the-badge" />
