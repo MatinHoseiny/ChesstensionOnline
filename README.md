@@ -23,6 +23,7 @@
 ## ✨ Highlights
 <div align="center">
 | | |
+|:--|:--|
 | 🌐 **Online Multiplayer** | Real-time WebSocket + WebRTC matches |
 | 🤖 **Adaptive AI** | Negamax + α-β pruning + positional heuristics |
 | 🏠 **Local Play** | Hot-seat 2-player mode |
