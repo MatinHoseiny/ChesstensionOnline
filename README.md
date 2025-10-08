@@ -21,14 +21,14 @@
 
 
 ## ✨ Highlights
-
+<div align="center">
 | | |
-|:--|:--|
 | 🌐 **Online Multiplayer** | Real-time WebSocket + WebRTC matches |
 | 🤖 **Adaptive AI** | Negamax + α-β pruning + positional heuristics |
 | 🏠 **Local Play** | Hot-seat 2-player mode |
 | 💾 **Smart Saving** | Resume games anytime |
 | 🔄 **Undo / Redo** | Full move history navigation |
+</div>
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
