@@ -1,5 +1,4 @@
 # Attribution
-
 ## Chess Pieces
 
 The chess pieces used in this extension are from the Lichess Maestro set:
