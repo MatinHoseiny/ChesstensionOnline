@@ -32,15 +32,18 @@
 
 ## 🖼️ Screenshots
 
-<p align="center">
-  <img src="images/readme1%20(2).png" alt="Chesstention AI Gameplay" width="420" style="border-radius:16px; margin:8px; box-shadow:0 0 12px rgba(0,0,0,0.25);" />
-  <img src="images/readme1%20(1).png" alt="Chesstention Game Interface" width="420" style="border-radius:16px; margin:8px; box-shadow:0 0 12px rgba(0,0,0,0.25);" />
-</p>
-
-<p align="center">
-  <sub><b>Left:</b> AI Challenge Mode — adaptive opponent powered by Negamax search.<br>
-  <b>Right:</b> Local Multiplayer — clean, modern chessboard with custom themes.</sub>
-</p>
+<table align="center">
+<tr>
+<td align="center" width="50%">
+  <img src="images/readme1%20(2).png" width="95%" style="border-radius:16px; box-shadow:0 0 12px rgba(0,0,0,0.25);" /><br>
+  <sub><b>AI Challenge Mode</b></sub>
+</td>
+<td align="center" width="50%">
+  <img src="images/readme1%20(1).png" width="95%" style="border-radius:16px; box-shadow:0 0 12px rgba(0,0,0,0.25);" /><br>
+  <sub><b>Local Multiplayer Interface</b></sub>
+</td>
+</tr>
+</table>
 
 
 ---
