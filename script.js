@@ -1,58 +1,42 @@
-/*
-  Chesstention – focused fixes build
-  - Background video fixed to media/menu-background.mp4
-  - "Play vs Computer" tray behaves correctly (no disabled side buttons, toggle active state)
-  - "Join/Create Room" button shows its panels
-  - Opening one tray closes the other (no overlap)
-  - No principal logic changes beyond the requested UI behavior
-*/
+/* Chesstension - Chess Extension */
 
 (() => {
-  // Suppress ResizeObserver loop warnings
   const originalError = console.error;
   console.error = function(...args) {
     if (args[0] && args[0].includes && args[0].includes('ResizeObserver loop completed with undelivered notifications')) {
-      return; // Suppress this specific warning
+      return;
     }
     originalError.apply(console, args);
   };
 
-  /* ---------------- Video bg (lock to menu-background.mp4) ---------------- */
   const bgVideoEl = document.getElementById("bgVideo");
   if (bgVideoEl) {
-    // Keep the <source> tag in HTML, but also set the element's src directly for reliability
     const fixedSrc =
       (typeof chrome !== "undefined" && chrome.runtime?.getURL)
         ? chrome.runtime.getURL("media/menu-background.mp4")
         : "media/menu-background.mp4";
     bgVideoEl.src = fixedSrc;
     
-    // Smooth video looping solution
     bgVideoEl.addEventListener('timeupdate', function() {
-      // When video is near the end (last 0.5 seconds), prepare for smooth loop
       if (this.duration - this.currentTime < 0.5) {
         this.style.opacity = '0.3';
       }
     });
     
     bgVideoEl.addEventListener('ended', function() {
-      // Fade out slightly before restarting
       this.style.opacity = '0.3';
       this.currentTime = 0;
       this.play();
-      // Fade back in after a brief moment
       setTimeout(() => {
         this.style.opacity = '0.55';
       }, 100);
     });
     
-    // Ensure smooth playback
     bgVideoEl.addEventListener('canplay', function() {
       this.style.opacity = '0.55';
     });
   }
 
-  /* ---------------- Pieces ---------------- */
   const PIECES = {
     w: { K:"images/w_king.svg", Q:"images/w_queen.svg", R:"images/w_rook.svg", B:"images/w_bishop.svg", N:"images/w_knight.svg", P:"images/w_pawn.svg" },
     b: { K:"images/b_king.svg", Q:"images/b_queen.svg", R:"images/b_rook.svg", B:"images/b_bishop.svg", N:"images/b_knight.svg", P:"images/b_pawn.svg" },
@@ -64,7 +48,6 @@
     } catch { return p; }
   };
 
-  /* ---------------- DOM ---------------- */
   const menuScreenEl   = document.getElementById("menuScreen");
   const gameScreenEl   = document.getElementById("gameScreen");
   const boardEl        = document.getElementById("board");
@@ -101,7 +84,6 @@
     redoBtnElement: redoBtn
   });
   
-  // Test function to show checkmate panel (for development)
   window.testCheckmatePanel = function() {
     console.log('Testing checkmate panel...');
     overlayTitleEl.textContent = "CHECKMATE";
@@ -116,11 +98,9 @@
   const disconnectBtn  = document.getElementById("disconnectBtn");
   let   themeBtn       = document.getElementById("themeBtn");
 
-  // Join/Create controls
   const openJoinPanelBtn = document.getElementById("openJoinPanel");
   const joinPanel        = document.getElementById("joinPanel");
   const createPanel      = document.getElementById("createPanel");
-// --- Profile DOM ---
 const profilePanel      = document.getElementById('profilePanel');
 const profileNameInput  = document.getElementById('profileName');
 const profilePicInput   = document.getElementById('profilePic');
@@ -129,9 +109,7 @@ const profileClearBtn   = document.getElementById('profileClearBtn');
 const profilePreviewImg = document.getElementById('profilePreview');
 const profilePreviewName= document.getElementById('profilePreviewName');
 
-// Bottom tabs removed
 
-// Online Chess System - Completely Rewritten
 class OnlineChess {
   constructor() {
     this.ws = null;
@@ -144,7 +122,6 @@ class OnlineChess {
   }
   
   connect() {
-    // Connect to public chess server
     this.ws = new WebSocket('wss://web-production-e734b.up.railway.app');
     
     this.ws.onopen = () => {
@@ -184,18 +161,15 @@ class OnlineChess {
   }
   
   findGame() {
-    // Don't start a new search if already in a game
     if (this.isOnline && !this.isWaiting) {
       return;
     }
     
-    // Ensure we're not in a game state
     this.isOnline = false;
     this.isWaiting = false;
     
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       this.connect();
-      // Wait for connection then find game
       this.ws.onopen = () => {
         this.sendFindGame();
       };
@@ -220,30 +194,24 @@ class OnlineChess {
     this.isOnline = true;
     this.isWaiting = false;
     
-    // Determine if it's my turn (white goes first)
     this.isMyTurn = (color === 'w');
     
     
-    // Start the game
     aiEnabled = false;
     resetGame();
     showGameScreen();
     this.updateUI('playing');
     
-    // Update turn indicator
     this.updateTurnIndicator();
     
-    // Force update the UI to show correct turn state
     updateAll();
   }
   
   applyOpponentMove(moveData) {
     
-    // Temporarily disable online checks for opponent moves
     const wasOnline = this.isOnline;
     this.isOnline = false;
     
-    // Use the existing makeMove function to properly apply the move
     const { from, to, meta } = moveData;
     suppressAIMove = true; // This is an opponent move, not a player move
     makeMove(from.r, from.c, to.r, to.c, meta);
@@ -323,7 +291,7 @@ class OnlineChess {
         turnIndicator.textContent = myTurn 
           ? `Your turn (${myColor})` 
           : `Waiting for ${opponentColor}`;
-        turnIndicator.className = `turn-indicator ${myTurn ? 'my-turn' : 'opponent-turn'}`;
+        turnIndicator.className = 'turn-indicator';
         
       } else {
         turnIndicator.textContent = turn === 'w' ? 'White to move' : 'Black to move';
@@ -464,16 +432,13 @@ function updateProfilePreviewUI(p){
 
 // Player info functionality removed
 
-  /* ---------------- Game state ---------------- */
   let board=null, turn="w", selected=null, legalMoves=[], boardFlipped=false;
   let enPassantTarget=null, castlingRights=null, capturedByWhite=[], capturedByBlack=[];
   let gameOver=false, lastMove=null, pendingPromotion=null;
   let aiEnabled=false, aiColor="b", aiDepth=4; // Enhanced depth with better evaluation
   
-  // Function to determine if board should be flipped
   function shouldFlipBoard() {
     if (typeof onlineChess !== 'undefined' && onlineChess.isOnline) {
-      // In online mode, flip if player is black
       return onlineChess.playerColor === 'b';
     } else if (aiEnabled) {
       // In AI mode, flip if player is black (opposite of AI color)
@@ -747,11 +712,9 @@ themeOptions.forEach(option => {
   function startingBoard(){
     const b=Array.from({length:8},()=>Array(8).fill(null));
     const put=(r,c,t,clr)=> b[r][c]={type:t,color:clr,hasMoved:false};
-    // black
     put(0,0,"R","b"); put(0,1,"N","b"); put(0,2,"B","b"); put(0,3,"Q","b");
     put(0,4,"K","b"); put(0,5,"B","b"); put(0,6,"N","b"); put(0,7,"R","b");
     for(let c=0;c<8;c++) put(1,c,"P","b");
-    // white
     for(let c=0;c<8;c++) put(6,c,"P","w");
     put(7,0,"R","w"); put(7,1,"N","w"); put(7,2,"B","w"); put(7,3,"Q","w");
     put(7,4,"K","w"); put(7,5,"B","w"); put(7,6,"N","w"); put(7,7,"R","w");
@@ -783,7 +746,6 @@ themeOptions.forEach(option => {
       return false;
     }
     
-    // pawns
     const pr = by==="w"? r+1 : r-1;
     for(const dc of [-1,1]){
       const rr=pr, cc=c+dc;
@@ -792,7 +754,6 @@ themeOptions.forEach(option => {
         if (p&&p.color===by&&p.type==="P") return true;
       }
     }
-    // knights
     for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){
       const rr=r+dr, cc=c+dc; if (!inBounds(rr,cc)) continue;
       const p=b[rr][cc]; if (p&&p.color===by&&p.type==="N") return true;
@@ -815,7 +776,6 @@ themeOptions.forEach(option => {
     
     if (inBounds(r1,c) && !b[r1][c]){
       if (isPromotion) {
-        // Generate all promotion moves
         out.push({r:r1,c,promote:"Q"});
         out.push({r:r1,c,promote:"R"});
         out.push({r:r1,c,promote:"B"});
@@ -830,7 +790,6 @@ themeOptions.forEach(option => {
       const cc=c+dc; if (!inBounds(r1,cc)) continue;
       const t=b[r1][cc]; if (t && t.color!==side) {
         if (isPromotion) {
-          // Generate all promotion captures
           out.push({r:r1,c:cc,promote:"Q"});
           out.push({r:r1,c:cc,promote:"R"});
           out.push({r:r1,c:cc,promote:"B"});
@@ -3773,7 +3732,10 @@ themeOptions.forEach(option => {
         boardEl.appendChild(d);
       }
     }
-    if (turnIndicatorEl) turnIndicatorEl.textContent = turn==="w"?"White's Turn":"Black's Turn";
+    if (turnIndicatorEl) {
+      turnIndicatorEl.textContent = turn==="w"?"White's Turn":"Black's Turn";
+      turnIndicatorEl.className = 'turn-indicator';
+    }
     
     // Update turn dot color
     const turnDot = document.querySelector('.turn-dot');

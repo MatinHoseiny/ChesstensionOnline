@@ -1,18 +1,11 @@
-/* ======================= CHESSTENTION STYLESHEET =======================
- * Organized for maximum efficiency and maintainability
- * Version: 1.0.0
- * Author: Chesstention Team
- * ====================================================================== */
+/* Chesstension Stylesheet */
 
-/* ======================= 1. CSS VARIABLES & ROOT ======================= */
+/* CSS Variables */
 :root {
-  /* Layout Variables */
   --cell: 54px;
   --board: calc(var(--cell) * 8);
   --radius: 14px;
   --gap: 10px;
-
-  /* Color System */
   --glass: rgba(255,255,255,0.06);
   --glass-strong: rgba(255,255,255,0.12);
   --text: #e8eef7;
@@ -20,8 +13,6 @@
   --accent: #6ee7b7;
   --accent-2: #93c5fd;
   --shadow: 0 10px 30px rgba(0,0,0,0.35);
-
-  /* Board Colors */
   --light-square: #f0d9b5;
   --dark-square: #b58863;
 
@@ -30,7 +21,6 @@
   --header-shadow-blue: rgba(48, 140, 194, 0.4);
 }
 
-/* ======================= 2. RESET & BASE STYLES ======================= */
 * {
   box-sizing: border-box;
 }
@@ -45,7 +35,6 @@ html, body {
   line-height: 1.35;
 }
 
-/* ======================= 3. LAYOUT CONTAINERS ======================= */
 #app {
   width: calc(var(--board) + 100px);
   padding: 16px;
@@ -81,7 +70,6 @@ html, body {
   z-index: 0;
 }
 
-/* ======================= 4. BUTTON SYSTEM ======================= */
 button {
   appearance: none;
   border: 1px solid var(--glass-strong);
@@ -118,7 +106,6 @@ button:active {
   transition: transform 0.1s ease;
 }
 
-/* Button Variants */
 .menu-btn {
   width: 100%;
   transition: all 0.5s ease;
@@ -159,7 +146,6 @@ button:active {
   box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
-/* Control Buttons */
 .back-btn, .undo-btn, .redo-btn, .disconnect-btn {
   display: flex;
   align-items: center;
@@ -190,7 +176,6 @@ button:active {
   transform: translateY(-1px);
 }
 
-/* Disabled undo/redo buttons in online mode */
 .undo-btn:disabled, .redo-btn:disabled {
   cursor: not-allowed;
   opacity: 0.3 !important;
@@ -205,7 +190,6 @@ button:active {
   transform: none !important;
 }
 
-/* ======================= 5. MODERN GAME HEADER ======================= */
 .game-header {
   margin-bottom: 0px;
 }
@@ -237,23 +221,7 @@ body.theme-blue .header-container {
   overflow: hidden;
   background-color: #2f313d;
 }
-/*.header-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background-image: url('images/chesstention-logo.png');
-  background-size: 420px;
-  background-repeat: no-repeat;
-  background-position: center;
-  filter: brightness(60%) opacity(20%);
-  transition: filter 0.4s ease;
-}*/
 
-/* Navigation Buttons */
 .nav-btn {
   background: transparent;
   border: none;
@@ -285,7 +253,6 @@ body.theme-blue .header-container {
   color: #FF6B6B;
 }
 
-/* Game Info Center */
 .game-info {
   display: flex;
   flex-direction: row;
@@ -295,7 +262,6 @@ body.theme-blue .header-container {
   justify-content: center;
 }
 
-/* Turn Display */
 .turn-display {
   display: flex;
   align-items: center;
@@ -328,7 +294,6 @@ body.theme-blue .header-container {
   font-size: 14px;
 }
 
-/* === FIX: Make theme swatches independent of current theme === */
 .theme-option .light, .theme-option .dark { background: transparent !important; }
 .theme-switcher {
   display: flex;
@@ -374,7 +339,6 @@ body.theme-blue .header-container {
   background: linear-gradient(135deg, #A0D0E0 0%, #A0D0E0 50%, #6090C0 50%, #6090C0 100%);
 }
 
-/* Game Controls */
 .game-controls {
   display: flex;
   gap: 8px;
@@ -382,7 +346,6 @@ body.theme-blue .header-container {
   margin-left: auto;
 }
 
-/* Game Status */
 .game-status {
   position: absolute;
   top: 100%;
@@ -422,16 +385,10 @@ body.theme-blue .header-container {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.turn-indicator.my-turn {
-  color: var(--accent);
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(110,231,183,0.4);
-}
-
-.turn-indicator.opponent-turn {
-  color: #f87171;
-  opacity: 0.7;
-  font-weight: 500;
+.turn-indicator {
+  color: #FFFFFF;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(255,255,255,0.4);
 }
 
 .game-status {
@@ -441,7 +398,6 @@ body.theme-blue .header-container {
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-/* ======================= 6. THEME SYSTEM ======================= */
 .theme-inline {
   display: flex;
   align-items: center;
@@ -485,7 +441,6 @@ body.theme-blue .header-container {
   box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
 }
 
-/* ======================= 7. BOARD SYSTEM ======================= */
 .board-wrap {
   position: relative;
   width: var(--board);
@@ -505,7 +460,6 @@ body.theme-blue .header-container {
   grid-template-rows: repeat(8, var(--cell));
   border-radius: var(--radius);
   overflow: hidden;
-  /* box-shadow will be set dynamically by JavaScript */
   margin: 0 auto;
   transition: box-shadow 0.3s ease, border 0.3s ease;
 }
@@ -559,7 +513,6 @@ body.theme-blue .header-container {
   box-shadow: inset 0 0 0 3px #ff4d4d;
 }
 
-/* Board Coordinates */
 .square::before {
   content: attr(data-rank);
   position: absolute;
@@ -597,7 +550,6 @@ body.theme-blue .header-container {
   position: absolute;
 }
 
-/* ======================= 8. PIECES & MOVES ======================= */
 .piece {
   width: calc(var(--cell) - 12px);
   height: calc(var(--cell) - 12px);
@@ -632,7 +584,6 @@ body.theme-blue .header-container {
 }
 
 
-/* Move Indicators */
 .move-indicator {
   position: absolute;
   top: 50%;
@@ -663,7 +614,6 @@ body.theme-blue .header-container {
   transform: translate(-50%, -50%);
 }
 
-/* ======================= 9. CAPTURED PIECES ======================= */
 .captured-tray {
   width: calc(var(--board) - 40px);
   margin: 20px auto;
@@ -734,7 +684,6 @@ body.theme-blue .header-container {
   opacity: 0.9;
 }
 
-/* ======================= 10. MENU SYSTEM ======================= */
 .menu-screen {
   width: calc(var(--board));
   margin: 0 auto;
@@ -837,7 +786,6 @@ body.theme-blue .header-container {
   position: relative;
 }
 
-/* ======================= 11. FORM ELEMENTS ======================= */
 .input {
   appearance: none;
   border: 1px solid var(--glass-strong);
@@ -860,7 +808,6 @@ body.theme-blue .header-container {
   border-color: var(--accent-2);
 }
 
-/* ======================= 12. PANELS & MODALS ======================= */
 .cpu-options {
   display: flex;
   gap: 12px;
@@ -970,25 +917,25 @@ body.theme-blue .header-container {
   letter-spacing: 0.2px;
 }
 
-/* ======================= 13. OVERLAYS & MODALS ======================= */
 
 
 .overlay {
   position: fixed;
   inset: 0;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   z-index: 50;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .overlay.visible {
-  display: flex;
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
 
@@ -1007,7 +954,6 @@ body.theme-blue .header-container {
   font-family: 'IBM Plex Sans', sans-serif;
 }
 
-/* Force remove any borders from overlay and its children */
 .overlay,
 .overlay *,
 .overlay-card,
@@ -1017,7 +963,6 @@ body.theme-blue .header-container {
   box-shadow: none !important;
 }
 
-/* Close overlay button */
 .close-overlay-btn {
   position: absolute;
   top: 12px;
@@ -1043,7 +988,6 @@ body.theme-blue .header-container {
   outline-offset: 2px;
 }
 
-/* ======================= 14. LEAVE GAME CONFIRMATION PANEL ======================= */
 .overlay-card.leave-game-panel {
   min-width: 300px !important;
   max-width: 90vw;
@@ -1063,7 +1007,6 @@ body.theme-blue .header-container {
   order: 2; /* Cancel button on right */
 }
 
-/* ======================= 15. DISCONNECT NOTIFICATION PANEL ======================= */
 .overlay-card.disconnect-panel {
   min-width: 280px !important;
   max-width: 90vw;
@@ -1142,7 +1085,6 @@ body.theme-blue .header-container {
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
-/* ======================= 14. BANNERS & NOTIFICATIONS ======================= */
 .banner {
   display: none;
   width: 100%;
@@ -1176,7 +1118,6 @@ body.theme-blue .header-container {
   border-color: rgba(147,197,253,0.35);
 }
 
-/* ======================= 15. BACKGROUND & MEDIA ======================= */
 .bg-video, .bg-dim {
   position: fixed;
   inset: 0;
@@ -1208,7 +1149,6 @@ body.theme-blue .header-container {
   }
 }
 
-/* ======================= 16. GAME STATES ======================= */
 body.game-active #app {
   border-radius: 12px;
   border: 1px solid #44475A;
@@ -1230,9 +1170,7 @@ body.game-active #app {
   gap: 4px;
 }
 
-/* Keep menu background visible when game is active */
 
-/* ======================= 17. ONLINE FEATURES ======================= */
 .online-btn-container {
   position: relative;
   display: inline-block;
@@ -1271,7 +1209,6 @@ body.game-active #app {
   filter: none;
 }
 
-/* ======================= 18. FOOTER ======================= */
 .footer {
   width: calc(var(--board) * 0.90);
   margin: 8px auto 0;
@@ -1289,7 +1226,6 @@ body.game-active #app {
   opacity: 0.8;
 }
 
-/* ======================= 19. RESPONSIVE DESIGN ======================= */
 @media (max-width: 520px) {
   :root {
     --cell: 46px;
@@ -1312,8 +1248,6 @@ body.game-active #app {
   }
 }
 
-/* ======================= 20. UTILITY CLASSES ======================= */
-/* Screen reader only text */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1326,7 +1260,6 @@ body.game-active #app {
   border: 0;
 }
 
-/* Promotion options styling */
 .promotion-options {
   display: flex;
   gap: 12px;
@@ -1356,7 +1289,6 @@ body.game-active #app {
   box-shadow: 0 0 0 1px rgba(16,185,129,0.25) inset;
 }
 
-/* Active states for specific buttons */
 #toggleAiBtn.is-active,
 #openJoinPanel.is-active {
   border-color: #10b98155;
