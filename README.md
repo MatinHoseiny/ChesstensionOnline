@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="600" style="border-radius: 12px; box-shadow: 0 0 8px rgba(0,0,0,0.15);" />
+  <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="850" style="border-radius: 12px; box-shadow: 0 0 8px rgba(0,0,0,0.15);" />
 </p>
 
 
