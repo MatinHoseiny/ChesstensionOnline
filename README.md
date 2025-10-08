@@ -67,12 +67,6 @@
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
-<p align="center">
-  <img src="https://img.shields.io/badge/JavaScript-ES6+-yellow?logo=javascript&logoColor=white&style=for-the-badge" />
-  <img src="https://img.shields.io/badge/WebSocket-Real--Time-blue?logo=websocket&style=for-the-badge" />
-  <img src="https://img.shields.io/badge/CSS3-Responsive-blueviolet?logo=css3&logoColor=white&style=for-the-badge" />
-</p>
-
 ## ⚙️ Tech Stack
 
 | Layer | Technology |
@@ -82,6 +76,13 @@
 | 🔗 Networking | WebSocket + WebRTC |
 | 🧠 AI | Custom Negamax Engine |
 | 📦 Packaging | Chrome / Firefox Extension APIs |
+
+
+<p align="center">
+  <img src="https://img.shields.io/badge/JavaScript-ES6+-yellow?logo=javascript&logoColor=white&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/WebSocket-Real--Time-blue?logo=websocket&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/CSS3-Responsive-blueviolet?logo=css3&logoColor=white&style=for-the-badge" />
+</p>
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
@@ -98,13 +99,7 @@
 1. Open `about:debugging` → **This Firefox**  
 2. Click **Load Temporary Add-on** → select `manifest.json`
 
----
-## 🌐 Live Demo
-
-<p align="center">
-  🚀 Coming soon to the Chrome Web Store & Firefox Add-ons!
-</p>
-
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 ## 🧱 Project Structure
 
@@ -119,7 +114,7 @@ chesstention/
 └── 📄 README.md        # Documentation
 ```
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 ## 💡 Roadmap
 
@@ -128,14 +123,14 @@ chesstention/
 - 💬 In-game chat  
 - 📱 PWA mobile version  
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 ## 📜 License
 
 Licensed under the **GNU AGPL-3.0**.  
 Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
 
----
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 <div align="center">
 
