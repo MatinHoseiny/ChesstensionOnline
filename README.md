@@ -38,20 +38,18 @@
 <div align="center">
   <table>
     <tr>
-      <!-- LEFT COLUMN (Main Menu) -->
       <td align="center" width="50%">
-        <img src="images/readme1%20(2).png" alt="Main Menu" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <img src="images/readme1 (2).png" alt="Main Menu" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
         <sub><b>Main Menu</b><br><i>Select between Online, AI, or Local play modes instantly</i></sub>
       </td>
-
-      <!-- RIGHT COLUMN (Gameplay GIF) -->
       <td align="center" width="50%">
-        <img src="media/readme1%20(1).gif" alt="Chesstention Gameplay Demo" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <img src="media/readme1 (1).gif" alt="Chesstention Gameplay Demo" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
         <sub><b>Gameplay Demo</b><br><i>Board, moves, and AI in action</i></sub>
       </td>
     </tr>
   </table>
 </div>
+
 
 
 
