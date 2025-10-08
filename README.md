@@ -39,12 +39,12 @@
   <table>
     <tr>
       <td align="center" width="50%">
-        <img src="media/game-demo.gif" alt="Chesstention Gameplay Demo" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <img src="media/readme1 (1).gif" alt="Chesstention Gameplay Demo" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
         <sub><b>Gameplay Demo</b><br><i>Board, moves, and AI in action</i></sub>
       </td>
       <td align="center" width="50%">
-        <img src="images/readme1%20(1).png" alt="Local Multiplayer" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
-        <sub><b>Local Multiplayer</b><br><i>Play side-by-side with custom themes</i></sub>
+        <img src="images/readme1 (2).png" alt="Main Menu" width="95%" style="border-radius:14px; box-shadow:0 0 15px rgba(0,0,0,0.35); margin:8px;" /><br>
+        <sub><b>Local Multiplayer</b><br><i>Select between Online, AI, or Local play modes instantly</i></sub>
       </td>
     </tr>
   </table>
