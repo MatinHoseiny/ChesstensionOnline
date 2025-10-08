@@ -1,8 +1,14 @@
-# ♟️ Chesstention
+<p align="center">
+  <img src="images/chesstention-logo.png" alt="Chesstention Logo" width="220" style="border-radius: 12px; box-shadow: 0 0 8px rgba(0,0,0,0.15);" />
+</p>
+
+<h1 align="center">♟️ Chesstention</h1>
+
+<p align="center">
+  <b>A sleek, intelligent chess extension — play online, offline, or against adaptive AI.</b>
+</p>
 
 <div align="center">
-
-**A sleek, intelligent chess extension — play online, offline, or against adaptive AI.**
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/MatinHoseiny/ChesstentionOnline)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
@@ -28,13 +34,12 @@
 
 ## 🧠 Engine Overview
 
-> Designed for tactical depth and human-like play.
+> Built for realistic, tactical, and human-like chess play.
 
-- **Search:** Negamax with α-β pruning & iterative deepening  
-- **Heuristics:** mobility, king safety, pawn structure, center control  
-- **Evaluation:** Piece-square tables + dynamic weighting  
-- **Move ordering:** MVV-LVA, killer, history heuristics  
-- **Difficulty scaling:** adaptive depth & randomness for realism  
+- **Negamax search** with α-β pruning & iterative deepening  
+- **Evaluation:** material, mobility, king safety, pawn structure  
+- **Heuristics:** killer moves, MVV-LVA, history ordering  
+- **Dynamic difficulty:** adaptive depth & evaluation noise for realism  
 
 ---
 
@@ -54,10 +59,10 @@
 ## 🚀 Quick Install
 
 ### 🧩 Chrome / Edge
-1. Download the latest ZIP  
-2. Visit `chrome://extensions/` → enable **Developer Mode**  
+1. Download the latest release  
+2. Go to `chrome://extensions/` → enable **Developer Mode**  
 3. Click **Load unpacked** → select the folder  
-4. Pin **Chesstention** for easy access  
+4. Pin **Chesstention** for quick access  
 
 ### 🦊 Firefox
 1. Open `about:debugging` → **This Firefox**  
@@ -66,10 +71,6 @@
 ---
 
 ## 🧱 Project Structure
-
-
-
-
 
 ```
 chesstention/
@@ -81,7 +82,6 @@ chesstention/
 ├── 📄 style.css        # Styling
 └── 📄 README.md        # Documentation
 ```
-
 
 ---
 
@@ -97,7 +97,7 @@ chesstention/
 ## 📜 License
 
 Licensed under the **GNU AGPL-3.0**.  
-Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lichess-org/lila/tree/master/public/piece/maestro).
+Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lichess-org/lila/tree/master/public/piece/maestro)
 
 ---
 
@@ -109,4 +109,3 @@ Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lich
 [![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
 
 </div>
-
