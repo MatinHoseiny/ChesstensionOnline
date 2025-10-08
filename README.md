@@ -68,6 +68,21 @@
 ## 🧱 Project Structure
 
 
+
+
+
+```
+chesstention/
+├── 📁 images/          # Chess pieces & icons
+├── 📁 media/           # Background videos
+├── 📄 manifest.json    # Extension manifest
+├── 📄 popup.html       # Main interface
+├── 📄 script.js        # Game logic
+├── 📄 style.css        # Styling
+└── 📄 README.md        # Documentation
+```
+
+
 ---
 
 ## 💡 Roadmap
@@ -94,3 +109,4 @@ Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lich
 [![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
 
 </div>
+
