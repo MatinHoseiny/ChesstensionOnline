@@ -12,9 +12,15 @@
     "ws": "^8.14.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "puppeteer": "^24.23.0"
   },
-  "keywords": ["chess", "websocket", "multiplayer", "game"],
+  "keywords": [
+    "chess",
+    "websocket",
+    "multiplayer",
+    "game"
+  ],
   "author": "Matin Hosseini",
   "license": "AGPL-3.0"
 }
