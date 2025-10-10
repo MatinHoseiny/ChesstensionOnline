@@ -72,6 +72,21 @@
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
+## 🔬 Deep AI Capabilities
+
+The custom engine is a highly capable and professionally engineered system, moving beyond simple minimax to achieve strategic depth:
+
+* **Optimized Search:** Utilizes **Iterative Deepening Search (IDS)** paired with **Transposition Tables (TT)**. This guarantees the engine finds the best move within its time limit and avoids re-evaluating identical positions, significantly improving speed and depth.
+* **Quiescence Search (Q-Search):** An essential tactical layer that is activated at the end of the primary search. It specifically evaluates **forcing moves** (checks and captures) to prevent the "Horizon Effect" and ensures no immediate tactical blunders are missed.
+* **Adaptive Evaluation & Game Phase:** The positional evaluation is **dynamic**, relying on a $\text{game phase}$ calculation (based on remaining material). This allows the AI to correctly shift strategic focus:
+    * **Middlegame:** Prioritizes **King Safety**, **Development**, and **Center Control**.
+    * **Endgame:** Prioritizes **King Activity** and the advanced push of **Passed Pawns** (using an exponential bonus).
+* **Strategic Pattern Recognition:** The engine contains explicit logic for advanced chess concepts, including the detection and evaluation of favorable **Outposts**, the **Bishop Pair** advantage, and penalties for poor structure (e.g., **Doubled/Isolated Pawns**).
+* **Tactical Awareness & Ordering:** Implements **$\text{MVV-LVA}$ (Most Valuable Victim - Least Valuable Attacker)** move ordering to prioritize dangerous captures. It also includes heuristics to recognize and exploit immediate **Forks**, **Pins**, and **Skewers**.
+* **Opening Book:** Integrates a curated library of top-engine opening lines, ensuring the AI begins the game with theoretically sound and high-quality moves.
+
+<hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
+
 ## ⚙️ Tech Stack
 
 <div align="center">
@@ -100,13 +115,11 @@
 
 ### 🧩 Chrome / Edge
 1. Download the latest release  
-2. Go to `chrome://extensions/` → enable **Developer Mode**  
-3. Click **Load unpacked** → select the folder  
+2. Go to `chrome://extensions/` → enable **Developer Mode** 3. Click **Load unpacked** → select the folder  
 4. Pin **Chesstention** for quick access  
 
 ### 🦊 Firefox
-1. Open `about:debugging` → **This Firefox**  
-2. Click **Load Temporary Add-on** → select `manifest.json`
+1. Open `about:debugging` → **This Firefox** 2. Click **Load Temporary Add-on** → select `manifest.json`
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
@@ -147,5 +160,3 @@ Pieces by **Lichess Maestro Set** – [AGPL-3.0 License](https://github.com/lich
 
 [![GitHub stars](https://img.shields.io/github/stars/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
 [![GitHub forks](https://img.shields.io/github/forks/MatinHoseiny/ChesstentionOnline?style=social)](https://github.com/MatinHoseiny/ChesstentionOnline)
-
-</div>
