@@ -37,7 +37,7 @@
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
 
-## 📸 Screenshots
+## 📸 In-game media
 
 <div align="center">
   <table>
@@ -76,14 +76,14 @@
 
 The custom engine is a highly capable and professionally engineered system, moving beyond simple minimax to achieve strategic depth:
 
-* **Optimized Search:** Utilizes **Iterative Deepening Search (IDS)** paired with **Transposition Tables (TT)**. This guarantees the engine finds the best move within its time limit and avoids re-evaluating identical positions, significantly improving speed and depth.
-* **Quiescence Search (Q-Search):** An essential tactical layer that is activated at the end of the primary search. It specifically evaluates **forcing moves** (checks and captures) to prevent the "Horizon Effect" and ensures no immediate tactical blunders are missed.
-* **Adaptive Evaluation & Game Phase:** The positional evaluation is **dynamic**, relying on a $\text{game phase}$ calculation (based on remaining material). This allows the AI to correctly shift strategic focus:
-    * **Middlegame:** Prioritizes **King Safety**, **Development**, and **Center Control**.
+* **⚡️ Optimized Search Engine:** Utilizes **Iterative Deepening Search (IDS)** paired with **Transposition Tables (TT)**. This guarantees the engine finds the best move within its time limit and avoids re-evaluating identical positions, **significantly improving speed and maximum depth**.
+* **🎯 Tactical Depth (Q-Search):** An essential tactical layer that is activated at the end of the primary search. It specifically evaluates **forcing moves** (checks and captures) to prevent the "Horizon Effect" and ensures no immediate **tactical blunders** are missed.
+* **⚖️ Adaptive Evaluation & Game Phase:** The positional evaluation is **dynamic**, relying on a game phase calculation (based on remaining material). This allows the AI to correctly shift strategic focus:
+    * **Middlegame:** Prioritizes **King Safety** 👑, **Development**, and **Center Control**.
     * **Endgame:** Prioritizes **King Activity** and the advanced push of **Passed Pawns** (using an exponential bonus).
-* **Strategic Pattern Recognition:** The engine contains explicit logic for advanced chess concepts, including the detection and evaluation of favorable **Outposts**, the **Bishop Pair** advantage, and penalties for poor structure (e.g., **Doubled/Isolated Pawns**).
-* **Tactical Awareness & Ordering:** Implements **$\text{MVV-LVA}$ (Most Valuable Victim - Least Valuable Attacker)** move ordering to prioritize dangerous captures. It also includes heuristics to recognize and exploit immediate **Forks**, **Pins**, and **Skewers**.
-* **Opening Book:** Integrates a curated library of top-engine opening lines, ensuring the AI begins the game with theoretically sound and high-quality moves.
+* **💡 Strategic Pattern Recognition:** The engine contains explicit logic for advanced chess concepts, including the detection and evaluation of favorable **Outposts**, the **Bishop Pair** advantage, and penalties for poor structure (e.g., Doubled/Isolated Pawns).
+* **🛡️ Tactical Awareness & Ordering:** Implements **$\text{MVV-LVA}$ (Most Valuable Victim - Least Valuable Attacker)** move ordering to prioritize dangerous captures. It also includes heuristics to recognize and exploit immediate **Forks**, **Pins**, and **Skewers**.
+* **📚 Opening Book:** Integrates a curated library of **top-engine opening lines**, ensuring the AI begins the game with theoretically sound and high-quality moves.
 
 <hr style="height:2px;border:none;background:linear-gradient(90deg,#00c6ff,#0072ff);border-radius:1px;">
 
