@@ -1,4 +1,3 @@
-
 .env*
 config.json
 secrets.json
@@ -23,3 +22,4 @@ Thumbs.db
 images/icon-source.png
 .railway/
 railway.json
+node_modules
