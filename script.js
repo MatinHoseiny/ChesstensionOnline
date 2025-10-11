@@ -554,8 +554,12 @@ themeOptions.forEach(option => {
         }
       });
     else {
-      const raw=localStorage.getItem(STORAGE_KEY);
-      cb(raw?JSON.parse(raw):null);
+      try {
+        const raw=localStorage.getItem(STORAGE_KEY);
+        cb(raw?JSON.parse(raw):null);
+      } catch (e) {
+        cb(null);
+      }
     }
   }
   function clearState(){
