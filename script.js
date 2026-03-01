@@ -464,7 +464,8 @@ updateProfilePreviewUI(PROFILE);
   const THEMES={
     classic:{ light:"#f0d9b5", dark:"#b58863" },
     green:  { light:"#EEEED2", dark:"#769656" },
-    blue:   { light:"#f0f0dc", dark:"#3c70a4" }
+    blue:   { light:"#f0f0dc", dark:"#3c70a4" },
+    purple: { light:"#ffffff", dark:"#a78bfa" }
   };
   function syncThemeBtnUI(){
     // Remove active class from all theme options
@@ -492,7 +493,7 @@ updateProfilePreviewUI(PROFILE);
       localStorage.setItem(THEME_KEY, theme);
     }
     // Update body class for header shadow, etc.
-    document.body.classList.remove('theme-classic', 'theme-green', 'theme-blue');
+    document.body.classList.remove('theme-classic', 'theme-green', 'theme-blue', 'theme-purple');
     document.body.classList.add(`theme-${theme}`);
   }
   function loadTheme(){

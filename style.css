@@ -19,6 +19,7 @@
   --header-shadow-classic: rgba(195, 139, 93, 0.4);
   --header-shadow-green: rgba(132, 189, 74, 0.4);
   --header-shadow-blue: rgba(48, 140, 194, 0.4);
+  --header-shadow-purple: rgba(167, 139, 250, 0.4);
 }
 
 * {
@@ -204,6 +205,10 @@ body.theme-green .header-container {
 body.theme-blue .header-container {
   box-shadow: 0 2px 8px var(--header-shadow-blue);
 }
+
+body.theme-purple .header-container {
+  box-shadow: 0 2px 8px var(--header-shadow-purple);
+}
 .header-container {
   background: #2f313d;
   border: 1px solid #1c1e26;
@@ -337,6 +342,10 @@ body.theme-blue .header-container {
 
 .theme-option.theme-blue .theme-square {
   background: linear-gradient(135deg, #A0D0E0 0%, #A0D0E0 50%, #6090C0 50%, #6090C0 100%);
+}
+
+.theme-option.theme-purple .theme-square {
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 50%, #a78bfa 50%, #a78bfa 100%);
 }
 
 .game-controls {
